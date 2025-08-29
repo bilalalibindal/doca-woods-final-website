@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================
+// ENUM TANIMLAMALARI
+// =============================================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING     // Beklemede
+  APPROVED    // Onaylandı
+  PREPARING   // Hazırlanıyor
+  SHIPPED     // Kargolandı
+  DELIVERED   // Teslim Edildi
+  CANCELLED   // İptal Edildi
+}
+
+// =============================================================
+// MODELLER
+// =============================================================
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  phone     String?   // Telefonu opsiyonel yapmak daha esnektir.
+  role      UserRole  @default(USER)
+  
+  addresses Address[]
+  orders    Order[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Address {
+  id           String  @id @default(cuid())
+  addressTitle String
+  ulke         String
+  sehir        String
+  mahalle      String
+  sokak        String
+  no           String
+  postaKodu    String
+  tarif        String
+  varsayilan   Boolean @default(false)
+
+  // Bir kullanıcı silindiğinde, ona ait adresler de silinsin.
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String 
+
+  // Bir adres birden çok siparişte kullanılabilir.
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String @unique
+
+  // Bir kategori, birden çok üründe kullanılabilir.
+  products Product[]
+
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @db.Text
+  images      String[]
+  price       Float
+  inStock     Boolean  @default(true)
+  stockCount  Int      @default(0)
+  material    String
+  color       String
+  sku         String   @unique
+
+  sizeWidth   Float?
+  sizeHeight  Float?
+  sizeDepth   Float?
+
+  // Bir ürün, bir kategoriye ait olabilir.
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  // Bir ürün, birden çok sipariş kaleminde (farklı siparişlerde) yer alabilir.
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+model Order {
+  id                  String      @id @default(cuid())
+  totalPrice          Float
+  status              OrderStatus @default(PENDING)
+  shippingTrackingUrl String?
+  customizationImages String[]    @default([]) // Boş dizi olarak varsayılan değer ekledik.
+
+  // İlişkiler
+  // Bir sipariş, bir müşteriye ait olabilir.
+  customer  User    @relation(fields: [customerId], references: [id])
+  customerId String
+  
+  // Bir sipariş, bir adres ile ilişkilidir.
+  address   Address @relation(fields: [addressId], references: [id])
+  addressId String
+
+  // Siparişin içindeki "fiş satırları"
+  items     OrderItem[]
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([customerId])
+  @@index([addressId])
+}
+
+// "Market Fişi Satırı" - Sipariş ve Ürünler arasındaki ara tablo
+model OrderItem {
+  id         String  @id @default(cuid())
+  quantity   Int
+  price      Float // Sipariş anındaki ürün fiyatını saklamak önemlidir.
+
+  // İlişkiler
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  @@index([orderId])
+  @@index([productId])
+}
+
