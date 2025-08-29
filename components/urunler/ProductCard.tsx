@@ -155,30 +155,41 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      {/* ... (diğer kısımlar aynı) ... */}
       <div className="flex flex-1 flex-col p-4">
+        {/* 1. Ürün Adı: Üste taşındı, ortalandı, büyütüldü ve büyük harf yapıldı */}
+        <div className="mb-3 text-center">
+          <Link
+            href={`/urunler/${product._id}`}
+            className="hover:text-amber-700"
+          >
+            <h3
+              className="text-lg font-bold uppercase text-gray-900"
+              title={product.name}
+            >
+              {product.name}
+            </h3>
+          </Link>
+        </div>
+
+        {/* Kategori ve Açıklama Alanı */}
         <div className="mb-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <Link
               href={`/urunler/${product._id}`}
               className="hover:text-amber-700"
             >
-              <div className="inline-flex items-center gap-1 mb-3 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-200/80 shadow-sm">
-                <HashtagIcon className="h-4 w-4 shrink-0 text-white-400" />
+              <div className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-200/80 shadow-sm">
+                <HashtagIcon className="h-4 w-4 shrink-0 text-amber-500" />
                 <span>{product.category?.name}</span>
               </div>
-              <h3
-                className="truncate text-sm font-semibold text-gray-900"
-                title={product.name}
-              >
-                {product.name}
-              </h3>
             </Link>
           </div>
         </div>
         <p className="mb-3 line-clamp-3 text-xs text-gray-600">
           {product.description}
         </p>
+
+        {/* 2. Özellikler: Başlık ve içerik font boyutları standart hale getirildi */}
         <div className="mb-4 grid grid-cols-2 gap-2">
           <div className="rounded-md bg-amber-50 p-2">
             <div className="text-sm font-bold text-orange-800">Malzeme</div>
@@ -190,31 +201,28 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
           {product.size && (
             <div className="rounded-md bg-amber-50 p-2">
-              {" "}
               <div className="text-sm font-bold text-orange-800">
-                {" "}
-                Boyut (GxYxD){" "}
-              </div>{" "}
-              <div className="text-sm text-amber-950">
-                {" "}
+                Boyut (GxYxD)
+              </div>
+              {/* İçerik boyutu 'text-xs' olarak standartlaştırıldı */}
+              <div className="text-xs text-amber-950">
                 {product.size.width} x {product.size.height} x{" "}
-                {product.size.depth} cm{" "}
-              </div>{" "}
+                {product.size.depth} cm
+              </div>
             </div>
           )}
           {product.weight && (
             <div className="rounded-md bg-orange-50 p-2">
-              {" "}
-              <div className="text-sm font-bold text-orange-800">
-                Ağırlık
-              </div>{" "}
-              <div className="text-sm text-amber-950">
-                {" "}
-                {product.weight.value} {product.weight.unit}{" "}
-              </div>{" "}
+              <div className="text-sm font-bold text-orange-800">Ağırlık</div>
+              {/* İçerik boyutu 'text-xs' olarak standartlaştırıldı */}
+              <div className="text-xs text-amber-950">
+                {product.weight.value} {product.weight.unit}
+              </div>
             </div>
           )}
         </div>
+
+        {/* Fiyat ve Sepete Ekle Butonu (Değişiklik yapılmadı) */}
         <div className="mt-auto flex flex-col items-center gap-3">
           <div className="inline-flex items-center gap-2 rounded-lg bg-emerald-100 px-3 py-1.5 text-lg font-bold text-emerald-800">
             <TagIcon className="h-5 w-5" />
