@@ -1,0 +1,63 @@
+---
+description: "Core development rules for the Doca Woods project. Enforces modern architecture (Next.js, Prisma, Zustand), code quality, and a consistent UI/UX. The primary language for UI text is Turkish."
+globs:
+  - "**/*" # Apply these rules to all files in the project
+alwaysApply: true
+---
+
+# Core Development Rules for Doca Woods Project
+
+This file contains the foundational principles for all AI-generated code in this project.
+**Tech Stack:** Next.js (App Router), Prisma, Zustand, Tailwind CSS, MongoDB.
+
+## 1. AI Behavior & Core Principles
+
+- **Focused Edits:** Only edit the specific parts of the code requested by the user. Do not refactor, change, or "improve" unrelated code unless explicitly asked to do so.
+- **Language & Localization:** All user-facing text (UI labels, buttons, messages, notifications, etc.) **must be in Turkish**. Code, comments, variable names, and file names **must be in English**.
+
+## 2. Database & Prisma Rules (Critical)
+
+- **Schema First:** All database models must be defined **exclusively in the `prisma/schema.prisma`** file. Never use Mongoose or any other schema definition method.
+- **Prisma Client Only:** All database operations (read, write, update, delete) must be performed **using only the Prisma Client**.
+- **Enforce the Singleton Pattern:** To prevent too many database connections in development, use a singleton instance for the Prisma Client, typically defined in a helper file like `lib/prisma.ts`.
+- **Migrations:** After any change in `schema.prisma`, remember that the `npx prisma migrate dev` command must be run to update the database.
+- **Generate Client:** After updating `schema.prisma`, the `npx prisma generate` command must be run to update the TypeScript types for the Prisma Client.
+
+## 3. Architecture & Code Structure
+
+- **Modularity & Separation of Concerns (SoC):**
+  - Break down React components into small, reusable, single-purpose pieces. If a component grows beyond 200 lines, it must be refactored into smaller sub-components.
+  - Separate server-side logic (database queries, complex data manipulation) from UI components. Move this logic into **Next.js Server Actions (`actions.ts`)** or API Routes (`route.ts`).
+- **Server & Client Component Distinction:**
+  - If a component does not require interactivity (hooks like `useState`, `useEffect`, or event handlers like `onClick`), it must remain a **Server Component**.
+  - Only use the `'use client';` directive for components that absolutely need browser-side interactivity.
+
+## 4. Frontend & User Interface (UI/UX)
+
+- **Icon Usage:**
+  - **Never use emojis** in the user interface.
+  - For icons, always use the **`@heroicons/react`** library to ensure visual consistency.
+- **Design Principles:**
+  - Always create **modern, clean, and user-friendly** designs.
+  - Use ample **whitespace** to create a spacious and readable layout.
+  - Adhere to the project's primary color palette of **wood, amber, and orange tones**.
+  - **Font & Text Color:** For body text, use a dark, high-contrast, and readable color (like `text-slate-800` or `text-gray-900`) on light backgrounds. Avoid using light gray colors for text.
+  - **Typography:** Use a clean, modern, sans-serif font family (like Inter, Manrope, or the system default). Ensure a clear typographic hierarchy (distinct sizes for headings, subheadings, and paragraphs).
+  - **Interactive Elements:** All interactive elements like dropdowns, tabs, and modals must be implemented using the **`@headlessui/react`** library for accessibility and consistency. They must be styled to match the project's aesthetic.
+  - Always provide UI for **loading, error, and empty states** to give clear feedback to the user. Do not leave a blank page.
+
+## 5. Code Quality & Best Practices
+
+- **Comments:**
+  - Add short, concise comments to explain complex or critical parts of the code, such as business logic or complex algorithms. Do not over-comment simple code.
+- **Naming Conventions:**
+  - All variables, functions, and component names must be descriptive, clear, and in **English**. (e.g., `ProductGrid`, `sendOrderConfirmationEmail`).
+- **TypeScript Usage:**
+  - Always use TypeScript's strong typing system. **Avoid using the `any` type at all costs.**
+  - Use Prisma's auto-generated types for all database-related operations to ensure type safety (e.g., `import { Product, Order } from '@prisma/client'`).
+- **Error Handling:**
+  - All asynchronous operations that can fail (API calls, database queries, Server Actions) **must be wrapped in `try...catch` blocks**.
+  - Return meaningful and structured error messages from APIs and Server Actions.
+- **Environment Variables:**
+  - **Never hardcode sensitive information** (API keys, database URLs, secrets) directly in the code.
+  - Always use environment variables (`process.env.VARIABLE_NAME`) and keep them in a `.env` file. Maintain a `.env.example` file with placeholder values in the repository.
