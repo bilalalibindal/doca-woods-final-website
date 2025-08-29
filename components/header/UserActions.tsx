@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { HiHeart, HiShoppingCart, HiUser, HiBars3 } from "react-icons/hi2";
-import { useCart } from "@/contexts/CartContext";
+import { HiShoppingCart, HiUser, HiBars3 } from "react-icons/hi2";
+import { useCartStore } from "@/stores/cartStore"; // DEĞİŞİKLİK 1: Eski context yerine yeni Zustand store'u import ediyoruz.
 
 interface UserActionsProps {
   onMenuToggle: () => void;
 }
 
 const UserActions = ({ onMenuToggle }: UserActionsProps) => {
-  const { totalItems } = useCart();
+  // DEĞİŞİKLİK 2: useCart() yerine useCartStore() kullanıyoruz.
+  // Sadece 'totalItems' state'ine abone oluyoruz. Bu, gereksiz render'ları önler.
+  const totalItems = useCartStore((state) => state.totalItems);
 
   return (
     <div className="flex items-center space-x-4">

@@ -3,7 +3,7 @@
 import React from "react";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import { IProduct } from "@/types/productTypes";
-import { useCart } from "@/contexts/CartContext";
+import { useCartStore } from "@/stores/cartStore"; // DEĞİŞİKLİK 1: Eski context yerine yeni Zustand store'u import ediyoruz.
 
 interface AddCardButtonProps {
   product: IProduct;
@@ -16,19 +16,17 @@ export default function AddCardButton({
   className,
   fullWidth = false,
 }: AddCardButtonProps) {
-  const { addItem } = useCart();
+  // DEĞİŞİKLİK 2: useCart() yerine useCartStore() kullanıyoruz.
+  const { addItem } = useCartStore();
 
   const isOutOfStock = !product.inStock || product.stockCount <= 0;
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    addItem({
-      id: product._id,
-      name: product.name,
-      price: product.price,
-      image: product.images?.[0],
-      stockCount: product.stockCount,
-    });
+
+    // DEĞİŞİKLİK 3: Yeni addItem fonksiyonumuz doğrudan tüm 'product' objesini kabul ediyor.
+    // Bu, kodumuzu daha temiz ve basit hale getirir.
+    addItem(product);
   };
 
   return (
