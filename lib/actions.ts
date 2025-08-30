@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { toast } from "react-toastify";
-
+import prisma from "@/lib/prisma";
 // Product actions
 export async function createProduct(formData: FormData) {
   try {
@@ -94,20 +94,15 @@ export async function updateProduct(id: string, formData: FormData) {
 
 export async function deleteProduct(id: string) {
   try {
-    const response = await fetch(`/api/admin/products/${id}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      throw new Error("API endpoint not available");
-    }
+    await prisma.product.delete({ where: { id } });
 
     revalidatePath("/admin/products");
-    return { success: true };
+    return { success: true, message: "Ürün başarıyla silindi." };
   } catch (error) {
-    console.log("Product would be deleted:", id);
-    revalidatePath("/admin/products");
-    return { success: true };
+    return {
+      success: false,
+      message: "Ürün silinemedi. Bir hata oluştu.",
+    };
   }
 }
 
@@ -142,72 +137,64 @@ export async function updateOrderStatus(id: string, formData: FormData) {
   }
 }
 
-// Category actions
+// Kategori Oluşturma
 export async function createCategory(formData: FormData) {
   try {
-    const categoryData = {
-      name: formData.get("name") as string,
-    };
-
-    const response = await fetch("/api/admin/categories", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(categoryData),
-    });
-
-    if (!response.ok) {
-      throw new Error("API endpoint not available");
+    const name = formData.get("name") as string;
+    if (!name) {
+      return { success: false, message: "Kategori adı boş olamaz." };
     }
 
-    revalidatePath("/admin/categories");
-    return { success: true };
-  } catch (error) {
-    console.log("Category would be created:", Object.fromEntries(formData));
-    revalidatePath("/admin/categories");
-    return { success: true };
+    await prisma.category.create({ data: { name } });
+
+    revalidatePath("/admin/products");
+    return { success: true, message: "Kategori başarıyla oluşturuldu." };
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      // Prisma unique constraint error code
+      return {
+        success: false,
+        message: "Bu isimde bir kategori zaten mevcut.",
+      };
+    }
+    return {
+      success: false,
+      message: "Kategori oluşturulurken bir hata oluştu.",
+    };
   }
 }
 
+// Kategori Güncelleme
 export async function updateCategory(id: string, formData: FormData) {
   try {
-    const categoryData = {
-      name: formData.get("name") as string,
-    };
-
-    const response = await fetch(`/api/admin/categories/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(categoryData),
-    });
-
-    if (!response.ok) {
-      throw new Error("API endpoint not available");
+    const name = formData.get("name") as string;
+    if (!name) {
+      return { success: false, message: "Kategori adı boş olamaz." };
     }
 
-    revalidatePath("/admin/categories");
-    return { success: true };
+    await prisma.category.update({ where: { id }, data: { name } });
+
+    revalidatePath("/admin/products");
+    return { success: true, message: "Kategori başarıyla güncellendi." };
   } catch (error) {
-    console.log("Category would be updated:", id, Object.fromEntries(formData));
-    revalidatePath("/admin/categories");
-    return { success: true };
+    return {
+      success: false,
+      message: "Kategori güncellenirken bir hata oluştu.",
+    };
   }
 }
 
+// Kategori Silme
 export async function deleteCategory(id: string) {
   try {
-    const response = await fetch(`/api/admin/categories/${id}`, {
-      method: "DELETE",
-    });
+    await prisma.category.delete({ where: { id } });
 
-    if (!response.ok) {
-      throw new Error("API endpoint not available");
-    }
-
-    revalidatePath("/admin/categories");
-    return { success: true };
+    revalidatePath("/admin/products");
+    return { success: true, message: "Kategori başarıyla silindi." };
   } catch (error) {
-    console.log("Category would be deleted:", id);
-    revalidatePath("/admin/categories");
-    return { success: true };
+    return {
+      success: false,
+      message: "Kategori silinemedi. Bu kategoriye bağlı ürünler olabilir.",
+    };
   }
 }

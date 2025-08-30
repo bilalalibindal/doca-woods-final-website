@@ -4,7 +4,7 @@ import { ProductForm } from "@/components/admin/product/product-form";
 import { Button } from "@/components/ui/button";
 import { Plus, PencilIcon } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/data";
-import { CategoryModal } from "@/components/admin/product/category-modal";
+import { CategoryManager } from "@/components/admin/product/category-manager";
 
 export default async function ProductsPage() {
   const [products, categories] = await Promise.all([
@@ -20,7 +20,7 @@ export default async function ProductsPage() {
           <p className="text-muted-foreground">Manage your product inventory</p>
         </div>
         <div className="flex gap-2">
-          <CategoryModal
+          <CategoryManager
             categories={categories}
             trigger={
               <Button className="bg-amber-600 hover:bg-amber-700">

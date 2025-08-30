@@ -20,15 +20,7 @@ export default function AdminLayout({
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <AdminHeader />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            newestOnTop
-            theme="light"
-          />
-        </main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );
