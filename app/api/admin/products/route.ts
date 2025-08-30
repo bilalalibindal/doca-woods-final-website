@@ -102,7 +102,16 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
+    // 2.1 name unique kontrolü
+    const productExists = await prisma.product.findUnique({
+      where: { name },
+    });
+    if (productExists) {
+      return NextResponse.json(
+        { message: "Bu ürün adı zaten kullanılıyor." },
+        { status: 400 }
+      );
+    }
     // 3. Prisma ile yeni ürün oluşturma
     const newProduct = await prisma.product.create({
       data: {

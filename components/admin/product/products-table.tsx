@@ -29,6 +29,7 @@ import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { ProductForm } from "@/components/admin/product/product-form";
 import { deleteProduct } from "@/lib/actions";
 import type { Product, Category } from "@/types/admin";
+import Image from "next/image";
 
 interface ProductsTableProps {
   products: Product[];
@@ -80,8 +81,10 @@ export function ProductsTable({ products, categories }: ProductsTableProps) {
 
       <div className="border rounded-lg">
         <Table>
+          {/* IMAGE'EKLE*/}
           <TableHeader>
             <TableRow>
+              <TableHead></TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
@@ -97,6 +100,14 @@ export function ProductsTable({ products, categories }: ProductsTableProps) {
               );
               return (
                 <TableRow key={product.id}>
+                  <TableCell className="font-medium">
+                    <Image
+                      src={product.images[0]}
+                      alt={product.name}
+                      width={50}
+                      height={50}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{category?.name}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>

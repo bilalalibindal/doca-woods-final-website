@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { toast } from "react-toastify";
 
 // Product actions
 export async function createProduct(formData: FormData) {
@@ -34,10 +35,12 @@ export async function createProduct(formData: FormData) {
     });
 
     if (!response.ok) {
+      toast.error("Ürün oluşturulurken bir hata oluştu");
       throw new Error("API endpoint not available");
     }
 
     revalidatePath("/admin/products");
+    toast.success("Ürün başarıyla oluşturuldu");
     return { success: true };
   } catch (error) {
     console.log("Product would be created:", Object.fromEntries(formData));

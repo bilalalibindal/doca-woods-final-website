@@ -45,7 +45,6 @@ export interface Address {
 export interface Category {
   id: string;
   name: string;
-  products: Product[];
 }
 
 export interface Product {
@@ -59,14 +58,13 @@ export interface Product {
   material: string;
   color: string;
   sku: string;
-  sizeWidth?: number;
-  sizeHeight?: number;
-  sizeDepth?: number;
+  sizeWidth?: number | null;
+  sizeHeight?: number | null;
+  sizeDepth?: number | null;
   categoryId: string;
   category: Category;
-  orderItems: OrderItem[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 export interface Order {

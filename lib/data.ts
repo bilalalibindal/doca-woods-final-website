@@ -6,6 +6,7 @@ import {
   mockRevenueData,
 } from "./mockData";
 import type { Product, Order, Category } from "@/types/admin";
+import prisma from "@/lib/prisma";
 
 // Dashboard data fetching
 export async function getDashboardStats() {
@@ -41,10 +42,21 @@ export async function getRecentOrders() {
 // Products data fetching
 export async function getProducts(): Promise<Product[]> {
   try {
-    const response = await fetch("/api/admin/products");
-    if (!response.ok) throw new Error("API endpoint not available");
-    return await response.json();
+    const products = await prisma.product.findMany({
+      include: {
+        category: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    if (!products) {
+      console.error("Ürünler alınamadı, mockProducts gösteriliyor");
+      return mockProducts;
+    }
+    return products;
   } catch (error) {
+    console.error("Ürünler alınamadı, mockProducts gösteriliyor:", error);
     return mockProducts;
   }
 }
@@ -83,9 +95,13 @@ export async function getOrder(id: string): Promise<Order | null> {
 // Categories data fetching
 export async function getCategories(): Promise<Category[]> {
   try {
-    const response = await fetch("/api/admin/categories");
-    if (!response.ok) throw new Error("API endpoint not available");
-    return await response.json();
+    const categories = await prisma.category.findMany();
+    if (!categories) {
+      console.error("Kategoriler alınamadı, mockCategories gösteriliyor");
+      return mockCategories;
+    }
+
+    return categories;
   } catch (error) {
     return mockCategories;
   }

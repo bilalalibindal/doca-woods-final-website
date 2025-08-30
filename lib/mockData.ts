@@ -169,11 +169,11 @@ export const mockDashboardStats = [
 ];
 
 export const mockCategories: Category[] = [
-  { id: "cat_001", name: "Electronics", products: [] },
-  { id: "cat_002", name: "Clothing", products: [] },
-  { id: "cat_003", name: "Home & Garden", products: [] },
-  { id: "cat_004", name: "Sports", products: [] },
-  { id: "cat_005", name: "Books", products: [] },
+  { id: "cat_001", name: "Electronics" },
+  { id: "cat_002", name: "Clothing" },
+  { id: "cat_003", name: "Home & Garden" },
+  { id: "cat_004", name: "Sports" },
+  { id: "cat_005", name: "Books" },
 ];
 
 export const mockProducts: Product[] = [
@@ -193,9 +193,8 @@ export const mockProducts: Product[] = [
     sizeDepth: 8,
     categoryId: "cat_001",
     category: mockCategories[0],
-    orderItems: [],
-    createdAt: new Date("2024-01-01"),
-    updatedAt: new Date("2024-01-01"),
+    createdAt: new Date("2024-01-01").toISOString(),
+    updatedAt: new Date("2024-01-01").toISOString(),
   },
   {
     id: "prod_002",
@@ -213,9 +212,8 @@ export const mockProducts: Product[] = [
     sizeDepth: 30,
     categoryId: "cat_002",
     category: mockCategories[1],
-    orderItems: [],
-    createdAt: new Date("2024-01-02"),
-    updatedAt: new Date("2024-01-02"),
+    createdAt: new Date("2024-01-02").toISOString(),
+    updatedAt: new Date("2024-01-02").toISOString(),
   },
   {
     id: "prod_003",
@@ -233,9 +231,8 @@ export const mockProducts: Product[] = [
     sizeDepth: 30,
     categoryId: "cat_003",
     category: mockCategories[2],
-    orderItems: [],
-    createdAt: new Date("2024-01-03"),
-    updatedAt: new Date("2024-01-03"),
+    createdAt: new Date("2024-01-03").toISOString(),
+    updatedAt: new Date("2024-01-03").toISOString(),
   },
   {
     id: "prod_004",
@@ -253,9 +250,8 @@ export const mockProducts: Product[] = [
     sizeDepth: 30,
     categoryId: "cat_004",
     category: mockCategories[3],
-    orderItems: [],
-    createdAt: new Date("2024-01-04"),
-    updatedAt: new Date("2024-01-04"),
+    createdAt: new Date("2024-01-04").toISOString(),
+    updatedAt: new Date("2024-01-04").toISOString(),
   },
   {
     id: "prod_005",
@@ -273,9 +269,8 @@ export const mockProducts: Product[] = [
     sizeDepth: 3,
     categoryId: "cat_005",
     category: mockCategories[4],
-    orderItems: [],
-    createdAt: new Date("2024-01-05"),
-    updatedAt: new Date("2024-01-05"),
+    createdAt: new Date("2024-01-05").toISOString(),
+    updatedAt: new Date("2024-01-05").toISOString(),
   },
 ];
 
