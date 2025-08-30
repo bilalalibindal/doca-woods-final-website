@@ -1,0 +1,9 @@
+// =============================================================
+// Admin API'LAR
+// =============================================================
+
+- Categories:  GET,POST,PUT,DELETE | OK.
+- Products:  GET,POST,PUT,DELETE | OK.
+- Orders: 
+- Customers: 
+- Inventory: 

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// Kategori listeleme
+// =============================================================
+// Kategori listeleme (GET)
+// =============================================================
 export async function GET(request: NextRequest) {
   try {
     const categories = await prisma.category.findMany();
@@ -25,7 +27,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Kategori ekleme
+// =============================================================
+// Kategori ekleme (POST)
+// =============================================================
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -55,7 +59,10 @@ export async function POST(request: NextRequest) {
         name: body.name,
       },
     });
-    return NextResponse.json(category, { status: 201 });
+    return NextResponse.json(
+      { category, message: "Kategori başarıyla oluşturuldu" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(

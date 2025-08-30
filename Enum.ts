@@ -4,12 +4,12 @@ export enum UserRole {
 }
 
 export enum ProductStatus {
-  PENDING = "pending",
-  APPROVED = "approved",
-  PREPARING = "preparing",
-  SHIPPED = "shipped",
-  DELIVERED = "delivered",
-  CANCELLED = "cancelled",
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  PREPARING = "PREPARING",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum TableNameType {
