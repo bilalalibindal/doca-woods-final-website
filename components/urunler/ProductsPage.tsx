@@ -23,7 +23,7 @@ export default function ProductsPage() {
   const filteredProducts: IProduct[] = useMemo(() => {
     if (selectedCategoryIds.length === 0) return products;
     return products.filter((p) =>
-      selectedCategoryIds.includes(p.category?._id ?? "")
+      selectedCategoryIds.includes(p.category?.id ?? "")
     );
   }, [products, selectedCategoryIds]);
 

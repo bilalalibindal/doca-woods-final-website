@@ -25,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { createProduct, updateProduct } from "@/lib/actions";
 import type { Product, Category } from "@/types/admin";
 import ImageUpload from "@/components/ImageUpload";
+import { toastAlert } from "@/components/toastAlert";
 
 interface ProductFormProps {
   product?: Product;
@@ -43,15 +44,16 @@ export function ProductForm({
 
   const handleSubmit = async (formData: FormData) => {
     // Add images to form data
-    images.forEach((image, index) => {
-      formData.append(`image_${index}`, image);
+    images.forEach((image) => {
+      formData.append("images", image);
     });
-    formData.append("images_count", images.length.toString());
 
     if (isEditing) {
-      await updateProduct(product.id, formData);
+      const response = await updateProduct(product.id, formData);
+      toastAlert(response);
     } else {
-      await createProduct(formData);
+      const response = await createProduct(formData);
+      toastAlert(response);
     }
     setOpen(false);
   };

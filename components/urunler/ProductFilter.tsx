@@ -63,18 +63,18 @@ export default function ProductFilter({
             ) : (
               <ul className="space-y-2">
                 {categories.map((cat: ICategory) => {
-                  const checked = selectedCategoryIds.includes(cat._id);
+                  const checked = selectedCategoryIds.includes(cat.id);
                   return (
-                    <li key={cat._id} className="flex items-center gap-2">
+                    <li key={cat.id} className="flex items-center gap-2">
                       <input
-                        id={`cat-${cat._id}`}
+                        id={`cat-${cat.id}`}
                         type="checkbox"
                         className="h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-600"
                         checked={checked}
-                        onChange={() => toggleCategory(cat._id)}
+                        onChange={() => toggleCategory(cat.id)}
                       />
                       <label
-                        htmlFor={`cat-${cat._id}`}
+                        htmlFor={`cat-${cat.id}`}
                         className="text-sm text-amber-950"
                       >
                         {cat.name}

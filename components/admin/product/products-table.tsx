@@ -37,6 +37,7 @@ import { ProductForm } from "@/components/admin/product/product-form";
 import { deleteProduct } from "@/lib/actions";
 import type { Product, Category } from "@/types/admin";
 import { toast } from "react-toastify";
+import { toastAlert } from "@/components/toastAlert";
 
 interface ProductsTableProps {
   products: Product[];
@@ -61,11 +62,7 @@ export function ProductsTable({ products, categories }: ProductsTableProps) {
   const handleDelete = async (id: string) => {
     if (confirm("Bu ürünü silmek istediğinizden emin misiniz?")) {
       const result = await deleteProduct(id);
-      if (result.success) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
-      }
+      toastAlert(result);
     }
   };
 

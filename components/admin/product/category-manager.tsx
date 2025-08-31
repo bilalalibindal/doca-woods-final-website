@@ -4,7 +4,6 @@
 
 import React, { useState, useRef } from "react";
 import type { Category } from "@/types/admin";
-import { toast } from "react-toastify"; // Toast'u import et
 
 // shadcn/ui Bileşenleri
 import { Button } from "@/components/ui/button";
@@ -35,6 +34,7 @@ import {
   PencilIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import { toastAlert } from "@/components/toastAlert";
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -73,10 +73,10 @@ export function CategoryManager({ categories, trigger }: CategoryManagerProps) {
     }
 
     if (response.success) {
-      toast.success(response.message);
+      toastAlert(response);
       closeModal();
     } else {
-      toast.error(response.message);
+      toastAlert(response);
     }
   };
 
@@ -90,10 +90,10 @@ export function CategoryManager({ categories, trigger }: CategoryManagerProps) {
     ) {
       const response = await deleteCategory(modalState.category.id);
       if (response.success) {
-        toast.success(response.message);
+        toastAlert(response);
         closeModal();
       } else {
-        toast.error(response.message);
+        toastAlert(response);
       }
     }
   };

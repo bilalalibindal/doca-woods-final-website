@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 interface Product {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   category: {
-    _id: string;
+    id: string;
     name: string;
   };
   images: string[];

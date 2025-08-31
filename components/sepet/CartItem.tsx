@@ -54,7 +54,7 @@ const CartItemComponent = ({ item }: CartItemProps) => {
             {/* Azaltma Butonu */}
             <QuantityButton
               variant="decrement"
-              onClick={() => updateQuantity(item._id, item.quantity - 1)}
+              onClick={() => updateQuantity(item.id, item.quantity - 1)}
               disabled={item.quantity <= 1}
             />
             <span className="w-8 text-center font-semibold text-slate-800">
@@ -64,7 +64,7 @@ const CartItemComponent = ({ item }: CartItemProps) => {
             {/* Artırma Butonu */}
             <QuantityButton
               variant="increment"
-              onClick={() => updateQuantity(item._id, item.quantity + 1)}
+              onClick={() => updateQuantity(item.id, item.quantity + 1)}
               disabled={item.quantity >= item.stockCount}
             />
           </div>
@@ -79,7 +79,7 @@ const CartItemComponent = ({ item }: CartItemProps) => {
           </div>
 
           {/* Silme Butonu */}
-          <TrashButton onClick={() => removeItem(item._id)} />
+          <TrashButton onClick={() => removeItem(item.id)} />
         </div>
       </div>
     </div>

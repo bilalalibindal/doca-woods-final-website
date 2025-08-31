@@ -52,7 +52,7 @@ const SepetSayfasi = () => {
           {/* Sol Sütun: Sepet Ürünleri */}
           <div className="lg:col-span-2 space-y-6">
             {items.map((item) => (
-              <CartItemComponent key={item._id} item={item} />
+              <CartItemComponent key={item.id} item={item} />
             ))}
           </div>
 

@@ -159,7 +159,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* 1. Ürün Adı: Üste taşındı, ortalandı, büyütüldü ve büyük harf yapıldı */}
         <div className="mb-3 text-center">
           <Link
-            href={`/urunler/${product._id}`}
+            href={`/urunler/${product.id}`}
             className="hover:text-amber-700"
           >
             <h3
@@ -175,7 +175,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="mb-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <Link
-              href={`/urunler/${product._id}`}
+              href={`/urunler/${product.id}`}
               className="hover:text-amber-700"
             >
               <div className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-200/80 shadow-sm">

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 interface Category {
-  _id: string;
+  id: string;
   name: string;
 }
 

@@ -25,9 +25,7 @@ export const categoryStore = create<CategoryState>((set, get) => ({
         return;
       }
       const data = await res.json();
-      const categories: ICategory[] = Array.isArray(data.categories)
-        ? data.categories
-        : [];
+      const categories: ICategory[] = Array.isArray(data) ? data : [];
       set({ categories, isLoading: false, error: null });
     } catch (error) {
       toast.error("Kategoriler alınamadı, mockCategories gösteriliyor");

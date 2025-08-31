@@ -7,12 +7,12 @@ import { IUserData } from "@/types/userTypes";
 
 export const mockProducts: UIProduct[] = [
   {
-    _id: "68af08fb5b17e0ea3faf0699",
+    id: "68af08fb5b17e0ea3faf0699",
     name: "Dünya Haritası Tablo",
     description:
       "Lazer kesim, 3D ahşap dünya haritası duvar dekoru. Ev ve ofisler için modern bir dokunuş.",
     category: {
-      _id: "68aedf5d3e88495305f7f5c2",
+      id: "68aedf5d3e88495305f7f5c2",
       name: "Tablo",
     },
     images: [
@@ -35,12 +35,12 @@ export const mockProducts: UIProduct[] = [
     sku: "TAB-1",
   },
   {
-    _id: "68af1716ec5d1307b2638d2b",
+    id: "68af1716ec5d1307b2638d2b",
     name: "Epoksi Sehpa",
     description:
       "Zeytin ağacından, metal ayaklı ve okyanus mavisi epoksi ile tasarlanmış el yapımı orta sehpa.",
     category: {
-      _id: "68af0a335b17e0ea3faf06bd",
+      id: "68af0a335b17e0ea3faf06bd",
       name: "Sehpa",
     },
     images: [
@@ -63,12 +63,12 @@ export const mockProducts: UIProduct[] = [
     sku: "EPDC202501",
   },
   {
-    _id: "68b04822a7a7a29da0c5f0f4",
+    id: "68b04822a7a7a29da0c5f0f4",
     name: "Kişiye Özel Ahşap Tabela",
     description:
       "İstediğiniz yazı veya logo ile kişiye özel olarak hazırlanan, dış mekan uyumlu ahşap tabela.",
     category: {
-      _id: "68b0465ba7a7a29da0c5f0dc",
+      id: "68b0465ba7a7a29da0c5f0dc",
       name: "Tabela",
     },
     images: [
@@ -91,12 +91,12 @@ export const mockProducts: UIProduct[] = [
     sku: "TABL-1",
   },
   {
-    _id: "68c12345a7a7a29da0c5f123", // Yeni eklenen örnek ürün
+    id: "68c12345a7a7a29da0c5f123", // Yeni eklenen örnek ürün
     name: "Ahşap Servis Tepsisi",
     description:
       "Doğal ceviz ağacından yapılmış, özel sunumlar için el yapımı servis tepsisi. Gıda ile temasa uygundur.",
     category: {
-      _id: "68c12345a7a7a29da0c5f456",
+      id: "68c12345a7a7a29da0c5f456",
       name: "Mutfak Gereçleri",
     },
     images: [
@@ -133,10 +133,10 @@ export const mockCustomers: IUserData[] = [
 ];
 
 export const mockCategories: ICategory[] = [
-  { _id: "68aedf5d3e88495305f7f5c2", name: "Tablo" },
-  { _id: "68af0a335b17e0ea3faf06bd", name: "Sehpa" },
-  { _id: "68b0465ba7a7a29da0c5f0dc", name: "Tabela" },
-  { _id: "68c12345a7a7a29da0c5f456", name: "Mutfak Gereçleri" },
+  { id: "68aedf5d3e88495305f7f5c2", name: "Tablo" },
+  { id: "68af0a335b17e0ea3faf06bd", name: "Sehpa" },
+  { id: "68b0465ba7a7a29da0c5f0dc", name: "Tabela" },
+  { id: "68c12345a7a7a29da0c5f456", name: "Mutfak Gereçleri" },
 ];
 export const mockAddresses: IAddress[] = [
   {
@@ -153,7 +153,7 @@ export const mockAddresses: IAddress[] = [
 ];
 export const mockOrders: IOrder[] = [
   {
-    _id: "68af08fb5b17e0ea3faf0699",
+    id: "68af08fb5b17e0ea3faf0699",
     user: mockCustomers[0],
     products: mockProducts,
     customizationImage: [],
@@ -165,7 +165,7 @@ export const mockOrders: IOrder[] = [
     updatedAt: new Date().toISOString(),
   },
   {
-    _id: "68af08fb5b17e0ea3faf0699",
+    id: "68af08fb5b17e0ea3faf0699",
     user: mockCustomers[0],
     products: mockProducts,
     customizationImage: [

@@ -4,7 +4,7 @@ import { IProduct } from "./productTypes";
 import { IAddress } from "./addressTypes";
 
 export interface IOrder {
-  _id: string;
+  id: string;
   user: IUserData;
   products: IProduct[];
   customizationImage: string[];

@@ -31,7 +31,7 @@ export const useCartStore = create<CartState>()(
 
       addItem: (product) => {
         const { items } = get();
-        const existingItem = items.find((item) => item._id === product._id);
+        const existingItem = items.find((item) => item.id === product.id);
         let updatedItems = [];
         if (existingItem) {
           const newQuantity = Math.min(
@@ -44,7 +44,7 @@ export const useCartStore = create<CartState>()(
             toast.warn(`${product.name} için maksimum stok adedine ulaşıldı.`);
           }
           updatedItems = items.map((item) =>
-            item._id === product._id ? { ...item, quantity: newQuantity } : item
+            item.id === product.id ? { ...item, quantity: newQuantity } : item
           );
         } else {
           updatedItems = [...items, { ...product, quantity: 1 }];
@@ -55,7 +55,7 @@ export const useCartStore = create<CartState>()(
 
       removeItem: (productId) => {
         const updatedItems = get().items.filter(
-          (item) => item._id !== productId
+          (item) => item.id !== productId
         );
         set({ items: updatedItems, ...calculateTotals(updatedItems) });
         toast.error("Ürün sepetten kaldırıldı.");
@@ -64,7 +64,7 @@ export const useCartStore = create<CartState>()(
       updateQuantity: (productId, quantity) => {
         const updatedItems = get()
           .items.map((item) =>
-            item._id === productId
+            item.id === productId
               ? {
                   ...item,
                   quantity: Math.max(0, Math.min(quantity, item.stockCount)),

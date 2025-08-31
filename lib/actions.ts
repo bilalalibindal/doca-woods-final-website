@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { toast } from "react-toastify";
 import prisma from "@/lib/prisma";
 // Product actions
 export async function createProduct(formData: FormData) {
@@ -27,30 +26,53 @@ export async function createProduct(formData: FormData) {
         : null,
       images: formData.getAll("images") as string[],
     };
-
-    const response = await fetch("/api/admin/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(productData),
+    // 2. İlişkisel Kontrol: Gönderilen categoryId geçerli mi?
+    const categoryExists = await prisma.category.findUnique({
+      where: { id: productData.categoryId },
     });
-
-    if (!response.ok) {
-      toast.error("Ürün oluşturulurken bir hata oluştu");
-      throw new Error("API endpoint not available");
+    if (!categoryExists) {
+      return { success: false, message: "Geçersiz kategori ID'si." };
     }
-
+    // 2.1 name unique kontrolü
+    const productExists = await prisma.product.findUnique({
+      where: { name: productData.name },
+    });
+    if (productExists) {
+      return { success: false, message: "Bu ürün adı zaten kullanılıyor." };
+    }
+    // 3. Prisma ile yeni ürünü oluşturalım
+    await prisma.product.create({
+      data: productData,
+    });
     revalidatePath("/admin/products");
-    toast.success("Ürün başarıyla oluşturuldu");
-    return { success: true };
+    return {
+      success: true,
+      message: "Ürün başarıyla oluşturuldu.",
+    };
   } catch (error) {
     console.log("Product would be created:", Object.fromEntries(formData));
     revalidatePath("/admin/products");
-    return { success: true };
+    return {
+      success: false,
+      message: "Ürün oluşturulurken bir hata oluştu.",
+    };
   }
 }
 
+// lib/actions.ts
+
 export async function updateProduct(id: string, formData: FormData) {
   try {
+    // 1. Ürünün mevcut halini veritabanından al
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      return { success: false, message: "Güncellenecek ürün bulunamadı." };
+    }
+
+    // 2. Formdan gelen verileri yapılandır
     const productData = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
@@ -73,22 +95,75 @@ export async function updateProduct(id: string, formData: FormData) {
       images: formData.getAll("images") as string[],
     };
 
-    const response = await fetch(`/api/admin/products/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(productData),
-    });
+    // 3. Değişen alanları tespit etmek için boş bir nesne oluştur
+    const changedData: { [key: string]: any } = {};
 
-    if (!response.ok) {
-      throw new Error("API endpoint not available");
+    // 4. 'images' dizisini özel olarak karşılaştır
+    // Sıralama, resimlerin sırası değişse bile içeriği aynıysa değişiklik olarak algılamamayı sağlar.
+    const formImagesSorted = [...productData.images].sort().join(",");
+    const dbImagesSorted = [...existingProduct.images].sort().join(",");
+    if (formImagesSorted !== dbImagesSorted) {
+      changedData.images = productData.images;
     }
 
+    // 5. Diğer tüm alanları döngüyle karşılaştır
+    type ProductDataWithoutImages = Omit<typeof productData, "images">;
+
+    // 'images' haricindeki anahtarları alarak döngüye başlıyoruz
+    const keysToCompare = Object.keys(productData).filter(
+      (key) => key !== "images"
+    ) as Array<keyof ProductDataWithoutImages>;
+
+    keysToCompare.forEach((key) => {
+      const formValue = productData[key];
+      const dbValue = existingProduct[key];
+
+      if (formValue !== dbValue) {
+        changedData[key] = formValue;
+      }
+    });
+    // name unique kontrolü
+    if (changedData.name) {
+      const productNameExists = await prisma.product.findUnique({
+        where: { name: changedData.name },
+      });
+      if (productNameExists) {
+        return { success: false, message: "Bu ürün adı zaten kullanılıyor." };
+      }
+    }
+    // 6. Hiçbir değişiklik yoksa işlemi bitir
+    if (Object.keys(changedData).length === 0) {
+      return { success: true, message: "Herhangi bir değişiklik yapılmadı." };
+    }
+
+    // 7. Gerekli yan kontrolleri yap (sadece değişen alanlar için)
+    if (changedData.categoryId) {
+      const categoryExists = await prisma.category.findUnique({
+        where: { id: changedData.categoryId },
+      });
+      if (!categoryExists) {
+        return { success: false, message: "Seçilen yeni kategori bulunamadı." };
+      }
+    }
+
+    // 8. Sadece değişen verilerle Prisma güncelleme işlemini yap
+    await prisma.product.update({
+      where: { id },
+      data: changedData,
+    });
+
+    // 9. İlgili sayfanın önbelleğini temizle
     revalidatePath("/admin/products");
-    return { success: true };
+
+    // 10. Başarılı yanıtı döndür
+    return { success: true, message: "Ürün başarıyla güncellendi." };
   } catch (error) {
-    console.log("Product would be updated:", id, Object.fromEntries(formData));
-    revalidatePath("/admin/products");
-    return { success: true };
+    // 11. Hata yönetimi
+    console.error("Ürün güncelleme sırasında hata oluştu:", error);
+    return {
+      success: false,
+      message: "Ürün güncellenirken beklenmedik bir hata oluştu.",
+    };
   }
 }
 

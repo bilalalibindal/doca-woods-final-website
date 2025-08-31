@@ -10,7 +10,7 @@ const CartItemList = () => {
     <div className="space-y-6">
       {items.map((item) => (
         <CartItem
-          key={item._id}
+          key={item.id}
           item={item} // 'item' prop'u olarak tüm objeyi geçiyoruz
         />
       ))}
