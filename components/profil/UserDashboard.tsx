@@ -359,7 +359,7 @@ const UserDashboard = () => {
                             {getStatusText(order.status)}
                           </Badge>
                           <span className="font-bold text-gray-800">
-                            {order.totalAmount?.toLocaleString("tr-TR")} ₺
+                            {order.totalPrice?.toLocaleString("tr-TR")} ₺
                           </span>
                           <ChevronRightIcon className="w-5 h-5 text-gray-400" />
                         </div>
@@ -577,21 +577,105 @@ const UserDashboard = () => {
                       Toplam Tutar
                     </label>
                     <p className="text-lg font-bold text-gray-800">
-                      {selectedOrder.totalAmount?.toLocaleString("tr-TR")} ₺
+                      {selectedOrder.totalPrice?.toLocaleString("tr-TR")} ₺
                     </p>
                   </div>
                 </div>
 
-                {/* TODO: Sipariş ürünleri listesi buraya gelecek */}
+                {/* Sipariş Ürünleri */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                    Sipariş Özeti
+                    Sipariş Ürünleri
                   </h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-600">
-                      Sipariş detayları yüklenecek...
-                    </p>
+                  <div className="space-y-4">
+                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                      selectedOrder.items.map((item: any) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center space-x-4 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+                        >
+                          {/* Ürün Resmi */}
+                          <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                            {item.product?.images &&
+                            item.product.images.length > 0 ? (
+                              <img
+                                src={item.product.images[0]}
+                                alt={item.product.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    "/placeholder-product.jpg";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                                <span className="text-xs text-gray-500">
+                                  Resim Yok
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Ürün Bilgileri */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-gray-800 truncate">
+                              {item.product?.name || "Ürün Adı Yok"}
+                            </h4>
+                            <p className="text-sm text-gray-500">
+                              SKU: {item.product?.sku || "N/A"}
+                            </p>
+                          </div>
+
+                          {/* Adet */}
+                          <div className="text-center">
+                            <p className="text-sm text-gray-500">Adet</p>
+                            <p className="font-semibold text-gray-800">
+                              {item.quantity}
+                            </p>
+                          </div>
+
+                          {/* Birim Fiyat */}
+                          <div className="text-center">
+                            <p className="text-sm text-gray-500">Birim Fiyat</p>
+                            <p className="font-semibold text-gray-800">
+                              {item.price?.toLocaleString("tr-TR")} ₺
+                            </p>
+                          </div>
+
+                          {/* Toplam Fiyat */}
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">Toplam</p>
+                            <p className="font-bold text-gray-800">
+                              {(item.price * item.quantity)?.toLocaleString(
+                                "tr-TR"
+                              )}{" "}
+                              ₺
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-gray-50 rounded-lg p-6 text-center">
+                        <p className="text-gray-500">
+                          Bu siparişte ürün bilgisi bulunamadı.
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Sipariş Toplam Özeti */}
+                  {selectedOrder.items && selectedOrder.items.length > 0 && (
+                    <div className="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-gray-800">
+                          Sipariş Toplamı:
+                        </span>
+                        <span className="text-xl font-bold text-amber-600">
+                          {selectedOrder.totalPrice?.toLocaleString("tr-TR")} ₺
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

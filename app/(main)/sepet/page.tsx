@@ -14,50 +14,84 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import AddressSelector from "@/components/sepet/AddressSelector";
+import { useSession } from "next-auth/react";
+import { createOrderAction } from "@/lib/actions";
+import { toast } from "sonner";
+import { userStore } from "@/stores/userStore";
 
 const SepetSayfasi = () => {
   const router = useRouter();
-  const { items, totalItems } = useCartStore();
+  const { items, totalItems, clearCart } = useCartStore();
+  const { data: session, status: sessionStatus } = useSession();
+  const { user, fetchGetUser } = userStore();
   const [isPaymentModalOpen, setisPaymentModalOpen] = useState(false);
+  const [isOrderLoading, setIsOrderLoading] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null
+  );
 
-  // Mock adres verileri - gerçek uygulamada kullanıcının kayıtlı adreslerini çekeceksiniz
-  const mockAddresses = [
-    {
-      addressTitle: "Ev",
-      ulke: "Türkiye",
-      sehir: "İstanbul",
-      mahalle: "Kadıköy",
-      sokak: "Bahariye Caddesi",
-      no: "123",
-      postaKodu: "34710",
-      tarif: "Apartman girişi sağ taraf",
-      varsayilan: true,
-    },
-    {
-      addressTitle: "İş",
-      ulke: "Türkiye",
-      sehir: "İstanbul",
-      mahalle: "Şişli",
-      sokak: "Büyükdere Caddesi",
-      no: "456",
-      postaKodu: "34394",
-    },
-  ];
-
-  const [selectedAddress, setSelectedAddress] = useState<{
-    addressTitle: string;
-    ulke: string;
-    sehir: string;
-    mahalle: string;
-    sokak: string;
-    no: string;
-    postaKodu: string;
-    tarif?: string;
-    varsayilan?: boolean;
-  } | null>(null);
+  // Kullanıcı adreslerini dönüştür
+  const userAddresses =
+    user?.addresses?.map((address) => ({
+      addressTitle: address.addressTitle,
+      ulke: address.ulke,
+      sehir: address.sehir,
+      mahalle: address.mahalle,
+      sokak: address.sokak,
+      no: address.no,
+      postaKodu: address.postaKodu,
+      tarif: address.tarif,
+      varsayilan: address.varsayilan,
+      id: address.id, // AddressSelector için ID gerekli
+    })) || [];
 
   const handleCheckout = () => {
+    // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+    if (sessionStatus !== "authenticated") {
+      toast.error("Sipariş verebilmek için lütfen giriş yapınız.");
+      router.push("/profil");
+      return;
+    }
+
+    // Kullanıcı giriş yapmışsa ödeme modalını aç
     setisPaymentModalOpen(true);
+  };
+
+  const handleOrderComplete = async () => {
+    if (!selectedAddressId) {
+      toast.error("Lütfen bir teslimat adresi seçiniz.");
+      return;
+    }
+
+    setIsOrderLoading(true);
+
+    try {
+      // Sepet verilerini sipariş formatına dönüştür
+      const orderData = {
+        addressId: selectedAddressId,
+        products: items.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+        customizationImages: [], // İleride eklenebilir
+      };
+
+      const result = await createOrderAction(orderData);
+
+      if (result.success) {
+        toast.success("Siparişiniz başarıyla oluşturuldu!");
+        clearCart(); // Sepeti temizle
+        router.push("/profil"); // Profil sayfasına yönlendir
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error: any) {
+      console.error("Sipariş hatası:", error);
+      toast.error("Sipariş oluşturulurken bir hata oluştu.");
+    } finally {
+      setIsOrderLoading(false);
+      setisPaymentModalOpen(false);
+    }
   };
 
   if (totalItems === 0) {
@@ -115,11 +149,16 @@ const SepetSayfasi = () => {
             </DialogHeader>
             <div className="space-y-6">
               <AddressSelector
-                savedAddresses={mockAddresses}
-                onAddressSelect={setSelectedAddress}
+                savedAddresses={userAddresses}
+                onAddressSelect={(address) =>
+                  setSelectedAddressId(address.id || null)
+                }
                 onNewAddressClick={() => {
-                  // TODO: Yeni adres ekleme modal'ını aç
-                  console.log("Yeni adres ekleme modal'ı açılacak");
+                  // Kullanıcıyı profil sayfasına yönlendir
+                  router.push("/profil");
+                  toast.info(
+                    "Yeni adres eklemek için profil sayfasına yönlendirildiniz."
+                  );
                 }}
                 isVisible={true}
               />
@@ -132,13 +171,18 @@ const SepetSayfasi = () => {
                   İptal
                 </Button>
                 <Button
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => {
-                    // TODO: Sipariş işlemi
-                    setisPaymentModalOpen(false);
-                  }}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+                  onClick={handleOrderComplete}
+                  disabled={isOrderLoading}
                 >
-                  Siparişi Tamamla
+                  {isOrderLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Sipariş Oluşturuluyor...
+                    </>
+                  ) : (
+                    "Siparişi Tamamla"
+                  )}
                 </Button>
               </div>
             </div>

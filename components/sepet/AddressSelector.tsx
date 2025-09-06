@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 interface Address {
+  id?: string;
   addressTitle: string;
   ulke: string;
   sehir: string;

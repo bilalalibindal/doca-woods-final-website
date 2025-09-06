@@ -109,12 +109,11 @@ export interface AddressFormData {
 
 // Sipariş oluşturma için
 export interface CreateOrderData {
-  customerId: string;
-  addressId: string;
   products: {
     productId: string;
     quantity: number;
   }[];
+  addressId: string;
   customizationImages?: string[];
 }
 

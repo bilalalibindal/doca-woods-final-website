@@ -3,7 +3,13 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
-import { Product, Category, User, AddressFormData } from "@/types";
+import {
+  Product,
+  Category,
+  User,
+  AddressFormData,
+  CreateOrderData,
+} from "@/types";
 import { mockProducts, mockCategories } from "@/lib/mockData";
 
 // =============================================================
@@ -83,7 +89,7 @@ export async function getUser(): Promise<User | null> {
         },
       },
     });
-
+    console.log("User:", user);
     return user as User | null;
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -211,6 +217,94 @@ export async function setDefaultAddress(addressId: string): Promise<void> {
     });
   } catch (error) {
     console.error("Error setting default address:", error);
+    throw error;
+  }
+}
+
+// =============================================================
+// SİPARİŞ SERVİSLERİ
+// =============================================================
+
+export async function createOrder(orderData: CreateOrderData): Promise<any> {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new Error("Kullanıcı girişi yapılmamış");
+    }
+
+    // Önce ürünlerin stok kontrolü yapalım
+    const productIds = orderData.products.map((p) => p.productId);
+    const dbProducts = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+    });
+
+    // Stok kontrolü
+    for (const cartItem of orderData.products) {
+      const dbProduct = dbProducts.find((p) => p.id === cartItem.productId);
+      if (!dbProduct) {
+        throw new Error(`Ürün bulunamadı: ${cartItem.productId}`);
+      }
+      if (dbProduct.stockCount < cartItem.quantity) {
+        throw new Error(`Stok yetersiz: ${dbProduct.name}`);
+      }
+    }
+
+    // Toplam fiyat hesapla
+    const totalPrice = orderData.products.reduce((acc, cartItem) => {
+      const dbProduct = dbProducts.find((p) => p.id === cartItem.productId);
+      return acc + (dbProduct?.price || 0) * cartItem.quantity;
+    }, 0);
+
+    // Transaction ile sipariş oluştur
+    const order = await prisma.$transaction(async (tx) => {
+      // Sipariş oluştur
+      const newOrder = await tx.order.create({
+        data: {
+          customerId: session.user.id,
+          addressId: orderData.addressId,
+          totalPrice: totalPrice,
+          customizationImages: orderData.customizationImages || [],
+        },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+          address: true,
+        },
+      });
+
+      // Sipariş kalemlerini oluştur
+      for (const cartItem of orderData.products) {
+        const dbProduct = dbProducts.find((p) => p.id === cartItem.productId);
+
+        await tx.orderItem.create({
+          data: {
+            orderId: newOrder.id,
+            productId: cartItem.productId,
+            quantity: cartItem.quantity,
+            price: dbProduct?.price || 0,
+          },
+        });
+
+        // Stok güncelle
+        await tx.product.update({
+          where: { id: cartItem.productId },
+          data: {
+            stockCount: {
+              decrement: cartItem.quantity,
+            },
+          },
+        });
+      }
+
+      return newOrder;
+    });
+
+    return order;
+  } catch (error) {
+    console.error("Error creating order:", error);
     throw error;
   }
 }

@@ -7,8 +7,9 @@ import {
   updateAddress,
   deleteAddress,
   setDefaultAddress,
+  createOrder,
 } from "@/lib/services";
-import { AddressFormData, ApiResponse } from "@/types";
+import { AddressFormData, CreateOrderData, ApiResponse } from "@/types";
 
 // =============================================================
 // KULLANICI AKSİYONLARI
@@ -125,3 +126,33 @@ export async function setDefaultAddressAction(
     };
   }
 }
+
+// =============================================================
+// SİPARİŞ AKSİYONLARI
+// =============================================================
+
+export async function createOrderAction(
+  orderData: CreateOrderData
+): Promise<ApiResponse<any>> {
+  try {
+    const order = await createOrder(orderData);
+    revalidatePath("/profil"); // Siparişler sayfasını güncelle
+    revalidatePath("/urunler"); // Stok güncellemelerini yansıt
+
+    return {
+      success: true,
+      data: order,
+      message: "Siparişiniz başarıyla oluşturuldu.",
+    };
+  } catch (error: any) {
+    console.error("createOrderAction error:", error);
+    return {
+      success: false,
+      message: error.message || "Sipariş oluşturulurken hata oluştu.",
+    };
+  }
+}
+
+// =============================================================
+// SİPARİŞ AKSİYONLARI
+// =============================================================
