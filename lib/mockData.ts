@@ -1,12 +1,88 @@
-import {
-  type Order,
-  OrderStatus,
-  UserRole,
-  type Product,
-  type Category,
-} from "@/types/admin";
+import { type Order, OrderStatus, UserRole } from "@/types/admin";
 import { DollarSign, ShoppingCart, Package, Clock } from "lucide-react";
 
+//! TYPES
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  images: string[];
+  price: number;
+  inStock: boolean;
+  stockCount: number;
+  material: string;
+  color: string;
+  sku: string;
+  sizeWidth?: number | null;
+  sizeHeight?: number | null;
+  sizeDepth?: number | null;
+  categoryId: string;
+  category: Category;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+export interface Category {
+  id: string;
+  name: string;
+}
+
+//! MOCK DATA
+export const mockCategories: Category[] = [
+  { id: "cat_001", name: "Electronics" },
+  { id: "cat_002", name: "Clothing" },
+  { id: "cat_003", name: "Home & Garden" },
+  { id: "cat_004", name: "Sports" },
+  { id: "cat_005", name: "Books" },
+];
+
+export const mockProducts: Product[] = [
+  {
+    id: "prod_001",
+    name: "Dünya Haritası Tablo",
+    description: "Ahşap Dünya Haritası Tablo",
+    images: [
+      "https://res.cloudinary.com/dwahclxhr/image/upload/v1756619032/lahlz33m3pyzaj63kjvp.jpg",
+      "https://res.cloudinary.com/dwahclxhr/image/upload/v1756619028/iu6hzz89hpegllmbpxka.jpg",
+      "https://res.cloudinary.com/dwahclxhr/image/upload/v1756619018/xzv08so5pzeigm1s4nrs.jpg",
+    ],
+    price: 299.99,
+    inStock: true,
+    stockCount: 50,
+    material: "Ahşap",
+    color: "Kahverengi",
+    sku: "DH-001",
+    sizeWidth: 20,
+    sizeHeight: 25,
+    sizeDepth: 8,
+    categoryId: "cat_003",
+    category: mockCategories[0],
+    createdAt: new Date("2024-01-01").toISOString(),
+    updatedAt: new Date("2024-01-01").toISOString(),
+  },
+  {
+    id: "prod_002",
+    name: "Ahşap Masa",
+    description: "Ahşap Masa çok güzel bir masa",
+    images: [
+      "https://res.cloudinary.com/dwahclxhr/image/upload/v1756296214/pshfyfftklrcomocnvz8.webp",
+      "https://res.cloudinary.com/dwahclxhr/image/upload/v1756296219/kndvwximszm4qifgyvxc.webp",
+      "https://res.cloudinary.com/dwahclxhr/image/upload/v1756296224/dxr6wfdegxbeh59vrtg0.webp",
+    ],
+    price: 29.99,
+    inStock: true,
+    stockCount: 100,
+    material: "Ahşap",
+    color: "Kahverengi",
+    sku: "TS-002",
+    sizeWidth: 20,
+    sizeHeight: 25,
+    sizeDepth: 30,
+    categoryId: "cat_003",
+    category: mockCategories[1],
+    createdAt: new Date("2024-01-02").toISOString(),
+    updatedAt: new Date("2024-01-02").toISOString(),
+  },
+];
 // Mock data for dashboard
 export const mockRecentOrders: Order[] = [
   {
@@ -165,112 +241,6 @@ export const mockDashboardStats = [
     value: "12",
     change: "+201 since last hour",
     icon: Clock,
-  },
-];
-
-export const mockCategories: Category[] = [
-  { id: "cat_001", name: "Electronics" },
-  { id: "cat_002", name: "Clothing" },
-  { id: "cat_003", name: "Home & Garden" },
-  { id: "cat_004", name: "Sports" },
-  { id: "cat_005", name: "Books" },
-];
-
-export const mockProducts: Product[] = [
-  {
-    id: "prod_001",
-    name: "Wireless Headphones",
-    description: "High-quality wireless headphones with noise cancellation",
-    images: ["/wireless-headphones.png"],
-    price: 299.99,
-    inStock: true,
-    stockCount: 50,
-    material: "Plastic",
-    color: "Black",
-    sku: "WH-001",
-    sizeWidth: 20,
-    sizeHeight: 25,
-    sizeDepth: 8,
-    categoryId: "cat_001",
-    category: mockCategories[0],
-    createdAt: new Date("2024-01-01").toISOString(),
-    updatedAt: new Date("2024-01-01").toISOString(),
-  },
-  {
-    id: "prod_002",
-    name: "Cotton T-Shirt",
-    description: "Comfortable 100% cotton t-shirt",
-    images: ["/cotton-tshirt.png"],
-    price: 29.99,
-    inStock: true,
-    stockCount: 100,
-    material: "Cotton",
-    color: "Blue",
-    sku: "TS-002",
-    sizeWidth: 20,
-    sizeHeight: 25,
-    sizeDepth: 30,
-    categoryId: "cat_002",
-    category: mockCategories[1],
-    createdAt: new Date("2024-01-02").toISOString(),
-    updatedAt: new Date("2024-01-02").toISOString(),
-  },
-  {
-    id: "prod_003",
-    name: "Garden Planter",
-    description: "Beautiful ceramic garden planter",
-    images: ["/ceramic-garden-planter.png"],
-    price: 49.99,
-    inStock: true,
-    stockCount: 25,
-    material: "Ceramic",
-    color: "Terracotta",
-    sku: "GP-003",
-    sizeWidth: 30,
-    sizeHeight: 25,
-    sizeDepth: 30,
-    categoryId: "cat_003",
-    category: mockCategories[2],
-    createdAt: new Date("2024-01-03").toISOString(),
-    updatedAt: new Date("2024-01-03").toISOString(),
-  },
-  {
-    id: "prod_004",
-    name: "Running Shoes",
-    description: "Professional running shoes for athletes",
-    images: ["/running-shoes-on-track.png"],
-    price: 129.99,
-    inStock: false,
-    stockCount: 0,
-    material: "Synthetic",
-    color: "Red",
-    sku: "RS-004",
-    sizeWidth: 20,
-    sizeHeight: 25,
-    sizeDepth: 30,
-    categoryId: "cat_004",
-    category: mockCategories[3],
-    createdAt: new Date("2024-01-04").toISOString(),
-    updatedAt: new Date("2024-01-04").toISOString(),
-  },
-  {
-    id: "prod_005",
-    name: "Programming Book",
-    description: "Learn modern web development",
-    images: ["/programming-book.png"],
-    price: 59.99,
-    inStock: true,
-    stockCount: 75,
-    material: "Paper",
-    color: "Multi",
-    sku: "PB-005",
-    sizeWidth: 15,
-    sizeHeight: 23,
-    sizeDepth: 3,
-    categoryId: "cat_005",
-    category: mockCategories[4],
-    createdAt: new Date("2024-01-05").toISOString(),
-    updatedAt: new Date("2024-01-05").toISOString(),
   },
 ];
 

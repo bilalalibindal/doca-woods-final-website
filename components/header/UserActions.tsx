@@ -30,7 +30,7 @@ const UserActions = ({ onMenuToggle }: UserActionsProps) => {
 
       {/* User Account */}
       <Link
-        href="/hesabim"
+        href="/profil"
         className="p-2 text-gray-600 hover:text-amber-600 transition-colors"
       >
         <HiUser className="w-6 h-6" />

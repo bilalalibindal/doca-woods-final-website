@@ -12,8 +12,16 @@ export interface IOrder {
   status: ProductStatus;
   shippingTrackingUrl?: string;
   address: IAddress;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IOrderItem {
+  id: string;
+  quantity: number;
+  price: number;
+  orderId: string;
+  productId: string;
 }
 
 // Sipariş oluşturmak için API'ye gönderilecek verinin tipi

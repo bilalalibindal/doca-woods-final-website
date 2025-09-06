@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { toast } from "react-toastify";
-import { IProduct } from "@/types/productTypes";
+import { toast } from "sonner";
+import { Product } from "@/lib/mockData";
 
-export interface CartItem extends IProduct {
+export interface CartItem extends Product {
   quantity: number;
 }
 
@@ -11,7 +11,7 @@ interface CartState {
   items: CartItem[];
   totalItems: number;
   totalPrice: number;
-  addItem: (product: IProduct) => void;
+  addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -41,7 +41,9 @@ export const useCartStore = create<CartState>()(
           if (newQuantity > existingItem.quantity) {
             toast.success(`${product.name} sepete eklendi!`);
           } else {
-            toast.warn(`${product.name} için maksimum stok adedine ulaşıldı.`);
+            toast.warning(
+              `${product.name} için maksimum stok adedine ulaşıldı.`
+            );
           }
           updatedItems = items.map((item) =>
             item.id === product.id ? { ...item, quantity: newQuantity } : item

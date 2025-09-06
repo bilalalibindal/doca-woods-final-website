@@ -7,7 +7,6 @@ export default function UserPagesLayout({
 }) {
   return (
     <>
-      <MainHeader />
       <main>{children}</main>
     </>
   );

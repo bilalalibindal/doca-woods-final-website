@@ -2,7 +2,8 @@ import { IAddress } from "@/types/addressTypes";
 import { ICategory } from "@/types/categoryTypes";
 import { IProduct as UIProduct } from "@/types/productTypes";
 import { IUserData } from "@/types/userTypes";
-
+import { IOrder } from "@/types/orderTypes";
+import { ProductStatus } from "@/Enum";
 export const mockProducts: UIProduct[] = [
   {
     id: "68af08fb5b17e0ea3faf0699",

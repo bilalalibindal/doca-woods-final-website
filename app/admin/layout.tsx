@@ -2,7 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Admin Panel - E-commerce",
@@ -21,6 +21,7 @@ export default function AdminLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         <AdminHeader />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <Toaster position="top-center" duration={1500} />
       </div>
     </div>
   );
