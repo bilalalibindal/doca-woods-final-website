@@ -3,7 +3,8 @@ import { CreateOrderData, IOrder } from "@/types/orderTypes";
 import { IUserData } from "@/types/userTypes";
 import { create } from "zustand";
 import { mockAddresses, mockUser } from "./mockData";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import { getUserAction } from "@/lib/user-actions";
 
 interface UserState {
   user: IUserData | null; // Başlangıçta null olabilir
@@ -23,22 +24,36 @@ export const userStore = create<UserState>((set, get) => ({
   fetchGetUser: async () => {
     set({ isLoading: true, error: null });
     try {
-      const res = await fetch("/api/user/account");
-      if (!res.ok) {
-        toast.error("Kullanıcı bilgileri alınamadıi mockUserData gösteriliyor");
-        set({ user: mockUser, isLoading: false, error: null });
-        return;
+      // Server action kullanarak userServices'ten veri çek
+      const result = await getUserAction();
+
+      if (result.success && result.user) {
+        // Prisma User tipini IUserData tipine dönüştür
+        const prismaUser = result.user as any; // Type assertion for includes
+
+        const userData: IUserData = {
+          name: prismaUser.name,
+          email: prismaUser.email,
+          phone: prismaUser.phone || undefined,
+          addresses: prismaUser.addresses || [],
+          orders: prismaUser.orders || [],
+          createdAt: prismaUser.createdAt,
+        };
+
+        set({
+          user: userData,
+          isLoading: false,
+          error: null,
+        });
+
+        toast.success("Kullanıcı bilgileri başarıyla yüklendi.");
+      } else {
+        throw new Error(result.message || "Kullanıcı verisi alınamadı");
       }
-      const data = await res.json();
-      const apiUser = data.user;
-      const userData = {
-        ...apiUser,
-        orders: apiUser.orders || [],
-        addresses: apiUser.addresses || [],
-      };
-      set({ user: userData, isLoading: false, error: null });
     } catch (error: any) {
-      toast.error("Kullanıcı API'si erişilemedi, demo veriler gösteriliyor.");
+      console.error("Kullanıcı verilerini çekerken hata:", error);
+      toast.error("Kullanıcı bilgisi alınamadı, demo veriler gösteriliyor.");
+
       // Fallback olarak mock user ve adresleri kullan
       set({
         user: { ...mockUser, addresses: mockAddresses },

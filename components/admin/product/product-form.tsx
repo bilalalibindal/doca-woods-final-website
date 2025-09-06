@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { createProduct, updateProduct } from "@/lib/actions";
+import { createProduct, updateProduct } from "@/lib/admin-actions";
 import type { Product, Category } from "@/types/admin";
 import ImageUpload from "@/components/ImageUpload";
 import { toastAlert } from "@/components/toastAlert";

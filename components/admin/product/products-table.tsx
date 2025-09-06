@@ -34,7 +34,7 @@ import { MoreHorizontal, PencilIcon, Trash2 } from "lucide-react";
 
 // Kendi bileşenleriniz ve fonksiyonlarınız
 import { ProductForm } from "@/components/admin/product/product-form";
-import { deleteProduct } from "@/lib/actions";
+import { deleteProduct } from "@/lib/admin-actions";
 import type { Product, Category } from "@/types/admin";
 import { toast } from "react-toastify";
 import { toastAlert } from "@/components/toastAlert";

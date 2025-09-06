@@ -26,7 +26,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 // Server Actions
-import { createCategory, updateCategory, deleteCategory } from "@/lib/actions";
+import {
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "@/lib/admin-actions";
 
 // İkonlar
 import {

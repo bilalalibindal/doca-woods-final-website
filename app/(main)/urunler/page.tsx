@@ -1,5 +1,8 @@
 import React from "react";
-import { categoryServices, productServices } from "@/lib/services/services";
+import {
+  categoryServices,
+  productServices,
+} from "@/lib/services/user-services";
 import ProductList from "@/components/urunler/productList"; // Yeni bileşenimizi import ediyoruz
 
 // Bu bileşen bir Server Component olarak kalıyor.
