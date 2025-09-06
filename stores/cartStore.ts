@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
-import { Product } from "@/lib/mockData";
+import { Product } from "@/types";
 
 export interface CartItem extends Product {
   quantity: number;

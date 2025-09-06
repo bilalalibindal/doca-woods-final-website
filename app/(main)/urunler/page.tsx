@@ -1,15 +1,8 @@
 import React from "react";
-import {
-  categoryServices,
-  productServices,
-} from "@/lib/services/user-services";
-import ProductList from "@/components/urunler/productList"; // Yeni bileşenimizi import ediyoruz
+import { getProducts, getCategories } from "@/lib/services";
+import ProductList from "@/components/urunler/productList";
 
-// Bu bileşen bir Server Component olarak kalıyor.
 const ProductsPage = async () => {
-  // Veriyi sunucuda çekiyoruz
-  const { getProducts } = await productServices();
-  const { getCategories } = await categoryServices();
   const products = await getProducts();
   const categories = await getCategories();
 

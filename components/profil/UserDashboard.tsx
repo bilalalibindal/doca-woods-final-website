@@ -1,36 +1,122 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   UserIcon,
-  EnvelopeIcon,
-  CalendarIcon,
   ShoppingBagIcon,
-  ChevronRightIcon,
-  ClockIcon,
   MapPinIcon,
+  ChevronRightIcon,
+  PlusIcon,
+  CheckCircleIcon,
+  HomeIcon,
+  TrashIcon,
+  PencilIcon,
+  ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
-import LoginButton from "@/components/auth/LoginButton";
-import PendingOrdersNotification from "./PendingOrdersNotification";
-import { useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { userStore } from "@/stores/userStore";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { ProductStatus } from "@/Enum";
-import LoadingScreen from "./LoadingScreen"; // LoadingScreen'i import ettiğinizi varsayıyorum
+import LoadingScreen from "./LoadingScreen";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  addAddressAction,
+  updateAddressAction,
+  deleteAddressAction,
+  setDefaultAddressAction,
+} from "@/lib/actions";
+
+type ActiveSection = "profile" | "orders" | "addresses";
 
 const UserDashboard = () => {
-  // DÜZELTME: Artık 'user' objesini ve diğer state'leri çekiyoruz.
   const { user, isLoading, error, fetchGetUser } = userStore();
   const { data: session, status: sessionStatus } = useSession();
 
+  const [activeSection, setActiveSection] = useState<ActiveSection>("profile");
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [isAddressSaving, setIsAddressSaving] = useState(false);
+
+  // Adres form state'leri
+  const [addressForm, setAddressForm] = useState({
+    addressTitle: "",
+    ulke: "Türkiye",
+    sehir: "",
+    mahalle: "",
+    sokak: "",
+    no: "",
+    postaKodu: "",
+    tarif: "",
+    varsayilan: false,
+  });
+
   useEffect(() => {
-    // Sadece giriş yapılmışsa ve kullanıcı verisi henüz çekilmemişse veriyi çek
     if (sessionStatus === "authenticated" && !user) {
       fetchGetUser();
     }
   }, [sessionStatus, user, fetchGetUser]);
 
-  // DÜZELTME: Dinamik hesaplamalar artık 'user.orders' üzerinden yapılıyor.
+  // Adres form temizleme
+  const resetAddressForm = () => {
+    setAddressForm({
+      addressTitle: "",
+      ulke: "Türkiye",
+      sehir: "",
+      mahalle: "",
+      sokak: "",
+      no: "",
+      postaKodu: "",
+      tarif: "",
+      varsayilan: false,
+    });
+    setSelectedAddress(null);
+  };
+
+  // Adres kaydetme fonksiyonu
+  const handleSaveAddress = async () => {
+    setIsAddressSaving(true);
+    try {
+      let result;
+
+      if (selectedAddress) {
+        // Adres güncelleme
+        result = await updateAddressAction(selectedAddress.id, addressForm);
+      } else {
+        // Yeni adres ekleme
+        result = await addAddressAction(addressForm);
+      }
+
+      if (result.success) {
+        // Kullanıcı verilerini yeniden çek
+        await fetchGetUser();
+
+        // Modal'ı kapat ve formu temizle
+        setIsAddressModalOpen(false);
+        resetAddressForm();
+      } else {
+        console.error("Adres kaydetme hatası:", result.message);
+      }
+    } catch (error) {
+      console.error("Adres kaydetme hatası:", error);
+    } finally {
+      setIsAddressSaving(false);
+    }
+  };
+
+  // Dinamik hesaplamalar
   const totalUserOrdersCount = user?.orders?.length || 0;
   const pendingUserOrdersCount =
     user?.orders?.filter(
@@ -39,149 +125,676 @@ const UserDashboard = () => {
         order.status === ProductStatus.PREPARING ||
         order.status === ProductStatus.APPROVED
     ).length || 0;
-
-  // DÜZELTME: Adres sayısını da artık store'daki kullanıcı verisinden alıyoruz.
   const addressCount = user?.addresses?.length || 0;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case ProductStatus.PENDING:
+        return "bg-yellow-100 text-yellow-800";
+      case ProductStatus.APPROVED:
+        return "bg-blue-100 text-blue-800";
+      case ProductStatus.PREPARING:
+        return "bg-orange-100 text-orange-800";
+      case ProductStatus.SHIPPED:
+        return "bg-purple-100 text-purple-800";
+      case ProductStatus.DELIVERED:
+        return "bg-green-100 text-green-800";
+      case ProductStatus.CANCELLED:
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case ProductStatus.PENDING:
+        return "Beklemede";
+      case ProductStatus.APPROVED:
+        return "Onaylandı";
+      case ProductStatus.PREPARING:
+        return "Hazırlanıyor";
+      case ProductStatus.SHIPPED:
+        return "Kargoda";
+      case ProductStatus.DELIVERED:
+        return "Teslim Edildi";
+      case ProductStatus.CANCELLED:
+        return "İptal Edildi";
+      default:
+        return status;
+    }
+  };
 
   if (isLoading) {
     return <LoadingScreen />;
   }
 
   if (error) {
-    return <div className="text-center py-20 text-red-600">Hata: {error}</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="text-center py-8">
+            <p className="text-red-600 mb-4">Bir hata oluştu: {error}</p>
+            <Button onClick={() => fetchGetUser()}>Tekrar Dene</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
-  if (!session) {
+  if (!session || !user) {
     return (
-      <div className="text-center py-20">
-        <p>Lütfen giriş yapınız.</p>
-        <LoginButton />
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="text-center py-8">
+            <p className="text-slate-600 mb-4">Lütfen giriş yapınız.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 p-8 border border-white/20 mb-8">
-          <div className="flex flex-col lg:flex-row items-center lg:items-start space-y-6 lg:space-y-0 lg:space-x-8">
-            <div className="relative">
-              {session.user?.image ? (
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name || "Kullanıcı"}
-                  width={100}
-                  height={100}
-                  className="rounded-3xl shadow-2xl shadow-blue-500/25 ring-4 ring-white/50"
-                />
-              ) : (
-                <div className="w-25 h-25 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/25 ring-4 ring-white/50">
-                  {" "}
-                  <UserIcon className="w-12 h-12 text-white" />{" "}
+        {/* Kullanıcı Bilgileri Header */}
+        <Card className="mb-8 shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
+                <div className="relative">
+                  {session?.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={user.name || "Kullanıcı"}
+                      width={80}
+                      height={80}
+                      className="rounded-full shadow-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-gradient-to-br from-amber-600 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                      <UserIcon className="w-10 h-10 text-white" />
+                    </div>
+                  )}
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
-              )}
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 border-4 border-white rounded-full shadow-lg"></div>
-            </div>
-            <div className="flex-1 text-center lg:text-left">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-                Hoş geldin, {user?.name?.split(" ")[0]}!
-              </h1>
-              <div className="space-y-3">
-                <div className="flex items-center justify-center lg:justify-start text-slate-600">
-                  <EnvelopeIcon className="w-5 h-5 mr-3 text-blue-500" />
-                  <span className="font-medium">{user?.email}</span>
-                </div>
-                {/* DÜZELTME: Üye olma tarihi veritabanından gelmeli, session'dan değil. */}
-                {user?.createdAt && (
-                  <div className="flex items-center justify-center lg:justify-start text-slate-600">
-                    <CalendarIcon className="w-5 h-5 mr-3 text-blue-500" />
-                    <span>
-                      Üye olma tarihi:{" "}
-                      {new Date(user.createdAt).toLocaleDateString("tr-TR")}
-                    </span>
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                    Hoş geldin, {user.name?.split(" ")[0]}!
+                  </h1>
+                  <p className="text-gray-600 text-lg">{user.email}</p>
+                  <div className="flex items-center mt-3 space-x-6">
+                    <div className="flex items-center text-sm text-gray-500">
+                      <ShoppingBagIcon className="w-4 h-4 mr-1" />
+                      {totalUserOrdersCount} Sipariş
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <MapPinIcon className="w-4 h-4 mr-1" />
+                      {addressCount} Adres
+                    </div>
                   </div>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="flex items-center space-x-2 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+              >
+                <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                <span>Çıkış Yap</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Ana Menü */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          {/* Siparişlerim Kartı */}
+          <Card
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 bg-white/90 backdrop-blur-sm hover:-translate-y-1"
+            onClick={() => setActiveSection("orders")}
+          >
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <ShoppingBagIcon className="w-8 h-8 text-gray-900" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                Siparişlerim
+              </h3>
+              <p className="text-gray-600 text-sm mb-3">
+                Tüm siparişlerinizi görüntüleyin
+              </p>
+              <div className="flex justify-center space-x-2">
+                <Badge className="bg-amber-100 text-amber-800">
+                  {totalUserOrdersCount} Toplam
+                </Badge>
+                {pendingUserOrdersCount > 0 && (
+                  <Badge className="bg-orange-100 text-orange-800">
+                    {pendingUserOrdersCount} Bekleyen
+                  </Badge>
                 )}
               </div>
-            </div>
-            <div className="flex flex-col items-center lg:items-end space-y-4">
-              <LoginButton />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+
+          {/* Adreslerim Kartı */}
+          <Card
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 bg-white/90 backdrop-blur-sm hover:-translate-y-1"
+            onClick={() => setActiveSection("addresses")}
+          >
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <MapPinIcon className="w-8 h-8 text-gray-900" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                Adreslerim
+              </h3>
+              <p className="text-gray-600 text-sm mb-3">
+                Teslimat adreslerinizi yönetin
+              </p>
+              <Badge className="bg-purple-100 text-purple-800">
+                {addressCount} Adres
+              </Badge>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Pending Orders Notification */}
-        {pendingUserOrdersCount > 0 && (
-          <PendingOrdersNotification
-            pendingOrdersCount={pendingUserOrdersCount}
-          />
+        {/* Dinamik İçerik */}
+        {activeSection === "orders" && (
+          <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl flex items-center">
+                  <ShoppingBagIcon className="w-6 h-6 mr-2" />
+                  Siparişlerim
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                  onClick={() => setActiveSection("profile")}
+                >
+                  ✕
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              {totalUserOrdersCount === 0 ? (
+                <div className="text-center py-12">
+                  <ShoppingBagIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                    Henüz siparişiniz bulunmuyor
+                  </h3>
+                  <p className="text-gray-500">
+                    Alışverişe başlamak için ürünlerimizi inceleyin
+                  </p>
+                  <Button className="mt-4 bg-amber-600 hover:bg-amber-700">
+                    Ürünleri İncele
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {user.orders?.map((order: any) => (
+                    <div
+                      key={order.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setIsOrderModalOpen(true);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-800">
+                            Sipariş #{order.id.slice(-8)}
+                          </h4>
+                          <p className="text-gray-600 text-sm">
+                            {new Date(order.createdAt).toLocaleDateString(
+                              "tr-TR"
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Badge className={getStatusColor(order.status)}>
+                            {getStatusText(order.status)}
+                          </Badge>
+                          <span className="font-bold text-gray-800">
+                            {order.totalAmount?.toLocaleString("tr-TR")} ₺
+                          </span>
+                          <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
 
-        {/* Stats & Actions Cards */}
-        {/* Bu kartların içindeki değişkenler (totalUserOrdersCount vb.) zaten doğru şekilde güncellendi. */}
-        {/* ... (Bu kısımlarda bir değişiklik yapmaya gerek yok) ... */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 p-6 border border-white/20">
-            <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <ShoppingBagIcon className="w-7 h-7 text-white" />
+        {activeSection === "addresses" && (
+          <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl flex items-center">
+                  <MapPinIcon className="w-6 h-6 mr-2" />
+                  Adreslerim
+                </CardTitle>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20"
+                    onClick={() => {
+                      resetAddressForm();
+                      setIsAddressModalOpen(true);
+                    }}
+                  >
+                    <PlusIcon className="w-4 h-4 mr-1" />
+                    Yeni Adres
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20"
+                    onClick={() => setActiveSection("profile")}
+                  >
+                    ✕
+                  </Button>
+                </div>
               </div>
-              <div>
-                <p className="text-3xl font-bold text-slate-800">
-                  {totalUserOrdersCount}
-                </p>
-                <p className="text-sm text-slate-600 font-medium">
-                  Toplam Sipariş
-                </p>
-              </div>
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              {addressCount === 0 ? (
+                <div className="text-center py-12">
+                  <MapPinIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                    Henüz adresiniz bulunmuyor
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    Hızlı teslimat için adres ekleyin
+                  </p>
+                  <Button
+                    className="bg-purple-600 hover:bg-purple-700"
+                    onClick={() => {
+                      resetAddressForm();
+                      setIsAddressModalOpen(true);
+                    }}
+                  >
+                    <PlusIcon className="w-4 h-4 mr-2" />
+                    İlk Adresimi Ekle
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {user.addresses?.map((address: any) => (
+                    <div
+                      key={address.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h4 className="font-semibold text-gray-800">
+                              {address.title || "Adres"}
+                            </h4>
+                            {address.isDefault && (
+                              <Badge className="bg-green-100 text-green-800">
+                                <CheckCircleIcon className="w-3 h-3 mr-1" />
+                                Varsayılan
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-gray-600 text-sm">
+                            {address.street} {address.buildingNumber}
+                          </p>
+                          <p className="text-gray-600 text-sm">
+                            {address.district}, {address.city}{" "}
+                            {address.postalCode}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {!address.varsayilan && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-green-600 hover:bg-green-50"
+                              onClick={async () => {
+                                try {
+                                  const result = await setDefaultAddressAction(
+                                    address.id
+                                  );
+                                  if (result.success) {
+                                    await fetchGetUser();
+                                  }
+                                } catch (error) {
+                                  console.error(
+                                    "Varsayılan adres hatası:",
+                                    error
+                                  );
+                                }
+                              }}
+                            >
+                              <HomeIcon className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-blue-600 hover:bg-blue-50"
+                            onClick={() => {
+                              setSelectedAddress(address);
+                              setAddressForm({
+                                addressTitle: address.addressTitle || "",
+                                ulke: address.ulke || "Türkiye",
+                                sehir: address.sehir || "",
+                                mahalle: address.mahalle || "",
+                                sokak: address.sokak || "",
+                                no: address.no || "",
+                                postaKodu: address.postaKodu || "",
+                                tarif: address.tarif || "",
+                                varsayilan: address.varsayilan || false,
+                              });
+                              setIsAddressModalOpen(true);
+                            }}
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:bg-red-50"
+                            onClick={async () => {
+                              if (
+                                confirm(
+                                  "Bu adresi silmek istediğinizden emin misiniz?"
+                                )
+                              ) {
+                                try {
+                                  const result = await deleteAddressAction(
+                                    address.id
+                                  );
+                                  if (result.success) {
+                                    await fetchGetUser();
+                                  }
+                                } catch (error) {
+                                  console.error("Adres silme hatası:", error);
+                                }
+                              }
+                            }}
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 p-6 border border-white/20">
-            <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <ClockIcon className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-slate-800">
-                  {pendingUserOrdersCount}
-                </p>
-                <p className="text-sm text-slate-600 font-medium">
-                  Bekleyen Sipariş
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Sipariş Detay Modal */}
+        <Dialog open={isOrderModalOpen} onOpenChange={setIsOrderModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-gray-800">
+                Sipariş Detayları
+              </DialogTitle>
+            </DialogHeader>
+            {selectedOrder && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">
+                      Sipariş Numarası
+                    </label>
+                    <p className="text-lg font-semibold text-gray-800">
+                      #{selectedOrder.id.slice(-8)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">
+                      Tarih
+                    </label>
+                    <p className="text-lg text-gray-800">
+                      {new Date(selectedOrder.createdAt).toLocaleDateString(
+                        "tr-TR"
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">
+                      Durum
+                    </label>
+                    <Badge className={getStatusColor(selectedOrder.status)}>
+                      {getStatusText(selectedOrder.status)}
+                    </Badge>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">
+                      Toplam Tutar
+                    </label>
+                    <p className="text-lg font-bold text-gray-800">
+                      {selectedOrder.totalAmount?.toLocaleString("tr-TR")} ₺
+                    </p>
+                  </div>
+                </div>
 
-        {/* Main Actions - Artık dinamik veriyle çalışıyor */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          <button
-            onClick={() => (window.location.href = "/hesabim/siparislerim")}
-            className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 p-8 border border-white/20 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer group w-full"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <span className="text-4xl font-bold text-blue-600">
-                  {totalUserOrdersCount}
-                </span>
-                <span className="text-slate-500 font-medium">sipariş</span>
+                {/* TODO: Sipariş ürünleri listesi buraya gelecek */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Sipariş Özeti
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-gray-600">
+                      Sipariş detayları yüklenecek...
+                    </p>
+                  </div>
+                </div>
               </div>
-              <ChevronRightIcon className="w-7 h-7 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
-            </div>
-          </button>
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 p-8 border border-white/20 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 cursor-pointer group">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <span className="text-4xl font-bold text-emerald-600">
-                  {addressCount}
-                </span>
-                <span className="text-slate-500 font-medium">adres</span>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Adres Ekleme/Düzenleme Modal */}
+        <Dialog open={isAddressModalOpen} onOpenChange={setIsAddressModalOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-gray-800">
+                {selectedAddress ? "Adres Düzenle" : "Yeni Adres Ekle"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Adres Başlığı */}
+                <div className="md:col-span-2">
+                  <Label htmlFor="addressTitle">Adres Başlığı *</Label>
+                  <Input
+                    id="addressTitle"
+                    type="text"
+                    placeholder="Ev, İş, vs."
+                    value={addressForm.addressTitle}
+                    onChange={(e) =>
+                      setAddressForm({
+                        ...addressForm,
+                        addressTitle: e.target.value,
+                      })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Ülke */}
+                <div>
+                  <Label htmlFor="ulke">Ülke *</Label>
+                  <Input
+                    id="ulke"
+                    type="text"
+                    value={addressForm.ulke}
+                    onChange={(e) =>
+                      setAddressForm({ ...addressForm, ulke: e.target.value })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Şehir */}
+                <div>
+                  <Label htmlFor="sehir">Şehir *</Label>
+                  <Input
+                    id="sehir"
+                    type="text"
+                    placeholder="İstanbul"
+                    value={addressForm.sehir}
+                    onChange={(e) =>
+                      setAddressForm({ ...addressForm, sehir: e.target.value })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Mahalle */}
+                <div>
+                  <Label htmlFor="mahalle">Mahalle *</Label>
+                  <Input
+                    id="mahalle"
+                    type="text"
+                    placeholder="Kadıköy"
+                    value={addressForm.mahalle}
+                    onChange={(e) =>
+                      setAddressForm({
+                        ...addressForm,
+                        mahalle: e.target.value,
+                      })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Sokak */}
+                <div>
+                  <Label htmlFor="sokak">Sokak *</Label>
+                  <Input
+                    id="sokak"
+                    type="text"
+                    placeholder="Bahariye Caddesi"
+                    value={addressForm.sokak}
+                    onChange={(e) =>
+                      setAddressForm({ ...addressForm, sokak: e.target.value })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Kapı No */}
+                <div>
+                  <Label htmlFor="no">Kapı No *</Label>
+                  <Input
+                    id="no"
+                    type="text"
+                    placeholder="123/4"
+                    value={addressForm.no}
+                    onChange={(e) =>
+                      setAddressForm({ ...addressForm, no: e.target.value })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Posta Kodu */}
+                <div>
+                  <Label htmlFor="postaKodu">Posta Kodu *</Label>
+                  <Input
+                    id="postaKodu"
+                    type="text"
+                    placeholder="34710"
+                    value={addressForm.postaKodu}
+                    onChange={(e) =>
+                      setAddressForm({
+                        ...addressForm,
+                        postaKodu: e.target.value,
+                      })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Adres Tarifi */}
+                <div className="md:col-span-2">
+                  <Label htmlFor="tarif">Adres Tarifi</Label>
+                  <Textarea
+                    id="tarif"
+                    placeholder="Apartman girişi sağ taraf, 3. kat..."
+                    value={addressForm.tarif}
+                    onChange={(e) =>
+                      setAddressForm({ ...addressForm, tarif: e.target.value })
+                    }
+                    className="mt-1"
+                    rows={3}
+                  />
+                </div>
+
+                {/* Varsayılan Adres */}
+                <div className="md:col-span-2 flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="varsayilan"
+                    checked={addressForm.varsayilan}
+                    onChange={(e) =>
+                      setAddressForm({
+                        ...addressForm,
+                        varsayilan: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  />
+                  <Label htmlFor="varsayilan" className="cursor-pointer">
+                    Bu adresi varsayılan adres olarak ayarla
+                  </Label>
+                </div>
               </div>
-              <ChevronRightIcon className="w-7 h-7 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
+
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsAddressModalOpen(false);
+                    resetAddressForm();
+                  }}
+                  disabled={isAddressSaving}
+                >
+                  İptal
+                </Button>
+                <Button
+                  className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                  onClick={handleSaveAddress}
+                  disabled={
+                    isAddressSaving ||
+                    !addressForm.addressTitle ||
+                    !addressForm.sehir ||
+                    !addressForm.mahalle ||
+                    !addressForm.sokak ||
+                    !addressForm.no ||
+                    !addressForm.postaKodu
+                  }
+                >
+                  {isAddressSaving ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Kaydediliyor...
+                    </>
+                  ) : selectedAddress ? (
+                    "Güncelle"
+                  ) : (
+                    "Kaydet"
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

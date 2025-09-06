@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Category, Product } from "@/lib/mockData";
+import { Category, Product } from "@/types";
 import { useCartStore } from "@/stores/cartStore";
 import {
   Card,

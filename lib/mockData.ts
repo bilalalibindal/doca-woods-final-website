@@ -1,30 +1,6 @@
 import { type Order, OrderStatus, UserRole } from "@/types/admin";
+import { Product, Category, User, Address } from "@/types";
 import { DollarSign, ShoppingCart, Package, Clock } from "lucide-react";
-
-//! TYPES
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  images: string[];
-  price: number;
-  inStock: boolean;
-  stockCount: number;
-  material: string;
-  color: string;
-  sku: string;
-  sizeWidth?: number | null;
-  sizeHeight?: number | null;
-  sizeDepth?: number | null;
-  categoryId: string;
-  category: Category;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-}
-export interface Category {
-  id: string;
-  name: string;
-}
 
 //! MOCK DATA
 export const mockCategories: Category[] = [
@@ -56,8 +32,8 @@ export const mockProducts: Product[] = [
     sizeDepth: 8,
     categoryId: "cat_003",
     category: mockCategories[0],
-    createdAt: new Date("2024-01-01").toISOString(),
-    updatedAt: new Date("2024-01-01").toISOString(),
+    createdAt: new Date("2024-01-01"),
+    updatedAt: new Date("2024-01-01"),
   },
   {
     id: "prod_002",
@@ -79,8 +55,8 @@ export const mockProducts: Product[] = [
     sizeDepth: 30,
     categoryId: "cat_003",
     category: mockCategories[1],
-    createdAt: new Date("2024-01-02").toISOString(),
-    updatedAt: new Date("2024-01-02").toISOString(),
+    createdAt: new Date("2024-01-02"),
+    updatedAt: new Date("2024-01-02"),
   },
 ];
 // Mock data for dashboard
@@ -403,5 +379,50 @@ export const mockOrders: Order[] = [
     ],
     createdAt: new Date("2024-01-13"),
     updatedAt: new Date("2024-01-13"),
+  },
+];
+
+// Mock user data
+export const mockUser: User = {
+  id: "user_001",
+  name: "Ahmet Yılmaz",
+  email: "ahmet@example.com",
+  phone: "+90 555 123 45 67",
+  role: "USER",
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date("2024-01-01"),
+};
+
+// Mock address data
+export const mockAddresses: Address[] = [
+  {
+    id: "addr_001",
+    addressTitle: "Ev",
+    ulke: "Türkiye",
+    sehir: "İstanbul",
+    mahalle: "Kadıköy",
+    sokak: "Bahariye Caddesi",
+    no: "123",
+    postaKodu: "34710",
+    tarif: "Apartman girişi sağ taraf",
+    varsayilan: true,
+    userId: "user_001",
+    createdAt: new Date("2024-01-01"),
+    updatedAt: new Date("2024-01-01"),
+  },
+  {
+    id: "addr_002",
+    addressTitle: "İş",
+    ulke: "Türkiye",
+    sehir: "İstanbul",
+    mahalle: "Şişli",
+    sokak: "Büyükdere Caddesi",
+    no: "456",
+    postaKodu: "34394",
+    tarif: "Plaza 5. kat",
+    varsayilan: false,
+    userId: "user_001",
+    createdAt: new Date("2024-01-02"),
+    updatedAt: new Date("2024-01-02"),
   },
 ];

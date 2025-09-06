@@ -99,7 +99,6 @@ export function ProductsTable({ products, categories }: ProductsTableProps) {
             <TableRow>
               <TableHead className="w-[350px]">ÜRÜN</TableHead>
               <TableHead>KATEGORİ</TableHead>
-              <TableHead>MALZEME</TableHead>
               <TableHead>FİYAT</TableHead>
               <TableHead>STOK DURUMU</TableHead>
               <TableHead className="text-right">EYLEMLER</TableHead>
@@ -138,10 +137,7 @@ export function ProductsTable({ products, categories }: ProductsTableProps) {
                     </Badge>
                   </TableCell>
 
-                  {/* 3. MALZEME SÜTUNU */}
-                  <TableCell>{product.material}</TableCell>
-
-                  {/* 4. FİYAT SÜTUNU: Türk Lirası formatında */}
+                  {/* 3. FİYAT SÜTUNU: Türk Lirası formatında */}
                   <TableCell>
                     {product.price.toLocaleString("tr-TR", {
                       style: "currency",
@@ -149,7 +145,7 @@ export function ProductsTable({ products, categories }: ProductsTableProps) {
                     })}
                   </TableCell>
 
-                  {/* 5. STOK DURUMU SÜTUNU: Rozet (Badge) içinde */}
+                  {/* 4. STOK DURUMU SÜTUNU: Rozet (Badge) içinde */}
                   <TableCell>
                     <Badge
                       variant="outline"
@@ -163,7 +159,7 @@ export function ProductsTable({ products, categories }: ProductsTableProps) {
                     </Badge>
                   </TableCell>
 
-                  {/* 6. EYLEMLER (ACTIONS) SÜTUNU: Düzenle/Sil */}
+                  {/* 5. EYLEMLER (ACTIONS) SÜTUNU: Düzenle/Sil */}
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
