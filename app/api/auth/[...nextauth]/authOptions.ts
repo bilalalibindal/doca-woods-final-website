@@ -4,6 +4,7 @@ import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
 import { UserRole } from "@/Enum";
+import { sendMail } from "@/lib/email-sender";
 
 export const authOptions: NextAuthOptions = {
   // AÇIKLAMA: Session stratejisini ve süresini burada belirtiyoruz.
@@ -54,6 +55,13 @@ export const authOptions: NextAuthOptions = {
             token.id = newUser.id;
             token.name = newUser.name;
             token.role = newUser.role;
+            // Yeni kullanıcı için hoşgeldiniz emaili gönder
+            await sendMail(
+              newUser.email,
+              newUser.name,
+              "Hoşgeldiniz",
+              "welcome"
+            );
           }
         } catch (error) {
           console.error("JWT callback veritabanı hatası:", error);

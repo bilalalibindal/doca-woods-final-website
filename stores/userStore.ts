@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { mockAddresses, mockUser } from "./mockData";
 import { toast } from "sonner";
 import { getUserAction } from "@/lib/actions";
+import { signOut } from "next-auth/react";
 
 interface UserState {
   user: User | null;
@@ -31,6 +32,7 @@ export const userStore = create<UserState>((set, get) => ({
 
         toast.success("Kullanıcı bilgileri başarıyla yüklendi.");
       } else {
+        signOut({ callbackUrl: "/profil" });
         throw new Error(result.message || "Kullanıcı verisi alınamadı");
       }
     } catch (error: any) {

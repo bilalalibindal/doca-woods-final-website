@@ -353,7 +353,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                           }
                           className="cursor-pointer"
                         >
-                          ✅ Onayla
+                          ✅ Onaylandı
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() =>
@@ -364,7 +364,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                           }
                           className="cursor-pointer"
                         >
-                          📦 Hazırla
+                          📦 Hazırlanıyor
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() =>
@@ -375,7 +375,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                           }
                           className="cursor-pointer"
                         >
-                          🚚 Gönder
+                          🚚 Kargoda
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() =>
@@ -386,7 +386,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                           }
                           className="cursor-pointer"
                         >
-                          ✅ Teslim Et
+                          ✅ Teslim Edildi
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -398,7 +398,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                           }
                           className="cursor-pointer text-red-600"
                         >
-                          ❌ İptal Et
+                          ❌ İptal Edildi
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

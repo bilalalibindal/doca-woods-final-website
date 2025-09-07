@@ -9,7 +9,9 @@ import {
   setDefaultAddress,
   createOrder,
 } from "@/lib/services";
+import { sendMail } from "@/lib/email-sender";
 import { AddressFormData, CreateOrderData, ApiResponse } from "@/types";
+import { signOut } from "next-auth/react";
 
 // =============================================================
 // KULLANICI AKSİYONLARI
@@ -26,6 +28,7 @@ export async function getUserAction(): Promise<ApiResponse<any>> {
         message: "Kullanıcı bilgileri başarıyla alındı.",
       };
     } else {
+      signOut({ callbackUrl: "/profil" });
       return {
         success: false,
         message: "Kullanıcı bulunamadı veya giriş yapılmamış.",
@@ -139,6 +142,40 @@ export async function createOrderAction(
     revalidatePath("/profil"); // Siparişler sayfasını güncelle
     revalidatePath("/urunler"); // Stok güncellemelerini yansıt
 
+    // Sipariş onay bekliyor email'i gönder (background'da)
+    try {
+      // Ürün bilgilerini email için hazırla
+      const orderItemsForEmail = order.items.map((item: any) => ({
+        name: item.product?.name || "Ürün Adı Yok",
+        quantity: item.quantity,
+        price: item.price,
+        image: item.product?.images?.[0], // İlk resmi al
+        sku: item.product?.sku || "N/A",
+      }));
+
+      // Email'i gönder (background'da çalıştır)
+      setImmediate(async () => {
+        try {
+          await sendMail(
+            order.customer.email,
+            order.customer.name,
+            "Siparişiniz Onay Sürecinde",
+            "orderPending",
+            {
+              orderId: order.id,
+              orderItems: orderItemsForEmail,
+            }
+          );
+        } catch (emailError) {
+          console.error("Sipariş email gönderme hatası:", emailError);
+          // Email hatası ana işlemi etkilemesin
+        }
+      });
+    } catch (emailError) {
+      console.error("Email hazırlama hatası:", emailError);
+      // Email hatası ana işlemi etkilemesin
+    }
+
     return {
       success: true,
       data: order,
@@ -165,6 +202,67 @@ export async function updateOrderStatusAction(
     const { updateOrderStatus } = await import("@/lib/services");
     const updatedOrder = await updateOrderStatus(orderId, status);
     revalidatePath("/admin/orders");
+
+    // Sipariş durumu değiştiğinde otomatik email gönder
+    try {
+      let emailSubject:
+        | "Siparişiniz Onaylandı"
+        | "Siparişiniz Hazırlanıyor"
+        | "Siparişiniz Kargoda"
+        | "Siparişiniz Teslim Edildi"
+        | "Siparişiniz İptal Edildi" = "Siparişiniz Onaylandı";
+      let emailTemplate = "";
+
+      switch (status) {
+        case "APPROVED":
+          emailSubject = "Siparişiniz Onaylandı";
+          emailTemplate = "orderApproved";
+          break;
+        case "PREPARING":
+          emailSubject = "Siparişiniz Hazırlanıyor";
+          emailTemplate = "orderPreparing";
+          break;
+        case "SHIPPED":
+          emailSubject = "Siparişiniz Kargoda";
+          emailTemplate = "orderShipped";
+          break;
+        case "DELIVERED":
+          emailSubject = "Siparişiniz Teslim Edildi";
+          emailTemplate = "orderDelivered";
+          break;
+        case "CANCELLED":
+          emailSubject = "Siparişiniz İptal Edildi";
+          emailTemplate = "orderCancelled";
+          break;
+        default:
+          return {
+            success: true,
+            data: updatedOrder,
+            message: "Sipariş durumu başarıyla güncellendi.",
+          };
+      }
+
+      // Email'i background'da gönder
+      setImmediate(async () => {
+        try {
+          await sendMail(
+            updatedOrder.customer.email,
+            updatedOrder.customer.name,
+            emailSubject,
+            emailTemplate as any,
+            {
+              orderId: updatedOrder.id,
+              // İptal için neden eklenebilir
+              ...(status === "CANCELLED" && { reason: "Admin kararı" }),
+            }
+          );
+        } catch (emailError) {
+          console.error("Durum güncelleme email hatası:", emailError);
+        }
+      });
+    } catch (emailError) {
+      console.error("Email hazırlama hatası:", emailError);
+    }
 
     return {
       success: true,
