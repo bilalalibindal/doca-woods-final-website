@@ -20,10 +20,29 @@ import { MoreHorizontal, Eye, Package } from "lucide-react";
 import { ProductStatus } from "@/Enum";
 import { updateOrderStatusAction } from "@/lib/actions";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 interface OrdersTableProps {
   orders: any[];
   onOrderUpdate?: () => void;
+}
+
+// Tarih Component - Hydration hatasını önlemek için
+function OrderDate({ dateString }: { dateString: string }) {
+  const [formattedDate, setFormattedDate] = useState("");
+
+  useEffect(() => {
+    // Client-side'da tarih hesaplaması
+    const date = new Date(dateString);
+    const formatted = date.toLocaleDateString("tr-TR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+    setFormattedDate(formatted);
+  }, [dateString]);
+
+  return <span>{formattedDate}</span>;
 }
 
 export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
@@ -187,7 +206,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
               </TableCell>
 
               <TableCell className="text-sm text-gray-500">
-                {new Date(order.createdAt).toLocaleDateString("tr-TR")}
+                <OrderDate dateString={order.createdAt} />
               </TableCell>
 
               <TableCell>
