@@ -73,15 +73,31 @@ export default function OrdersManagement({
     });
 
     startTransition(() => {
-      router.push(`/admin/orders?${params.toString()}`);
+      // Sayfa yeniden yüklenmeden URL'yi güncelle
+      router.replace(`/admin/orders?${params.toString()}`, {
+        scroll: false, // Scroll pozisyonunu koru
+      });
     });
   };
 
   const handleSearch = () => {
-    updateSearchParams({
-      search: search,
-      page: "1", // Reset to first page on search
-    });
+    if (search.trim()) {
+      updateSearchParams({
+        search: search.trim(),
+        page: "1", // Reset to first page on search
+      });
+    }
+  };
+
+  const handleSearchInputChange = (value: string) => {
+    setSearch(value);
+    // Eğer arama kutusu boşaltılırsa arama filtresini kaldır
+    if (!value.trim()) {
+      updateSearchParams({
+        search: "",
+        page: "1",
+      });
+    }
   };
 
   const handleStatusChange = (newStatus: string) => {
@@ -111,6 +127,20 @@ export default function OrdersManagement({
   const handleRefresh = () => {
     startTransition(() => {
       router.refresh();
+    });
+  };
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setStatus("all");
+    setSortBy("createdAt");
+    setSortOrder("desc");
+    updateSearchParams({
+      search: "",
+      status: "all",
+      sortBy: "createdAt",
+      sortOrder: "desc",
+      page: "1",
     });
   };
 
@@ -303,7 +333,7 @@ export default function OrdersManagement({
                   <Input
                     placeholder="Sipariş ID, müşteri adı veya email ile ara..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => handleSearchInputChange(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                     className="pl-10"
                   />
@@ -357,10 +387,25 @@ export default function OrdersManagement({
                 </SelectContent>
               </Select>
 
-              <Button onClick={handleSearch} disabled={isPending}>
-                <Search className="w-4 h-4 mr-2" />
-                Ara
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleSearch}
+                  disabled={isPending || !search.trim()}
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Ara
+                </Button>
+                {(search || status !== "all") && (
+                  <Button
+                    variant="outline"
+                    onClick={handleClearFilters}
+                    disabled={isPending}
+                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                  >
+                    Temizle
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Active Filters */}
@@ -425,9 +470,9 @@ export default function OrdersManagement({
             <OrdersTable
               orders={initialOrders}
               onOrderUpdate={() => {
-                startTransition(() => {
-                  router.refresh();
-                });
+                // Sipariş güncellendiğinde sadece o kısmı yeniden yükle
+                // router.refresh() yerine daha hafif bir çözüm
+                window.location.reload();
               }}
             />
           </CardContent>
@@ -441,12 +486,14 @@ export default function OrdersManagement({
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() =>
-                      currentPage > 1 && handlePageChange(currentPage - 1)
+                      currentPage > 1 &&
+                      !isPending &&
+                      handlePageChange(currentPage - 1)
                     }
                     className={
-                      currentPage <= 1
+                      currentPage <= 1 || isPending
                         ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
+                        : "cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                     }
                   />
                 </PaginationItem>
@@ -457,11 +504,23 @@ export default function OrdersManagement({
                       <PaginationEllipsis />
                     ) : (
                       <PaginationLink
-                        onClick={() => handlePageChange(pageNum as number)}
+                        onClick={() =>
+                          !isPending && handlePageChange(pageNum as number)
+                        }
                         isActive={pageNum === currentPage}
-                        className="cursor-pointer"
+                        className={`cursor-pointer transition-colors duration-200 ${
+                          pageNum === currentPage
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : isPending
+                            ? "opacity-50 pointer-events-none"
+                            : "hover:bg-gray-100"
+                        }`}
                       >
-                        {pageNum}
+                        {isPending && pageNum === currentPage ? (
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        ) : (
+                          pageNum
+                        )}
                       </PaginationLink>
                     )}
                   </PaginationItem>
@@ -471,12 +530,13 @@ export default function OrdersManagement({
                   <PaginationNext
                     onClick={() =>
                       currentPage < totalPages &&
+                      !isPending &&
                       handlePageChange(currentPage + 1)
                     }
                     className={
-                      currentPage >= totalPages
+                      currentPage >= totalPages || isPending
                         ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
+                        : "cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                     }
                   />
                 </PaginationItem>
