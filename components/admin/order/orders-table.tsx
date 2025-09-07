@@ -14,9 +14,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Eye, Package } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  MoreHorizontal,
+  Eye,
+  Package,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar,
+  CreditCard,
+} from "lucide-react";
 import { ProductStatus } from "@/Enum";
 import { updateOrderStatusAction } from "@/lib/actions";
 import { toast } from "sonner";
@@ -46,6 +63,9 @@ function OrderDate({ dateString }: { dateString: string }) {
 }
 
 export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case ProductStatus.PENDING:
@@ -90,6 +110,10 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
       if (result.success) {
         toast.success("Sipariş durumu güncellendi");
         onOrderUpdate?.();
+        // Modal açıkken durum güncellenirse modal'ı da güncelle
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status: newStatus });
+        }
       } else {
         toast.error(result.message);
       }
@@ -97,6 +121,11 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
       console.error("Status update error:", error);
       toast.error("Sipariş durumu güncellenirken hata oluştu");
     }
+  };
+
+  const handleViewDetails = (order: any) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
   };
 
   return (
@@ -217,7 +246,10 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => handleViewDetails(order)}
+                    >
                       <Eye className="mr-2 h-4 w-4" />
                       Detayları Görüntüle
                     </DropdownMenuItem>
@@ -240,6 +272,286 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
           </p>
         </div>
       )}
+
+      {/* Sipariş Detayları Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Package className="w-5 h-5" />
+              <span>Sipariş Detayları</span>
+              <Badge variant="outline" className="ml-2">
+                #{selectedOrder?.id?.slice(-8)}
+              </Badge>
+            </DialogTitle>
+            <DialogDescription>
+              Sipariş bilgilerini görüntüleyin ve düzenleyin
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Sipariş Özeti */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-900">
+                      Sipariş Tarihi
+                    </span>
+                  </div>
+                  <p className="text-lg font-semibold text-blue-800 mt-1">
+                    {new Date(selectedOrder.createdAt).toLocaleDateString(
+                      "tr-TR"
+                    )}
+                  </p>
+                </div>
+
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <CreditCard className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-900">
+                      Toplam Tutar
+                    </span>
+                  </div>
+                  <p className="text-lg font-semibold text-green-800 mt-1">
+                    {selectedOrder.totalPrice?.toLocaleString("tr-TR")} ₺
+                  </p>
+                </div>
+
+                <div className="bg-orange-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <Package className="w-4 h-4 text-orange-600" />
+                    <span className="text-sm font-medium text-orange-900">
+                      Sipariş Durumu
+                    </span>
+                  </div>
+                  <div className="mt-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`cursor-pointer border ${getStatusColor(
+                            selectedOrder.status
+                          )}`}
+                        >
+                          {getStatusText(selectedOrder.status)}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>
+                          Sipariş Durumu Değiştir
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusUpdate(
+                              selectedOrder.id,
+                              ProductStatus.APPROVED
+                            )
+                          }
+                          className="cursor-pointer"
+                        >
+                          ✅ Onayla
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusUpdate(
+                              selectedOrder.id,
+                              ProductStatus.PREPARING
+                            )
+                          }
+                          className="cursor-pointer"
+                        >
+                          📦 Hazırla
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusUpdate(
+                              selectedOrder.id,
+                              ProductStatus.SHIPPED
+                            )
+                          }
+                          className="cursor-pointer"
+                        >
+                          🚚 Gönder
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusUpdate(
+                              selectedOrder.id,
+                              ProductStatus.DELIVERED
+                            )
+                          }
+                          className="cursor-pointer"
+                        >
+                          ✅ Teslim Et
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusUpdate(
+                              selectedOrder.id,
+                              ProductStatus.CANCELLED
+                            )
+                          }
+                          className="cursor-pointer text-red-600"
+                        >
+                          ❌ İptal Et
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 my-4" />
+
+              {/* Müşteri Bilgileri */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">
+                  Müşteri Bilgileri
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <Avatar>
+                        <AvatarImage src="" />
+                        <AvatarFallback>
+                          {selectedOrder.customer?.name
+                            ?.charAt(0)
+                            ?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">
+                          {selectedOrder.customer?.name || "İsim Yok"}
+                        </p>
+                        <p className="text-sm text-gray-500">Müşteri</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm">
+                        {selectedOrder.customer?.email || "Email Yok"}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm">
+                        {selectedOrder.customer?.phone || "Telefon Yok"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 my-4" />
+
+              {/* Teslimat Adresi */}
+              {selectedOrder.address && (
+                <>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Teslimat Adresi
+                    </h3>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="flex items-start space-x-3">
+                        <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                        <div>
+                          <p className="font-medium">
+                            {selectedOrder.address.title || "Adres"}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {selectedOrder.address.address}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {selectedOrder.address.city},{" "}
+                            {selectedOrder.address.district}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {selectedOrder.address.postalCode}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-200 my-4" />
+                </>
+              )}
+
+              {/* Sipariş Ürünleri */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Sipariş Ürünleri</h3>
+                <div className="space-y-4">
+                  {selectedOrder.items?.map((item: any) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center space-x-4 bg-gray-50 rounded-lg p-4"
+                    >
+                      <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                        {item.product?.images &&
+                        item.product.images.length > 0 ? (
+                          <img
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/placeholder-product.jpg";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                            <Package className="w-6 h-6 text-gray-500" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-gray-900 truncate">
+                          {item.product?.name || "Ürün Adı Yok"}
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          SKU: {item.product?.sku || "N/A"}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Birim Fiyat: {item.price?.toLocaleString("tr-TR")} ₺
+                        </p>
+                      </div>
+
+                      <div className="text-center">
+                        <p className="text-sm text-gray-500">Adet</p>
+                        <p className="font-semibold text-gray-900">
+                          {item.quantity}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">Toplam</p>
+                        <p className="font-bold text-gray-900">
+                          {(item.price * item.quantity)?.toLocaleString(
+                            "tr-TR"
+                          )}{" "}
+                          ₺
+                        </p>
+                      </div>
+                    </div>
+                  )) || (
+                    <div className="text-center py-8 text-gray-500">
+                      <Package className="w-8 h-8 mx-auto mb-2" />
+                      <p>Ürün bilgisi bulunamadı</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
