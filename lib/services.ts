@@ -299,7 +299,13 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
         });
       }
 
-      return newOrder;
+      return {
+        order: newOrder,
+        customer: {
+          email: session?.user?.email,
+          name: session?.user?.name,
+        },
+      };
     });
 
     return order;

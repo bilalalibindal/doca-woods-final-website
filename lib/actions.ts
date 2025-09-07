@@ -138,14 +138,16 @@ export async function createOrderAction(
   orderData: CreateOrderData
 ): Promise<ApiResponse<any>> {
   try {
-    const order = await createOrder(orderData);
+    const result = await createOrder(orderData);
+
+    console.log("ORDER::", result);
     revalidatePath("/profil"); // Siparişler sayfasını güncelle
     revalidatePath("/urunler"); // Stok güncellemelerini yansıt
 
     // Sipariş onay bekliyor email'i gönder (background'da)
     try {
       // Ürün bilgilerini email için hazırla
-      const orderItemsForEmail = order.items.map((item: any) => ({
+      const orderItemsForEmail = result.order.items.map((item: any) => ({
         name: item.product?.name || "Ürün Adı Yok",
         quantity: item.quantity,
         price: item.price,
@@ -157,12 +159,12 @@ export async function createOrderAction(
       setImmediate(async () => {
         try {
           await sendMail(
-            order.customer.email,
-            order.customer.name,
+            result.customer.email,
+            result.customer.name,
             "Siparişiniz Onay Sürecinde",
             "orderPending",
             {
-              orderId: order.id,
+              orderId: result.order.id,
               orderItems: orderItemsForEmail,
             }
           );
@@ -178,7 +180,7 @@ export async function createOrderAction(
 
     return {
       success: true,
-      data: order,
+      data: result.order,
       message: "Siparişiniz başarıyla oluşturuldu.",
     };
   } catch (error: any) {
