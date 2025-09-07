@@ -256,15 +256,33 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
     }, 0);
 
     // Transaction ile sipariş oluştur
-    const order = await prisma.$transaction(async (tx) => {
-      // Sipariş oluştur
+    const result = await prisma.$transaction(async (tx) => {
+      // Gerekli ürün bilgilerini (özellikle fiyat) önceden hazırlayalım
+      const itemsToCreate = orderData.products.map((cartItem) => {
+        const dbProduct = dbProducts.find((p) => p.id === cartItem.productId);
+        // dbProduct'ın varlığını en başta kontrol ettiğimiz için burada güvenle kullanabiliriz.
+        return {
+          productId: cartItem.productId,
+          quantity: cartItem.quantity,
+          price: dbProduct!.price, // Sipariş anındaki fiyat
+        };
+      });
+
+      // Siparişi ve kalemlerini tek bir işlemde oluştur
       const newOrder = await tx.order.create({
         data: {
           customerId: session.user.id,
           addressId: orderData.addressId,
           totalPrice: totalPrice,
           customizationImages: orderData.customizationImages || [],
+          // İlişkili kayıtları burada oluşturuyoruz
+          items: {
+            createMany: {
+              data: itemsToCreate,
+            },
+          },
         },
+        // Include artık doğru çalışacak çünkü kalemler aynı anda oluşturuluyor
         include: {
           items: {
             include: {
@@ -275,20 +293,8 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
         },
       });
 
-      // Sipariş kalemlerini oluştur
+      // Stokları ayrıca güncellememiz gerekiyor
       for (const cartItem of orderData.products) {
-        const dbProduct = dbProducts.find((p) => p.id === cartItem.productId);
-
-        await tx.orderItem.create({
-          data: {
-            orderId: newOrder.id,
-            productId: cartItem.productId,
-            quantity: cartItem.quantity,
-            price: dbProduct?.price || 0,
-          },
-        });
-
-        // Stok güncelle
         await tx.product.update({
           where: { id: cartItem.productId },
           data: {
@@ -299,6 +305,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
         });
       }
 
+      // Fonksiyonun istediği formatta geri dönüş yap
       return {
         order: newOrder,
         customer: {
@@ -308,7 +315,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
       };
     });
 
-    return order;
+    return result;
   } catch (error) {
     console.error("Error creating order:", error);
     throw error;
