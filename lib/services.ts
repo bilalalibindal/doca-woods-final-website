@@ -308,3 +308,133 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
     throw error;
   }
 }
+
+// =============================================================
+// ADMİN SERVİSLERİ
+// =============================================================
+
+export async function getOrdersForAdmin(
+  page: number = 1,
+  limit: number = 20,
+  search?: string,
+  status?: string,
+  sortBy: string = "createdAt",
+  sortOrder: "asc" | "desc" = "desc"
+): Promise<{
+  orders: any[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+}> {
+  try {
+    const session = await getServerSession(authOptions);
+    // TODO: Admin kontrolü aktifleştirilecek
+    // if (!session?.user?.role || session.user.role !== "ADMIN") {
+    //   throw new Error("Yetkisiz erişim");
+    // }
+
+    const skip = (page - 1) * limit;
+
+    // Build where clause
+    const where: any = {};
+
+    // Search by order ID or customer name
+    if (search) {
+      where.OR = [
+        { id: { contains: search, mode: "insensitive" } },
+        { customer: { name: { contains: search, mode: "insensitive" } } },
+        { customer: { email: { contains: search, mode: "insensitive" } } },
+      ];
+    }
+
+    // Filter by status
+    if (status && status !== "all") {
+      where.status = status;
+    }
+
+    // Get total count for pagination
+    const totalCount = await prisma.order.count({ where });
+
+    // Get orders with relations
+    const orders = await prisma.order.findMany({
+      where,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        address: {
+          select: {
+            id: true,
+            addressTitle: true,
+            sehir: true,
+            ulke: true,
+          },
+        },
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                images: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      skip,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      orders,
+      totalCount,
+      totalPages,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error("Error fetching orders for admin:", error);
+    throw error;
+  }
+}
+
+export async function updateOrderStatus(
+  orderId: string,
+  status: string
+): Promise<any> {
+  try {
+    const session = await getServerSession(authOptions);
+    // TODO: Admin kontrolü aktifleştirilecek
+    // if (!session?.user?.role || session.user.role !== "ADMIN") {
+    //   throw new Error("Yetkisiz erişim");
+    // }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { status: status as any },
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return updatedOrder;
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    throw error;
+  }
+}

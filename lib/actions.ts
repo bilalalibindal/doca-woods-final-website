@@ -154,5 +154,32 @@ export async function createOrderAction(
 }
 
 // =============================================================
+// ADMİN AKSİYONLARI
+// =============================================================
+
+export async function updateOrderStatusAction(
+  orderId: string,
+  status: string
+): Promise<ApiResponse<any>> {
+  try {
+    const { updateOrderStatus } = await import("@/lib/services");
+    const updatedOrder = await updateOrderStatus(orderId, status);
+    revalidatePath("/admin/orders");
+
+    return {
+      success: true,
+      data: updatedOrder,
+      message: "Sipariş durumu başarıyla güncellendi.",
+    };
+  } catch (error: any) {
+    console.error("updateOrderStatusAction error:", error);
+    return {
+      success: false,
+      message: error.message || "Sipariş durumu güncellenirken hata oluştu.",
+    };
+  }
+}
+
+// =============================================================
 // SİPARİŞ AKSİYONLARI
 // =============================================================
