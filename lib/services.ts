@@ -379,14 +379,7 @@ export async function getOrdersForAdmin(
             email: true,
           },
         },
-        address: {
-          select: {
-            id: true,
-            addressTitle: true,
-            sehir: true,
-            ulke: true,
-          },
-        },
+        address: true,
         items: {
           include: {
             product: {
@@ -407,7 +400,7 @@ export async function getOrdersForAdmin(
     });
 
     const totalPages = Math.ceil(totalCount / limit);
-
+    console.log("Admin-Orders:", orders);
     return {
       orders,
       totalCount,

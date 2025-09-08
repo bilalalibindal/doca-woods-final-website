@@ -33,6 +33,7 @@ import {
   Mail,
   Calendar,
   CreditCard,
+  ChevronDown,
 } from "lucide-react";
 import { ProductStatus } from "@/Enum";
 import { updateOrderStatusAction } from "@/lib/actions";
@@ -65,6 +66,7 @@ function OrderDate({ dateString }: { dateString: string }) {
 export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAddressDetails, setShowAddressDetails] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -126,6 +128,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
   const handleViewDetails = (order: any) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
+    setShowAddressDetails(false); // Modal açıldığında adres detaylarını kapat
   };
 
   return (
@@ -459,25 +462,153 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                     <h3 className="text-lg font-semibold mb-4">
                       Teslimat Adresi
                     </h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="flex items-start space-x-3">
-                        <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                        <div>
-                          <p className="font-medium">
-                            {selectedOrder.address.title || "Adres"}
-                          </p>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {selectedOrder.address.address}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {selectedOrder.address.city},{" "}
-                            {selectedOrder.address.district}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {selectedOrder.address.postalCode}
-                          </p>
+                    <div
+                      className="bg-gray-50 p-4 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => setShowAddressDetails(!showAddressDetails)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <p className="font-medium">
+                                {selectedOrder.address.addressTitle ||
+                                  "Adres Başlığı Yok"}
+                              </p>
+                              <button
+                                className="text-xs text-blue-600 hover:text-blue-800 ml-2 flex items-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowAddressDetails(!showAddressDetails);
+                                }}
+                              >
+                                {showAddressDetails
+                                  ? "Gizle"
+                                  : "Detayları Göster"}
+                                <ChevronDown
+                                  className={`w-3 h-3 ml-1 transition-transform ${
+                                    showAddressDetails ? "rotate-180" : ""
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {selectedOrder.address.sokak} No:{" "}
+                              {selectedOrder.address.no}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {selectedOrder.address.mahalle},{" "}
+                              {selectedOrder.address.sehir} /{" "}
+                              {selectedOrder.address.ulke}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {selectedOrder.address.postaKodu}
+                            </p>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Detaylı Adres Bilgileri */}
+                      {showAddressDetails && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          {/* Debug: Adres verisini konsola yazdır */}
+                          {(() => {
+                            console.log("Address Data:", selectedOrder.address);
+                            return null;
+                          })()}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            {selectedOrder.address &&
+                              Object.entries(selectedOrder.address).map(
+                                ([key, value]) => {
+                                  // İstenmeyen alanları filtrele
+                                  if (
+                                    key === "id" ||
+                                    key === "userId" ||
+                                    key === "createdAt" ||
+                                    key === "updatedAt"
+                                  ) {
+                                    return null;
+                                  }
+
+                                  // Alan adlarını Türkçe'ye çevir
+                                  const fieldLabels: { [key: string]: string } =
+                                    {
+                                      addressTitle: "Adres Başlığı",
+                                      ulke: "Ülke",
+                                      sehir: "Şehir",
+                                      mahalle: "Mahalle",
+                                      sokak: "Sokak",
+                                      no: "No",
+                                      postaKodu: "Posta Kodu",
+                                      varsayilan: "Varsayılan Adres",
+                                      tarif: "Adres Tarifi",
+                                    };
+
+                                  const label = fieldLabels[key] || key;
+                                  let displayValue = value;
+
+                                  // Boolean değerleri çevir
+                                  if (key === "varsayilan") {
+                                    displayValue = value ? "Evet" : "Hayır";
+                                  }
+
+                                  // Tarif alanı için özel görünüm
+                                  if (key === "tarif" && value) {
+                                    return (
+                                      <div key={key} className="md:col-span-2">
+                                        <span className="font-medium text-gray-700">
+                                          {label}:
+                                        </span>
+                                        <p className="text-gray-600 mt-1 bg-white p-2 rounded border">
+                                          {String(displayValue)}
+                                        </p>
+                                      </div>
+                                    );
+                                  }
+
+                                  // Diğer alanlar için normal görünüm
+                                  if (
+                                    value !== null &&
+                                    value !== undefined &&
+                                    value !== ""
+                                  ) {
+                                    return (
+                                      <div key={key}>
+                                        <span className="font-medium text-gray-700">
+                                          {label}:
+                                        </span>
+                                        <p className="text-gray-600">
+                                          {String(displayValue)}
+                                        </p>
+                                      </div>
+                                    );
+                                  }
+
+                                  return null;
+                                }
+                              )}
+                          </div>
+
+                          {/* Eğer hiç veri yoksa uyarı göster */}
+                          {(!selectedOrder.address ||
+                            Object.keys(selectedOrder.address)
+                              .filter(
+                                (key) =>
+                                  ![
+                                    "id",
+                                    "userId",
+                                    "createdAt",
+                                    "updatedAt",
+                                  ].includes(key)
+                              )
+                              .every((key) => !selectedOrder.address[key])) && (
+                            <div className="text-center text-gray-500 py-4">
+                              Adres bilgileri bulunamadı.
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="border-t border-gray-200 my-4" />
