@@ -204,7 +204,7 @@ export async function updateOrderStatusAction(
   try {
     const { updateOrderStatus } = await import("@/lib/services");
     const updatedOrder = await updateOrderStatus(orderId, status);
-    revalidatePath("/admin/orders");
+    // revalidatePath kaldırıldı - modal içinde local güncelleme yapılacak
 
     // Sipariş durumu değiştiğinde otomatik email gönder
     try {
@@ -290,7 +290,7 @@ export async function updateOrderShippingTrackingUrlAction(
       orderId,
       shippingTrackingUrl
     );
-    revalidatePath("/admin/orders");
+    // revalidatePath kaldırıldı - modal içinde local güncelleme yapılacak
     return {
       success: true,
       data: updatedOrder,

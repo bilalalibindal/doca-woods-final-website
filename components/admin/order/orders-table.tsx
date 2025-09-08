@@ -78,6 +78,13 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
   const [trackingUrlInput, setTrackingUrlInput] = useState("");
   const [showTrackingUrlDialog, setShowTrackingUrlDialog] = useState(false);
   const [isUpdatingTrackingUrl, setIsUpdatingTrackingUrl] = useState(false);
+  const [showStatusConfirmation, setShowStatusConfirmation] = useState(false);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<{
+    orderId: string;
+    status: string;
+  } | null>(null);
+  const [statusConfirmationChecked, setStatusConfirmationChecked] =
+    useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -117,15 +124,39 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
     }
   };
 
-  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+  const handleStatusUpdate = (orderId: string, newStatus: string) => {
+    // Önce confirmation dialog'unu göster
+    setPendingStatusUpdate({ orderId, status: newStatus });
+    setShowStatusConfirmation(true);
+    setStatusConfirmationChecked(false);
+  };
+
+  const confirmStatusUpdate = async () => {
+    if (!pendingStatusUpdate || !statusConfirmationChecked) {
+      toast.error("Lütfen onay kutucuğunu işaretleyin!");
+      return;
+    }
+
     try {
-      const result = await updateOrderStatusAction(orderId, newStatus);
+      const result = await updateOrderStatusAction(
+        pendingStatusUpdate.orderId,
+        pendingStatusUpdate.status
+      );
+
       if (result.success) {
-        toast.success("Sipariş durumu güncellendi");
-        onOrderUpdate?.();
+        toast.success("Sipariş durumu başarıyla güncellendi!");
+
         // Modal açıkken durum güncellenirse modal'ı da güncelle
-        if (selectedOrder && selectedOrder.id === orderId) {
-          setSelectedOrder({ ...selectedOrder, status: newStatus });
+        if (selectedOrder && selectedOrder.id === pendingStatusUpdate.orderId) {
+          setSelectedOrder({
+            ...selectedOrder,
+            status: pendingStatusUpdate.status,
+          });
+        }
+
+        // Parent'a güncellemeyi bildir
+        if (onOrderUpdate) {
+          onOrderUpdate();
         }
       } else {
         toast.error(result.message);
@@ -133,6 +164,10 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
     } catch (error) {
       console.error("Status update error:", error);
       toast.error("Sipariş durumu güncellenirken hata oluştu");
+    } finally {
+      setShowStatusConfirmation(false);
+      setPendingStatusUpdate(null);
+      setStatusConfirmationChecked(false);
     }
   };
 
@@ -167,12 +202,14 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
         toast.success("Kargo takip URL'si başarıyla güncellendi!");
         setShowTrackingUrlDialog(false);
 
-        // Order'ı güncelle ve parent'a değişiklik olduğunu bildir
+        // Modal içinde selectedOrder'ı güncelle
         const updatedOrder = {
           ...selectedOrder,
           shippingTrackingUrl: trackingUrlInput.trim(),
         };
         setSelectedOrder(updatedOrder);
+
+        // Parent'a güncellemeyi bildir
         if (onOrderUpdate) {
           onOrderUpdate();
         }
@@ -792,6 +829,67 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Sipariş Durumu Onay Dialog */}
+      <Dialog
+        open={showStatusConfirmation}
+        onOpenChange={setShowStatusConfirmation}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sipariş Durumu Güncellemesi Onayı</DialogTitle>
+            <DialogDescription>
+              Sipariş #{pendingStatusUpdate?.orderId} için durumu{" "}
+              <strong>
+                {getStatusText(pendingStatusUpdate?.status || "")}
+              </strong>{" "}
+              olarak güncellemek istediğinizden emin misiniz?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="status-confirmation"
+                checked={statusConfirmationChecked}
+                onChange={(e) => setStatusConfirmationChecked(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <Label htmlFor="status-confirmation" className="text-sm">
+                Bu değişikliği yapmak istediğimi onaylıyorum
+              </Label>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <p className="text-sm text-yellow-800">
+                <strong>Uyarı:</strong> Bu işlem geri alınamaz. Müşteriye durum
+                değişikliği hakkında email gönderilecektir.
+              </p>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowStatusConfirmation(false);
+                  setPendingStatusUpdate(null);
+                  setStatusConfirmationChecked(false);
+                }}
+              >
+                İptal
+              </Button>
+              <Button
+                onClick={confirmStatusUpdate}
+                disabled={!statusConfirmationChecked}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Onayla ve Güncelle
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 

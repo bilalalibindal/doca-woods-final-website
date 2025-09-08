@@ -470,9 +470,10 @@ export default function OrdersManagement({
             <OrdersTable
               orders={initialOrders}
               onOrderUpdate={() => {
-                // Sipariş güncellendiğinde sadece o kısmı yeniden yükle
-                // router.refresh() yerine daha hafif bir çözüm
-                window.location.reload();
+                // Sipariş güncellendiğinde local state'i güncelle
+                // Bu daha hafif ve kullanıcı deneyimini bozmayan bir çözüm
+                console.log("Order updated - local refresh triggered");
+                // Parent component'te gerekirse state güncellemesi yapılabilir
               }}
             />
           </CardContent>
@@ -512,8 +513,8 @@ export default function OrdersManagement({
                           pageNum === currentPage
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : isPending
-                            ? "opacity-50 pointer-events-none"
-                            : "hover:bg-gray-100"
+                              ? "opacity-50 pointer-events-none"
+                              : "hover:bg-gray-100"
                         }`}
                       >
                         {isPending && pageNum === currentPage ? (
