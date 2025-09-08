@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   MoreHorizontal,
@@ -34,9 +36,15 @@ import {
   Calendar,
   CreditCard,
   ChevronDown,
+  Truck,
+  Edit,
+  Plus,
 } from "lucide-react";
 import { ProductStatus } from "@/Enum";
-import { updateOrderStatusAction } from "@/lib/actions";
+import {
+  updateOrderStatusAction,
+  updateOrderShippingTrackingUrlAction,
+} from "@/lib/actions";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 
@@ -67,6 +75,9 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddressDetails, setShowAddressDetails] = useState(false);
+  const [trackingUrlInput, setTrackingUrlInput] = useState("");
+  const [showTrackingUrlDialog, setShowTrackingUrlDialog] = useState(false);
+  const [isUpdatingTrackingUrl, setIsUpdatingTrackingUrl] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -129,6 +140,51 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
     setSelectedOrder(order);
     setIsModalOpen(true);
     setShowAddressDetails(false); // Modal açıldığında adres detaylarını kapat
+    setTrackingUrlInput(order.shippingTrackingUrl || ""); // Mevcut tracking URL'yi input'a set et
+  };
+
+  const handleUpdateTrackingUrl = async () => {
+    if (!selectedOrder || !trackingUrlInput.trim()) {
+      toast.error("Kargo takip URL'si gerekli!");
+      return;
+    }
+
+    // Onay dialog'u göster
+    const confirmUpdate = window.confirm(
+      `Kargo takip URL'sini "${trackingUrlInput}" olarak güncellemek istediğinizden emin misiniz?`
+    );
+
+    if (!confirmUpdate) return;
+
+    setIsUpdatingTrackingUrl(true);
+    try {
+      const result = await updateOrderShippingTrackingUrlAction(
+        selectedOrder.id,
+        trackingUrlInput.trim()
+      );
+
+      if (result.success) {
+        toast.success("Kargo takip URL'si başarıyla güncellendi!");
+        setShowTrackingUrlDialog(false);
+
+        // Order'ı güncelle ve parent'a değişiklik olduğunu bildir
+        const updatedOrder = {
+          ...selectedOrder,
+          shippingTrackingUrl: trackingUrlInput.trim(),
+        };
+        setSelectedOrder(updatedOrder);
+        if (onOrderUpdate) {
+          onOrderUpdate();
+        }
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Tracking URL update error:", error);
+      toast.error("Kargo takip URL'si güncellenirken hata oluştu!");
+    } finally {
+      setIsUpdatingTrackingUrl(false);
+    }
   };
 
   return (
@@ -411,6 +467,61 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
 
               <div className="border-t border-gray-200 my-4" />
 
+              {/* Kargo Takip URL'si */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Kargo Takip</h3>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <Truck className="w-5 h-5 text-blue-600" />
+                    <span className="font-medium text-blue-900">
+                      Kargo Takip URL'si
+                    </span>
+                  </div>
+
+                  {selectedOrder.shippingTrackingUrl ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">
+                          Mevcut URL:
+                        </span>
+                        <a
+                          href={selectedOrder.shippingTrackingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-800 underline truncate max-w-md"
+                        >
+                          {selectedOrder.shippingTrackingUrl}
+                        </a>
+                      </div>
+                      <Button
+                        onClick={() => setShowTrackingUrlDialog(true)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        URL'yi Güncelle
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600">
+                        Henüz kargo takip URL'si girilmemiş.
+                      </p>
+                      <Button
+                        onClick={() => setShowTrackingUrlDialog(true)}
+                        className="w-full"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        URL Ekle
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 my-4" />
+
               {/* Müşteri Bilgileri */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">
@@ -681,6 +792,63 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Kargo Takip URL'si Dialog */}
+      <Dialog
+        open={showTrackingUrlDialog}
+        onOpenChange={setShowTrackingUrlDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Kargo Takip URL'si Güncelle</DialogTitle>
+            <DialogDescription>
+              Sipariş #{selectedOrder?.id} için kargo takip URL'sini girin.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="tracking-url" className="text-sm font-medium">
+                Kargo Takip URL'si
+              </Label>
+              <Input
+                id="tracking-url"
+                type="url"
+                placeholder="https://kargo.sirketi.com/takip/ABC123..."
+                value={trackingUrlInput}
+                onChange={(e) => setTrackingUrlInput(e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Geçerli bir URL girin (örn: https://...)
+              </p>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowTrackingUrlDialog(false)}
+                disabled={isUpdatingTrackingUrl}
+              >
+                İptal
+              </Button>
+              <Button
+                onClick={handleUpdateTrackingUrl}
+                disabled={isUpdatingTrackingUrl || !trackingUrlInput.trim()}
+              >
+                {isUpdatingTrackingUrl ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Güncelleniyor...
+                  </>
+                ) : (
+                  "Güncelle"
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -8,6 +8,7 @@ import {
   deleteAddress,
   setDefaultAddress,
   createOrder,
+  updateOrderShippingTrackingUrl,
 } from "@/lib/services";
 import { sendMail } from "@/lib/email-sender";
 import { AddressFormData, CreateOrderData, ApiResponse } from "@/types";
@@ -276,6 +277,31 @@ export async function updateOrderStatusAction(
     return {
       success: false,
       message: error.message || "Sipariş durumu güncellenirken hata oluştu.",
+    };
+  }
+}
+
+export async function updateOrderShippingTrackingUrlAction(
+  orderId: string,
+  shippingTrackingUrl: string
+): Promise<ApiResponse<any>> {
+  try {
+    const updatedOrder = await updateOrderShippingTrackingUrl(
+      orderId,
+      shippingTrackingUrl
+    );
+    revalidatePath("/admin/orders");
+    return {
+      success: true,
+      data: updatedOrder,
+      message: "Kargo takip URL'si başarıyla güncellendi.",
+    };
+  } catch (error: any) {
+    console.error("updateOrderShippingTrackingUrlAction error:", error);
+    return {
+      success: false,
+      message:
+        error.message || "Kargo takip URL'si güncellenirken hata oluştu.",
     };
   }
 }

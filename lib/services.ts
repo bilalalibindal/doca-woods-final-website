@@ -89,7 +89,6 @@ export async function getUser(): Promise<User | null> {
         },
       },
     });
-    console.log("User:", user);
     return user as User | null;
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -400,7 +399,6 @@ export async function getOrdersForAdmin(
     });
 
     const totalPages = Math.ceil(totalCount / limit);
-    console.log("Admin-Orders:", orders);
     return {
       orders,
       totalCount,
@@ -441,6 +439,33 @@ export async function updateOrderStatus(
     return updatedOrder;
   } catch (error) {
     console.error("Error updating order status:", error);
+    throw error;
+  }
+}
+
+export async function updateOrderShippingTrackingUrl(
+  orderId: string,
+  shippingTrackingUrl: string
+): Promise<any> {
+  try {
+    const session = await getServerSession(authOptions);
+    // TODO: Admin kontrolü aktifleştirilecek
+    // if (!session?.user?.role || session.user.role !== "ADMIN") {
+    //   throw new Error("Yetkisiz erişim");
+    // }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { shippingTrackingUrl: shippingTrackingUrl },
+      select: {
+        id: true,
+        shippingTrackingUrl: true,
+      },
+    });
+
+    return updatedOrder;
+  } catch (error) {
+    console.error("Error updating order shipping tracking url:", error);
     throw error;
   }
 }
