@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { getProducts, getCategories } from "@/lib/services";
 import ProductList from "@/components/urunler/productList";
-import { LoadingSkeleton, Loading } from "@/components/ui/loading";
+import { ProductsSkeleton, Loading } from "@/components/ui/loading";
 
 // Ürün verilerini getiren async component
 async function ProductsData() {
@@ -33,7 +33,7 @@ const ProductsPage = () => {
         </div>
 
         {/* Ürün verilerini Suspense ile sarmalayarak loading state sağlıyoruz */}
-        <Suspense fallback={<LoadingSkeleton />}>
+        <Suspense fallback={<ProductsSkeleton />}>
           <ProductsData />
         </Suspense>
       </div>

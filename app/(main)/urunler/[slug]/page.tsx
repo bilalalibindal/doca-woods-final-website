@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { getProducts } from "@/lib/services";
-import { Loading, LoadingSkeleton } from "@/components/ui/loading";
+import { Loading, ProductsSkeleton } from "@/components/ui/loading";
 import { notFound } from "next/navigation";
 import ProductDetail from "@/components/urunler/ProductDetail";
 
@@ -27,7 +27,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
       <div className="container mx-auto px-4 py-12">
-        <Suspense fallback={<LoadingSkeleton />}>
+        <Suspense fallback={<ProductsSkeleton />}>
           <ProductDetailData slug={slug} />
         </Suspense>
       </div>

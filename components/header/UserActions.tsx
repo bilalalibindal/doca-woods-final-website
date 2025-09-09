@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { HiShoppingCart, HiUser, HiBars3 } from "react-icons/hi2";
 import { useCartStore } from "@/stores/cartStore"; // DEĞİŞİKLİK 1: Eski context yerine yeni Zustand store'u import ediyoruz.
+import SocialMedia from "@/components/social/SocialMedia";
+import { getSettings } from "@/lib/services";
 
 interface UserActionsProps {
   onMenuToggle: () => void;
+}
+
+interface Settings {
+  facebookUrl?: string | null;
+  xUrl?: string | null;
+  instagramUrl?: string | null;
+  linkedinUrl?: string | null;
 }
 
 const UserActions = ({ onMenuToggle }: UserActionsProps) => {
@@ -13,8 +23,35 @@ const UserActions = ({ onMenuToggle }: UserActionsProps) => {
   // Sadece 'totalItems' state'ine abone oluyoruz. Bu, gereksiz render'ları önler.
   const totalItems = useCartStore((state) => state.totalItems);
 
+  const [settings, setSettings] = useState<Settings | null>(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await getSettings();
+        setSettings(data);
+      } catch (error) {
+        console.error("Settings yüklenirken hata:", error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   return (
     <div className="flex items-center space-x-4">
+      {/* Social Media - Desktop */}
+      <div className="hidden lg:block">
+        <SocialMedia
+          facebookUrl={settings?.facebookUrl}
+          xUrl={settings?.xUrl}
+          instagramUrl={settings?.instagramUrl}
+          linkedinUrl={settings?.linkedinUrl}
+          variant="header"
+          size="sm"
+        />
+      </div>
+
       {/* Cart */}
       <Link
         href="/sepet"

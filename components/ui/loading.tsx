@@ -77,7 +77,43 @@ export function Loading({
   );
 }
 
-export function LoadingSkeleton() {
+// Ana sayfa için basit loading skeleton
+export function HomeSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+      <div className="container mx-auto px-6 py-12">
+        {/* Ana sayfa header skeleton */}
+        <div className="text-center space-y-8 max-w-4xl mx-auto">
+          {/* Logo placeholder */}
+          <div className="mb-8">
+            <div className="w-20 h-20 bg-amber-200 rounded-full mx-auto animate-pulse"></div>
+          </div>
+
+          {/* Başlık skeleton */}
+          <div className="space-y-4">
+            <div className="h-16 bg-gradient-to-r from-gray-300 to-gray-200 rounded-xl w-3/4 mx-auto animate-pulse"></div>
+            <div className="h-8 bg-gray-300 rounded-lg w-1/2 mx-auto animate-pulse"></div>
+          </div>
+
+          {/* Açıklama skeleton */}
+          <div className="space-y-3 max-w-2xl mx-auto">
+            <div className="h-6 bg-gray-300 rounded w-full animate-pulse"></div>
+            <div className="h-6 bg-gray-300 rounded w-4/5 animate-pulse"></div>
+            <div className="h-6 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+          </div>
+
+          {/* CTA buton skeleton */}
+          <div className="pt-8">
+            <div className="h-14 bg-amber-300 rounded-lg w-64 mx-auto animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Ürünler sayfası için detaylı loading skeleton
+export function ProductsSkeleton() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
       <div className="container mx-auto px-4 py-12">
@@ -174,6 +210,9 @@ export function LoadingSkeleton() {
     </div>
   );
 }
+
+// Backward compatibility için LoadingSkeleton'ı ProductsSkeleton'a yönlendir
+export const LoadingSkeleton = ProductsSkeleton;
 
 // Küçük boyutlu loading component'i
 export function SmallLoading({

@@ -304,10 +304,13 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="https://facebook.com/..."
+                          placeholder="https://facebook.com/sirketiniz"
                           {...field}
                         />
                       </FormControl>
+                      <FormDescription>
+                        Facebook sayfanızın URL'si (isteğe bağlı)
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -319,11 +322,17 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        <Twitter className="w-4 h-4 text-black" />X (Twitter)
+                        <Twitter className="w-4 h-4 text-black" />X
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="https://x.com/..." {...field} />
+                        <Input
+                          placeholder="https://x.com/sirketiniz"
+                          {...field}
+                        />
                       </FormControl>
+                      <FormDescription>
+                        X hesabınızın URL'si (isteğe bağlı)
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -340,10 +349,13 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="https://instagram.com/..."
+                          placeholder="https://instagram.com/sirketiniz"
                           {...field}
                         />
                       </FormControl>
+                      <FormDescription>
+                        Instagram hesabınızın URL'si (isteğe bağlı)
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -360,10 +372,13 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="https://linkedin.com/..."
+                          placeholder="https://linkedin.com/company/sirketiniz"
                           {...field}
                         />
                       </FormControl>
+                      <FormDescription>
+                        LinkedIn sayfanızın URL'si (isteğe bağlı)
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
