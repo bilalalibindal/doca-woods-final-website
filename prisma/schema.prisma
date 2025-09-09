@@ -33,6 +33,35 @@ enum OrderStatus {
 // MODELLER
 // =============================================================
 
+model Settings {
+  id Int @id @default(autoincrement()) // Bu satırın tekil olmasını garantiler
+
+  // İletişim Bilgileri
+  siteTitle       String? @default("Websitem")
+  contactPhone    String? @default("+90 555 123 4567")
+  contactEmail    String? @default("info@example.com")
+  contactAddress  String? @default("Örnek Mah. Test Sk. No:1 D:2, İstanbul")
+
+  // Sosyal Medya Linkleri
+  facebookUrl     String?
+  xUrl      String?
+  instagramUrl    String?
+  linkedinUrl     String?
+
+  // Diğer Ayarlar
+  googleMapsUrl   String? @db.Text // Adres URL'si uzun olabilir
+
+  orderContactInfoText String? @default("Siparişinizin Onayı için Lütfen sipariş numaranızı kopyalayıp Whatsapp üzerinden +90 555 123 4567 numarasına gönderiniz")
+  welcomeText     String? @default("Ahşap Mobilya, Ahşap İşleme ve Ahşap Dekorasyon - Özel Tasarımlar ve Kalite")
+  footerText      String? @default("TELİF HAKKI © 2024 DOCA WOODS - TÜM HAKLARI SAKLIDIR.")
+
+  // Bu alanlar kaydın ne zaman oluşturulup güncellendiğini takip için önemlidir
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+
+
 model User {
   id        String    @id @default(cuid())
   name      String
