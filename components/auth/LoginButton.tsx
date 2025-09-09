@@ -63,7 +63,7 @@ export default function LoginButton() {
         {/* Logout Button */}
         <button
           onClick={() => signOut()}
-          className="group flex items-center space-x-2 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-300"
+          className="group flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all duration-200 border border-amber-200 hover:border-amber-300"
           title="Çıkış Yap"
         >
           <ArrowLeftOnRectangleIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -77,11 +77,11 @@ export default function LoginButton() {
   return (
     <button
       onClick={() => signIn("google")}
-      className="group w-full flex items-center justify-center space-x-4 px-8 py-4 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-2xl transition-all duration-300 font-semibold text-gray-700 hover:text-gray-900 shadow-lg hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-0.5"
+      className="group w-full flex items-center justify-center gap-4 px-6 py-4 bg-white hover:bg-amber-50 border border-gray-200 hover:border-amber-300 rounded-xl transition-all duration-300 font-semibold text-gray-700 hover:text-amber-700 shadow-sm hover:shadow-lg hover:shadow-amber-500/10"
     >
       {/* Google Icon */}
       <svg
-        className="w-6 h-6 group-hover:scale-110 transition-transform"
+        className="w-5 h-5 group-hover:scale-110 transition-transform"
         viewBox="0 0 24 24"
       >
         <path
@@ -102,22 +102,7 @@ export default function LoginButton() {
         />
       </svg>
 
-      <span className="text-lg">Google ile Giriş Yap</span>
-
-      {/* Arrow */}
-      <svg
-        className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 5l7 7-7 7"
-        />
-      </svg>
+      <span className="text-base">Google ile Giriş Yap</span>
     </button>
   );
 }
