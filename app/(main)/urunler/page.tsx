@@ -1,11 +1,23 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { getProducts, getCategories } from "@/lib/services";
 import ProductList from "@/components/urunler/productList";
+import { LoadingSkeleton, Loading } from "@/components/ui/loading";
 
-const ProductsPage = async () => {
+// Ürün verilerini getiren async component
+async function ProductsData() {
   const products = await getProducts();
   const categories = await getCategories();
 
+  return <ProductList products={products} categories={categories} />;
+}
+
+// Kategori verilerini getiren async component
+async function CategoriesData() {
+  const categories = await getCategories();
+  return categories;
+}
+
+const ProductsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
       <div className="container mx-auto px-4 py-12">
@@ -20,8 +32,10 @@ const ProductsPage = async () => {
           </p>
         </div>
 
-        {/* Tüm listeleme ve filtreleme işini Client Component'e devrediyoruz */}
-        <ProductList products={products} categories={categories} />
+        {/* Ürün verilerini Suspense ile sarmalayarak loading state sağlıyoruz */}
+        <Suspense fallback={<LoadingSkeleton />}>
+          <ProductsData />
+        </Suspense>
       </div>
     </div>
   );
