@@ -58,6 +58,52 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 // =============================================================
+// AYARLAR SERVİSLERİ
+// =============================================================
+
+export async function getSettings() {
+  try {
+    const settings = await prisma.settings.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (settings) {
+      return settings;
+    } else {
+      // Varsayılan ayarları oluştur
+      const defaultSettings = await prisma.settings.create({
+        data: {},
+      });
+      return defaultSettings;
+    }
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+    // Varsayılan ayarları döndür
+    return {
+      id: 1,
+      siteTitle: "Doca Woods",
+      contactPhone: "+90 555 123 4567",
+      contactEmail: "info@docawoods.com",
+      contactAddress: "İstanbul, Türkiye",
+      facebookUrl: "",
+      xUrl: "",
+      instagramUrl: "",
+      linkedinUrl: "",
+      googleMapsUrl: "",
+      orderContactInfoText:
+        "Siparişinizin Onayı için Lütfen sipariş numaranızı kopyalayıp Whatsapp üzerinden +90 555 123 4567 numarasına gönderiniz",
+      welcomeText:
+        "Ahşap Mobilya, Ahşap İşleme ve Ahşap Dekorasyon - Özel Tasarımlar ve Kalite",
+      footerText: "TELİF HAKKI © 2024 DOCA WOODS - TÜM HAKLARI SAKLIDIR.",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
+}
+
+// =============================================================
 // KULLANICI SERVİSLERİ
 // =============================================================
 

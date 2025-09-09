@@ -274,3 +274,80 @@ export async function deleteCategory(id: string) {
     };
   }
 }
+
+//! Settings actions
+export async function updateSettings(formData: FormData) {
+  try {
+    // 1. Mevcut ayarları al
+    const existingSettings = await prisma.settings.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!existingSettings) {
+      return {
+        success: false,
+        message: "Ayarlar bulunamadı. Lütfen önce ayarları oluşturun.",
+      };
+    }
+
+    // 2. Formdan gelen verileri yapılandır
+    const settingsData = {
+      siteTitle: formData.get("siteTitle") as string,
+      contactPhone: formData.get("contactPhone") as string,
+      contactEmail: formData.get("contactEmail") as string,
+      contactAddress: formData.get("contactAddress") as string,
+      facebookUrl: formData.get("facebookUrl") as string,
+      xUrl: formData.get("xUrl") as string,
+      instagramUrl: formData.get("instagramUrl") as string,
+      linkedinUrl: formData.get("linkedinUrl") as string,
+      googleMapsUrl: formData.get("googleMapsUrl") as string,
+      orderContactInfoText: formData.get("orderContactInfoText") as string,
+      welcomeText: formData.get("welcomeText") as string,
+      footerText: formData.get("footerText") as string,
+    };
+
+    // 3. Değişen alanları tespit etmek için boş bir nesne oluştur
+    const changedData: { [key: string]: any } = {};
+
+    // 4. Tüm alanları karşılaştır
+    Object.keys(settingsData).forEach((key) => {
+      const formValue = settingsData[key as keyof typeof settingsData];
+      const dbValue = existingSettings[key as keyof typeof existingSettings];
+
+      if (formValue !== dbValue) {
+        changedData[key] = formValue;
+      }
+    });
+
+    // 5. Hiçbir değişiklik yoksa işlemi bitir
+    if (Object.keys(changedData).length === 0) {
+      return {
+        success: true,
+        message: "Herhangi bir değişiklik yapılmadı.",
+      };
+    }
+
+    // 6. Sadece değişen verilerle güncelleme işlemini yap
+    await prisma.settings.update({
+      where: { id: existingSettings.id },
+      data: changedData,
+    });
+
+    // 7. İlgili sayfanın önbelleğini temizle
+    revalidatePath("/admin/settings");
+    revalidatePath("/"); // Ana sayfayı da yenile (welcome text vb. için)
+
+    return {
+      success: true,
+      message: "Ayarlar başarıyla güncellendi.",
+    };
+  } catch (error) {
+    console.error("Ayarlar güncelleme sırasında hata oluştu:", error);
+    return {
+      success: false,
+      message: "Ayarlar güncellenirken beklenmedik bir hata oluştu.",
+    };
+  }
+}
