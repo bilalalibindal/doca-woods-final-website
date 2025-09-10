@@ -141,7 +141,6 @@ export async function createOrderAction(
   try {
     const result = await createOrder(orderData);
 
-    console.log("ORDER::", result);
     revalidatePath("/profil"); // Siparişler sayfasını güncelle
     revalidatePath("/urunler"); // Stok güncellemelerini yansıt
 
@@ -155,7 +154,6 @@ export async function createOrderAction(
         image: item.product?.images?.[0], // İlk resmi al
         sku: item.product?.sku || "N/A",
       }));
-
       // Email'i gönder (background'da çalıştır)
       setImmediate(async () => {
         try {
@@ -196,7 +194,43 @@ export async function createOrderAction(
 // =============================================================
 // ADMİN AKSİYONLARI
 // =============================================================
+/* UPDATED ORDER:: {
+  id: 'cmfdxspcp0001ere7aj0yft6z',
+  totalPrice: 7200,
+  status: 'APPROVED',
+  shippingTrackingUrl: null,
+  customizationImages: [],
+  customerId: 'cmezl75l6000074fkglo0q0ms',
+  addressId: 'cmf8ear7b0003c6gxvavjbrkl',
+  createdAt: 2025-09-10T12:09:31.993Z,
+  updatedAt: 2025-09-10T12:28:54.707Z,
+  customer: {
+    id: 'cmezl75l6000074fkglo0q0ms',
+    name: 'bilalali bindal',
+    email: 'bilalalibindal@gmail.com'
+  },
+  items: [
+    {
+      id: 'cmfdxspcp0002ere71rbmub6o',
+      quantity: 1,
+      price: 7200,
+      orderId: 'cmfdxspcp0001ere7aj0yft6z',
+      productId: 'cmf8e3n400001c6gxav8fx7em',
+      product: [Object]
+    }
+  ]
+}
+Email gönderme  */
 
+/* ORDER ITEMS FOR EMAIL(UPDATE):  [
+  {
+    name: 'Resimli Tabela',
+    quantity: 1,
+    price: 7200,
+    image: 'https://res.cloudinary.com/dwahclxhr/image/upload/v1757170710/arljinnfncqok8x7ef9o.jpg',
+    sku: 'asas'
+  }
+] */
 export async function updateOrderStatusAction(
   orderId: string,
   status: string
@@ -244,7 +278,16 @@ export async function updateOrderStatusAction(
             message: "Sipariş durumu başarıyla güncellendi.",
           };
       }
-
+      const orderItemsForEmail = updatedOrder.items.map((item: any) => ({
+        name: item.product?.name || "Ürün Adı Yok",
+        quantity: item.quantity,
+        price: item.price,
+        image: item.product?.images?.[0], // İlk resmi al
+        sku: item.product?.sku || "N/A",
+      }));
+      console.log("UPDATED ORDER:: ", updatedOrder);
+      console.log("STATUS:: ", status);
+      console.log("ORDER ITEMS FOR EMAIL(UPDATE): ", orderItemsForEmail);
       // Email'i background'da gönder
       setImmediate(async () => {
         try {
@@ -255,6 +298,10 @@ export async function updateOrderStatusAction(
             emailTemplate as any,
             {
               orderId: updatedOrder.id,
+              orderItems: orderItemsForEmail,
+              ...(status === "SHIPPED" && {
+                shippingTrackingUrl: updatedOrder.shippingTrackingUrl,
+              }),
               // İptal için neden eklenebilir
               ...(status === "CANCELLED" && { reason: "Admin kararı" }),
             }

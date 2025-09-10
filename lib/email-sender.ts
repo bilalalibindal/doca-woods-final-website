@@ -38,7 +38,7 @@ const getEmailTemplate = (
     image?: string;
     sku?: string;
   }>,
-  trackingNumber?: string,
+  shippingTrackingUrl?: string,
   reason?: string
 ): React.ReactElement => {
   switch (template) {
@@ -56,50 +56,55 @@ const getEmailTemplate = (
       });
 
     case "orderApproved":
-      if (!orderId) {
+      if (!orderId || !orderItems) {
         throw new Error("orderId gerekli");
       }
       return React.createElement(OrderApprovedEmail, {
         userName: receiverName,
         orderId,
+        orderItems,
       });
 
     case "orderPreparing":
-      if (!orderId) {
+      if (!orderId || !orderItems) {
         throw new Error("orderId gerekli");
       }
       return React.createElement(OrderPreparingEmail, {
         userName: receiverName,
         orderId,
+        orderItems,
       });
 
     case "orderShipped":
-      if (!orderId) {
+      if (!orderId || !orderItems) {
         throw new Error("orderId gerekli");
       }
       return React.createElement(OrderShippedEmail, {
         userName: receiverName,
         orderId,
-        trackingNumber,
+        shippingTrackingUrl,
+        orderItems,
       });
 
     case "orderDelivered":
-      if (!orderId) {
+      if (!orderId || !orderItems) {
         throw new Error("orderId gerekli");
       }
       return React.createElement(OrderDeliveredEmail, {
         userName: receiverName,
         orderId,
+        orderItems,
       });
 
     case "orderCancelled":
-      if (!orderId) {
+      if (!orderId || !orderItems) {
         throw new Error("orderId gerekli");
       }
       return React.createElement(OrderCancelledEmail, {
         userName: receiverName,
         orderId,
         reason,
+        orderItems,
       });
 
     default:
@@ -136,7 +141,7 @@ export const sendMail = async (
       image?: string;
       sku?: string;
     }>;
-    trackingNumber?: string;
+    shippingTrackingUrl?: string;
     reason?: string;
   }
 ): Promise<boolean> => {
@@ -154,7 +159,7 @@ export const sendMail = async (
       receiverName,
       options?.orderId,
       options?.orderItems,
-      options?.trackingNumber,
+      options?.shippingTrackingUrl,
       options?.reason
     );
 

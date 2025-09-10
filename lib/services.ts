@@ -270,6 +270,50 @@ export async function setDefaultAddress(addressId: string): Promise<void> {
 // SİPARİŞ SERVİSLERİ
 // =============================================================
 
+/* New Order Created: {
+  id: 'cmfdyazg70004ere7a43savrk',
+  totalPrice: 7656,
+  status: 'PENDING',
+  shippingTrackingUrl: null,
+  customizationImages: [],
+  customerId: 'cmezl75l6000074fkglo0q0ms',
+  addressId: 'cmf8ear7b0003c6gxvavjbrkl',
+  createdAt: 2025-09-10T12:23:44.887Z,
+  updatedAt: 2025-09-10T12:23:44.887Z,
+  items: [
+    {
+      id: 'cmfdyazg70005ere7ft1qc8fd',
+      quantity: 1,
+      price: 456,
+      orderId: 'cmfdyazg70004ere7a43savrk',
+      productId: 'cmez9mj1y0003bzgyzl4mad0u',
+      product: [Object]
+    },
+    {
+      id: 'cmfdyazg70006ere71s8i6wx9',
+      quantity: 1,
+      price: 7200,
+      orderId: 'cmfdyazg70004ere7a43savrk',
+      productId: 'cmf8e3n400001c6gxav8fx7em',
+      product: [Object]
+    }
+  ],
+  address: {
+    id: 'cmf8ear7b0003c6gxvavjbrkl',
+    addressTitle: 'Ev',
+    ulke: 'Türkiye',
+    sehir: 'Manisa',
+    mahalle: 'Kuşlubahçe',
+    sokak: '4207 Sok.',
+    no: '5/8',
+    postaKodu: '45200',
+    tarif: 'Şehzadeler Apt',
+    varsayilan: true,
+    userId: 'cmezl75l6000074fkglo0q0ms',
+    createdAt: 2025-09-06T15:04:50.999Z,
+    updatedAt: 2025-09-09T13:03:42.861Z
+  }
+} */
 export async function createOrder(orderData: CreateOrderData): Promise<any> {
   try {
     const session = await getServerSession(authOptions);
@@ -349,7 +393,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
           },
         });
       }
-
+      console.log("New Order Created:", newOrder);
       // Fonksiyonun istediği formatta geri dönüş yap
       return {
         order: newOrder,
@@ -477,6 +521,11 @@ export async function updateOrderStatus(
             id: true,
             name: true,
             email: true,
+          },
+        },
+        items: {
+          include: {
+            product: true,
           },
         },
       },

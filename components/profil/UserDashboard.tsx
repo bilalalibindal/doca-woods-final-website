@@ -423,7 +423,7 @@ const UserDashboard = () => {
 
         {activeSection === "addresses" && (
           <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-t-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl flex items-center">
                   <MapPinIcon className="w-6 h-6 mr-2" />
@@ -431,16 +431,15 @@ const UserDashboard = () => {
                 </CardTitle>
                 <div className="flex items-center space-x-2">
                   <Button
-                    variant="ghost"
+                    className="bg-gray-1000 hover:bg-gray-500 text-white border-0"
                     size="sm"
-                    className="text-white hover:bg-white/20"
                     onClick={() => {
                       resetAddressForm();
                       setIsAddressModalOpen(true);
                     }}
                   >
                     <PlusIcon className="w-4 h-4 mr-1" />
-                    Yeni Adres
+                    Yeni Adres Ekle
                   </Button>
                   <Button
                     variant="ghost"
@@ -460,11 +459,9 @@ const UserDashboard = () => {
                   <h3 className="text-xl font-semibold text-gray-600 mb-2">
                     Henüz adresiniz bulunmuyor
                   </h3>
-                  <p className="text-gray-500 mb-4">
-                    Hızlı teslimat için adres ekleyin
-                  </p>
+                  <p className="text-gray-500 mb-4">Adres ekleyin</p>
                   <Button
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-blue-600 hover:bg-blue-700"
                     onClick={() => {
                       resetAddressForm();
                       setIsAddressModalOpen(true);
@@ -485,29 +482,22 @@ const UserDashboard = () => {
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-2">
                             <h4 className="font-semibold text-gray-800">
-                              {address.title || "Adres"}
+                              {address.addressTitle || "Adres"}
                             </h4>
-                            {address.isDefault && (
+                            {address.varsayilan && (
                               <Badge className="bg-green-100 text-green-800">
                                 <CheckCircleIcon className="w-3 h-3 mr-1" />
                                 Varsayılan
                               </Badge>
                             )}
                           </div>
-                          <p className="text-gray-600 text-sm">
-                            {address.street} {address.buildingNumber}
-                          </p>
-                          <p className="text-gray-600 text-sm">
-                            {address.district}, {address.city}{" "}
-                            {address.postalCode}
-                          </p>
                         </div>
                         <div className="flex items-center space-x-2">
                           {!address.varsayilan && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-green-600 hover:bg-green-50"
+                              className="text-blue-600 hover:bg-blue-50"
                               onClick={async () => {
                                 try {
                                   const result = await setDefaultAddressAction(
@@ -523,6 +513,7 @@ const UserDashboard = () => {
                                   );
                                 }
                               }}
+                              title="Varsayılan adres yap"
                             >
                               <HomeIcon className="w-4 h-4" />
                             </Button>
@@ -546,6 +537,7 @@ const UserDashboard = () => {
                               });
                               setIsAddressModalOpen(true);
                             }}
+                            title="Adresi düzenle"
                           >
                             <PencilIcon className="w-4 h-4" />
                           </Button>
@@ -571,6 +563,7 @@ const UserDashboard = () => {
                                 }
                               }
                             }}
+                            title="Adresi sil"
                           >
                             <TrashIcon className="w-4 h-4" />
                           </Button>
@@ -741,13 +734,13 @@ const UserDashboard = () => {
             </DialogHeader>
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Adres Başlığı */}
+                {/* Adres ismi */}
                 <div className="md:col-span-2">
-                  <Label htmlFor="addressTitle">Adres Başlığı *</Label>
+                  <Label htmlFor="addressTitle">Adres ismi *</Label>
                   <Input
                     id="addressTitle"
                     type="text"
-                    placeholder="Ev, İş, vs."
+                    placeholder="Ev, İş yeri, Anne evi, vs."
                     value={addressForm.addressTitle}
                     onChange={(e) =>
                       setAddressForm({
@@ -870,22 +863,57 @@ const UserDashboard = () => {
                 </div>
 
                 {/* Varsayılan Adres */}
-                <div className="md:col-span-2 flex items-center space-x-3">
+                <div className="md:col-span-2 flex items-start space-x-3">
                   <input
                     type="checkbox"
                     id="varsayilan"
                     checked={addressForm.varsayilan}
-                    onChange={(e) =>
-                      setAddressForm({
-                        ...addressForm,
-                        varsayilan: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                    onChange={(e) => {
+                      const isChecked = e.target.checked;
+                      if (isChecked) {
+                        // Eğer başka varsayılan adres varsa kullanıcıya bilgi ver
+                        const hasDefaultAddress = user?.addresses?.some(
+                          (addr: any) =>
+                            addr.varsayilan &&
+                            (!selectedAddress || addr.id !== selectedAddress.id)
+                        );
+                        if (hasDefaultAddress) {
+                          if (
+                            confirm(
+                              "Başka bir varsayılan adresiniz var. Bu adresi varsayılan yapmak istediğinizden emin misiniz? Önceki varsayılan adres kaldırılacak."
+                            )
+                          ) {
+                            setAddressForm({
+                              ...addressForm,
+                              varsayilan: true,
+                            });
+                          }
+                        } else {
+                          setAddressForm({
+                            ...addressForm,
+                            varsayilan: true,
+                          });
+                        }
+                      } else {
+                        setAddressForm({
+                          ...addressForm,
+                          varsayilan: false,
+                        });
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-0.5"
                   />
-                  <Label htmlFor="varsayilan" className="cursor-pointer">
-                    Bu adresi varsayılan adres olarak ayarla
-                  </Label>
+                  <div>
+                    <Label
+                      htmlFor="varsayilan"
+                      className="cursor-pointer font-medium"
+                    >
+                      Bu adresi varsayılan adres olarak ayarla
+                    </Label>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Teslimat adresi olarak kullanılacak
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -901,7 +929,7 @@ const UserDashboard = () => {
                   İptal
                 </Button>
                 <Button
-                  className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
                   onClick={handleSaveAddress}
                   disabled={
                     isAddressSaving ||

@@ -122,9 +122,8 @@ export function WelcomeEmail({ userName }: { userName: string }) {
       <Text
         style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
       >
-        Doca Woods ailesine katıldığınız için teşekkür ederiz! Hesabınız
-        başarıyla oluşturuldu ve artık platformumuzda alışveriş yapmaya
-        başlayabilirsiniz.
+        Doca Woods'a hoşgeldiniz! Hesabınız başarıyla oluşturuldu ve artık
+        platformumuzda alışveriş yapmaya başlayabilirsiniz.
       </Text>
 
       <Text
@@ -136,7 +135,7 @@ export function WelcomeEmail({ userName }: { userName: string }) {
 
       <Section style={{ textAlign: "center", margin: "30px 0" }}>
         <Button
-          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/urunler`}
+          href={`${process.env.NEXT_PUBLIC_APP_URL}/urunler`}
           style={{
             backgroundColor: "#8B4513",
             color: "#ffffff",
@@ -196,6 +195,473 @@ export function OrderPendingEmail({
         sürecinde.
       </Text>
 
+      <OrderItemsTable orderId={orderId} orderItems={orderItems} />
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Siparişiniz onaylandıktan sonra size bilgi vereceğiz. Sipariş durumunuzu
+        hesabınızdan takip edebilirsiniz.
+      </Text>
+
+      <Section style={{ textAlign: "center", margin: "30px 0" }}>
+        <Button
+          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`}
+          style={{
+            backgroundColor: "#8B4513",
+            color: "#ffffff",
+            padding: "12px 30px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            display: "inline-block",
+          }}
+        >
+          Siparişimi Takip Et
+        </Button>
+      </Section>
+    </EmailLayout>
+  );
+}
+
+// Sipariş Onaylandı Email Template
+export function OrderApprovedEmail({
+  userName,
+  orderId,
+  orderItems,
+}: {
+  userName: string;
+  orderId: string;
+  orderItems: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    image?: string;
+    sku?: string;
+  }>;
+}) {
+  return (
+    <EmailLayout title="Siparişiniz Onaylandı">
+      <Heading
+        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
+      >
+        ✅ Siparişiniz Onaylandı!
+      </Heading>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Merhaba {userName}, siparişiniz başarıyla onaylandı!
+      </Text>
+
+      <Section
+        style={{
+          backgroundColor: "#e8f5e8",
+          padding: "20px",
+          borderRadius: "6px",
+          margin: "20px 0",
+          border: "1px solid #4caf50",
+        }}
+      >
+        <Text style={{ fontSize: "14px", color: "#2e7d32" }}>
+          Siparişiniz en kısa sürede hazırlanmaya başlayacak.
+        </Text>
+        <OrderItemsTable orderId={orderId} orderItems={orderItems} />
+      </Section>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Siparişinizin hazırlanması ve kargoya verilmesi için çalışmalarımıza
+        başladık. Her aşamada sizi bilgilendireceğiz.
+      </Text>
+
+      <Section style={{ textAlign: "center", margin: "30px 0" }}>
+        <Button
+          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`}
+          style={{
+            backgroundColor: "#4caf50",
+            color: "#ffffff",
+            padding: "12px 30px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            display: "inline-block",
+          }}
+        >
+          Sipariş Durumunu Görüntüle
+        </Button>
+      </Section>
+    </EmailLayout>
+  );
+}
+
+// Sipariş Hazırlanıyor Email Template
+export function OrderPreparingEmail({
+  userName,
+  orderId,
+  orderItems,
+}: {
+  userName: string;
+  orderId: string;
+  orderItems: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    image?: string;
+    sku?: string;
+  }>;
+}) {
+  return (
+    <EmailLayout title="Siparişiniz Hazırlanıyor">
+      <Heading
+        style={{
+          // Changed from brown to a dark green
+          color: "#2E7D32",
+          fontSize: "28px",
+          marginBottom: "20px",
+        }}
+      >
+        📦 Siparişiniz Hazırlanıyor
+      </Heading>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Merhaba {userName}, siparişiniz şu anda hazırlanıyor.
+      </Text>
+
+      <Section
+        style={{
+          // Changed from light orange to a light green
+          backgroundColor: "#E8F5E9",
+          padding: "20px",
+          borderRadius: "6px",
+          margin: "20px 0",
+          // Corrected and updated the border color to a complementary green
+          border: "1px solid #66BB6A",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: "14px",
+            // Changed from orange text to a deep green for better contrast
+            color: "#1B5E20",
+          }}
+        >
+          Ürünleriniz özenle hazırlanıyor ve en kısa sürede kargoya verilecek.
+        </Text>
+      </Section>
+      <OrderItemsTable orderId={orderId} orderItems={orderItems} />
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Siparişiniz hazırlandıktan sonra kargoya verildiğinde sizi
+        bilgilendireceğiz.
+      </Text>
+
+      <Section style={{ textAlign: "center", margin: "30px 0" }}>
+        <Button
+          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`}
+          style={{
+            // Changed the button color from orange to a vibrant green
+            backgroundColor: "#4CAF50",
+            color: "#ffffff",
+            padding: "12px 30px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            display: "inline-block",
+          }}
+        >
+          Hazırlık Durumunu Takip Et
+        </Button>
+      </Section>
+    </EmailLayout>
+  );
+}
+
+// Sipariş Kargoda Email Template
+export function OrderShippedEmail({
+  userName,
+  orderId,
+  shippingTrackingUrl,
+  orderItems,
+}: {
+  userName: string;
+  orderId: string;
+  shippingTrackingUrl?: string;
+  orderItems: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    image?: string;
+    sku?: string;
+  }>;
+}) {
+  return (
+    <EmailLayout title="Siparişiniz Kargoda">
+      <Heading
+        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
+      >
+        🚚 Siparişiniz Kargoya Verildi!
+      </Heading>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Merhaba {userName}, siparişiniz başarıyla kargoya verildi.
+      </Text>
+
+      <Section
+        style={{
+          backgroundColor: "#e3f2fd",
+          padding: "20px",
+          borderRadius: "6px",
+          margin: "20px 0",
+          border: "1px solid #2196f3",
+        }}
+      >
+        {shippingTrackingUrl && (
+          <Text
+            style={{ fontSize: "14px", color: "#0d47a1", marginBottom: "10px" }}
+          >
+            Kargo Takip Url'si: {shippingTrackingUrl}
+          </Text>
+        )}
+        <Text style={{ fontSize: "14px", color: "#0d47a1" }}>
+          Siparişiniz kargo firması tarafından teslim alınmıştır.
+        </Text>
+      </Section>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Kargonuzun hareketlerini takip etmek için aşağıdaki butona
+        tıklayabilirsiniz.
+      </Text>
+
+      <Section style={{ textAlign: "center", margin: "30px 0" }}>
+        <Button
+          href={`${shippingTrackingUrl}`}
+          style={{
+            backgroundColor: "#2196f3",
+            color: "#ffffff",
+            padding: "12px 30px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            display: "inline-block",
+          }}
+        >
+          Kargo Durumunu Takip Et
+        </Button>
+      </Section>
+      <OrderItemsTable orderId={orderId} orderItems={orderItems} />
+    </EmailLayout>
+  );
+}
+
+// Sipariş Teslim Edildi Email Template
+export function OrderDeliveredEmail({
+  userName,
+  orderId,
+  orderItems,
+}: {
+  userName: string;
+  orderId: string;
+  orderItems: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    image?: string;
+    sku?: string;
+  }>;
+}) {
+  return (
+    <EmailLayout title="Siparişiniz Teslim Edildi">
+      <Heading
+        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
+      >
+        🎉 Siparişiniz Başarıyla Teslim Edildi!
+      </Heading>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Merhaba {userName}, siparişiniz başarıyla teslim edildi.
+      </Text>
+
+      <Section
+        style={{
+          backgroundColor: "#e8f5e8",
+          padding: "20px",
+          borderRadius: "6px",
+          margin: "20px 0",
+          border: "1px solid #4caf50",
+        }}
+      >
+        <Text style={{ fontSize: "14px", color: "#2e7d32" }}>
+          ✅ Siparişiniz başarıyla teslim edilmiştir.
+        </Text>
+      </Section>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Siparişinizle ilgili memnuniyetiniz bizim için çok önemlidir. Herhangi
+        bir sorunuz olursa lütfen bizimle iletişime geçin.
+      </Text>
+
+      <Section style={{ textAlign: "center", margin: "30px 0" }}>
+        <Button
+          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/urunler`}
+          style={{
+            backgroundColor: "#4caf50",
+            color: "#ffffff",
+            padding: "12px 30px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            display: "inline-block",
+          }}
+        >
+          Yeni Ürünleri Keşfedin
+        </Button>
+      </Section>
+
+      <Text
+        style={{
+          fontSize: "14px",
+          color: "#666",
+          lineHeight: "1.5",
+          textAlign: "center",
+        }}
+      >
+        Bize güvendiğiniz için teşekkür ederiz! ✨
+      </Text>
+      <OrderItemsTable orderId={orderId} orderItems={orderItems} />
+    </EmailLayout>
+  );
+}
+
+// Sipariş İptal Edildi Email Template
+export function OrderCancelledEmail({
+  userName,
+  orderId,
+  reason,
+  orderItems,
+}: {
+  userName: string;
+  orderId: string;
+  reason?: string;
+  orderItems: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    image?: string;
+    sku?: string;
+  }>;
+}) {
+  return (
+    <EmailLayout title="Siparişiniz İptal Edildi">
+      <Heading
+        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
+      >
+        ❌ Siparişiniz İptal Edildi
+      </Heading>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Merhaba {userName}, siparişiniz iptal edilmiştir.
+      </Text>
+
+      <Section
+        style={{
+          backgroundColor: "#ffebee",
+          padding: "20px",
+          borderRadius: "6px",
+          margin: "20px 0",
+          border: "1px solid #f44336",
+        }}
+      >
+        {reason && (
+          <Text
+            style={{ fontSize: "14px", color: "#c62828", marginBottom: "10px" }}
+          >
+            İptal Nedeni: {reason}
+          </Text>
+        )}
+        <Text style={{ fontSize: "14px", color: "#c62828" }}>
+          Siparişiniz iptal edilmiştir. Eğer bir yanlışlık olduğunu
+          düşünüyorsanız lütfen bizimle iletişime geçin.
+        </Text>
+      </Section>
+
+      <Text
+        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
+      >
+        Başka bir sipariş vermek isterseniz mağazamıza göz atabilirsiniz.
+      </Text>
+
+      <Section style={{ textAlign: "center", margin: "30px 0" }}>
+        <Button
+          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/urunler`}
+          style={{
+            backgroundColor: "#8B4513",
+            color: "#ffffff",
+            padding: "12px 30px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "16px",
+            fontWeight: "bold",
+            display: "inline-block",
+          }}
+        >
+          Ürünlerimizi İnceleyin
+        </Button>
+      </Section>
+
+      <Text
+        style={{
+          fontSize: "14px",
+          color: "#666",
+          lineHeight: "1.5",
+          textAlign: "center",
+        }}
+      >
+        Herhangi bir sorunuz için bizimle iletişime geçebilirsiniz.
+      </Text>
+      <OrderItemsTable orderId={orderId} orderItems={orderItems} />
+    </EmailLayout>
+  );
+}
+
+function OrderItemsTable({
+  orderId,
+  orderItems,
+}: {
+  orderId: string;
+  orderItems: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    image?: string;
+    sku?: string;
+  }>;
+}) {
+  const totalPrice = orderItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+  return (
+    <>
       <Section
         style={{
           backgroundColor: "#f8f8f8",
@@ -209,11 +675,9 @@ export function OrderPendingEmail({
         >
           Sipariş Numarası: #{orderId.slice(-8)}
         </Text>
-
         <Text style={{ fontSize: "14px", marginBottom: "15px" }}>
           Sipariş Özeti:
         </Text>
-
         {orderItems.map((item, index) => (
           <Section
             key={index}
@@ -289,452 +753,13 @@ export function OrderPendingEmail({
                 Toplam: {(item.price * item.quantity).toLocaleString("tr-TR")} ₺
               </Text>
             </div>
+            <Hr style={{ margin: "15px 0", borderColor: "#ddd" }} />
           </Section>
         ))}
-
-        <Hr style={{ margin: "15px 0", borderColor: "#ddd" }} />
-
         <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
           Toplam: {totalPrice.toLocaleString("tr-TR")} ₺
         </Text>
       </Section>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Siparişiniz onaylandıktan sonra size bilgi vereceğiz. Sipariş durumunuzu
-        hesabınızdan takip edebilirsiniz.
-      </Text>
-
-      <Section style={{ textAlign: "center", margin: "30px 0" }}>
-        <Button
-          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`}
-          style={{
-            backgroundColor: "#8B4513",
-            color: "#ffffff",
-            padding: "12px 30px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            display: "inline-block",
-          }}
-        >
-          Siparişimi Takip Et
-        </Button>
-      </Section>
-    </EmailLayout>
-  );
-}
-
-// Sipariş Onaylandı Email Template
-export function OrderApprovedEmail({
-  userName,
-  orderId,
-}: {
-  userName: string;
-  orderId: string;
-}) {
-  return (
-    <EmailLayout title="Siparişiniz Onaylandı">
-      <Heading
-        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
-      >
-        ✅ Siparişiniz Onaylandı!
-      </Heading>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Merhaba {userName}, siparişiniz başarıyla onaylandı!
-      </Text>
-
-      <Section
-        style={{
-          backgroundColor: "#e8f5e8",
-          padding: "20px",
-          borderRadius: "6px",
-          margin: "20px 0",
-          border: "1px solid #4caf50",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-            color: "#2e7d32",
-          }}
-        >
-          Sipariş Numarası: #{orderId.slice(-8)}
-        </Text>
-        <Text style={{ fontSize: "14px", color: "#2e7d32" }}>
-          Siparişiniz en kısa sürede hazırlanmaya başlayacak.
-        </Text>
-      </Section>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Siparişinizin hazırlanması ve kargoya verilmesi için çalışmalarımıza
-        başladık. Her aşamada sizi bilgilendireceğiz.
-      </Text>
-
-      <Section style={{ textAlign: "center", margin: "30px 0" }}>
-        <Button
-          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`}
-          style={{
-            backgroundColor: "#4caf50",
-            color: "#ffffff",
-            padding: "12px 30px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            display: "inline-block",
-          }}
-        >
-          Sipariş Durumunu Görüntüle
-        </Button>
-      </Section>
-    </EmailLayout>
-  );
-}
-
-// Sipariş Hazırlanıyor Email Template
-export function OrderPreparingEmail({
-  userName,
-  orderId,
-}: {
-  userName: string;
-  orderId: string;
-}) {
-  return (
-    <EmailLayout title="Siparişiniz Hazırlanıyor">
-      <Heading
-        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
-      >
-        📦 Siparişiniz Hazırlanıyor
-      </Heading>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Merhaba {userName}, siparişiniz şu anda hazırlanıyor.
-      </Text>
-
-      <Section
-        style={{
-          backgroundColor: "#fff3e0",
-          padding: "20px",
-          borderRadius: "6px",
-          margin: "20px 0",
-          border: "1px solid #ff9800",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-            color: "#e65100",
-          }}
-        >
-          Sipariş Numarası: #{orderId.slice(-8)}
-        </Text>
-        <Text style={{ fontSize: "14px", color: "#e65100" }}>
-          Ürünleriniz dikkatlice paketleniyor ve en kısa sürede kargoya
-          verilecek.
-        </Text>
-      </Section>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Siparişiniz hazırlandıktan sonra kargoya verildiğinde sizi
-        bilgilendireceğiz.
-      </Text>
-
-      <Section style={{ textAlign: "center", margin: "30px 0" }}>
-        <Button
-          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`}
-          style={{
-            backgroundColor: "#ff9800",
-            color: "#ffffff",
-            padding: "12px 30px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            display: "inline-block",
-          }}
-        >
-          Hazırlık Durumunu Takip Et
-        </Button>
-      </Section>
-    </EmailLayout>
-  );
-}
-
-// Sipariş Kargoda Email Template
-export function OrderShippedEmail({
-  userName,
-  orderId,
-  trackingNumber,
-}: {
-  userName: string;
-  orderId: string;
-  trackingNumber?: string;
-}) {
-  return (
-    <EmailLayout title="Siparişiniz Kargoda">
-      <Heading
-        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
-      >
-        🚚 Siparişiniz Kargoya Verildi!
-      </Heading>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Merhaba {userName}, siparişiniz başarıyla kargoya verildi.
-      </Text>
-
-      <Section
-        style={{
-          backgroundColor: "#e3f2fd",
-          padding: "20px",
-          borderRadius: "6px",
-          margin: "20px 0",
-          border: "1px solid #2196f3",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-            color: "#0d47a1",
-          }}
-        >
-          Sipariş Numarası: #{orderId.slice(-8)}
-        </Text>
-        {trackingNumber && (
-          <Text
-            style={{ fontSize: "14px", color: "#0d47a1", marginBottom: "10px" }}
-          >
-            Takip Numarası: {trackingNumber}
-          </Text>
-        )}
-        <Text style={{ fontSize: "14px", color: "#0d47a1" }}>
-          Siparişiniz kargo firması tarafından teslim alınmıştır.
-        </Text>
-      </Section>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Kargo takip bilgileri için kargo firmasının web sitesini
-        kullanabilirsiniz. Siparişiniz ulaştığında sizi tekrar
-        bilgilendireceğiz.
-      </Text>
-
-      <Section style={{ textAlign: "center", margin: "30px 0" }}>
-        <Button
-          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`}
-          style={{
-            backgroundColor: "#2196f3",
-            color: "#ffffff",
-            padding: "12px 30px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            display: "inline-block",
-          }}
-        >
-          Kargo Durumunu Takip Et
-        </Button>
-      </Section>
-    </EmailLayout>
-  );
-}
-
-// Sipariş Teslim Edildi Email Template
-export function OrderDeliveredEmail({
-  userName,
-  orderId,
-}: {
-  userName: string;
-  orderId: string;
-}) {
-  return (
-    <EmailLayout title="Siparişiniz Teslim Edildi">
-      <Heading
-        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
-      >
-        🎉 Siparişiniz Başarıyla Teslim Edildi!
-      </Heading>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Merhaba {userName}, siparişiniz başarıyla teslim edildi.
-      </Text>
-
-      <Section
-        style={{
-          backgroundColor: "#e8f5e8",
-          padding: "20px",
-          borderRadius: "6px",
-          margin: "20px 0",
-          border: "1px solid #4caf50",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-            color: "#2e7d32",
-          }}
-        >
-          Sipariş Numarası: #{orderId.slice(-8)}
-        </Text>
-        <Text style={{ fontSize: "14px", color: "#2e7d32" }}>
-          ✅ Siparişiniz alıcıya teslim edilmiştir.
-        </Text>
-      </Section>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Siparişinizle ilgili memnuniyetiniz bizim için çok önemlidir. Herhangi
-        bir sorunuz olursa lütfen bizimle iletişime geçin.
-      </Text>
-
-      <Section style={{ textAlign: "center", margin: "30px 0" }}>
-        <Button
-          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/urunler`}
-          style={{
-            backgroundColor: "#4caf50",
-            color: "#ffffff",
-            padding: "12px 30px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            display: "inline-block",
-          }}
-        >
-          Yeni Ürünleri Keşfedin
-        </Button>
-      </Section>
-
-      <Text
-        style={{
-          fontSize: "14px",
-          color: "#666",
-          lineHeight: "1.5",
-          textAlign: "center",
-        }}
-      >
-        Bize güvendiğiniz için teşekkür ederiz! ✨
-      </Text>
-    </EmailLayout>
-  );
-}
-
-// Sipariş İptal Edildi Email Template
-export function OrderCancelledEmail({
-  userName,
-  orderId,
-  reason,
-}: {
-  userName: string;
-  orderId: string;
-  reason?: string;
-}) {
-  return (
-    <EmailLayout title="Siparişiniz İptal Edildi">
-      <Heading
-        style={{ color: "#8B4513", fontSize: "28px", marginBottom: "20px" }}
-      >
-        ❌ Siparişiniz İptal Edildi
-      </Heading>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Merhaba {userName}, siparişiniz iptal edilmiştir.
-      </Text>
-
-      <Section
-        style={{
-          backgroundColor: "#ffebee",
-          padding: "20px",
-          borderRadius: "6px",
-          margin: "20px 0",
-          border: "1px solid #f44336",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-            color: "#c62828",
-          }}
-        >
-          Sipariş Numarası: #{orderId.slice(-8)}
-        </Text>
-        {reason && (
-          <Text
-            style={{ fontSize: "14px", color: "#c62828", marginBottom: "10px" }}
-          >
-            İptal Nedeni: {reason}
-          </Text>
-        )}
-        <Text style={{ fontSize: "14px", color: "#c62828" }}>
-          Siparişiniz iptal edilmiştir. Ödeme yapıldıysa tutar en kısa sürede
-          iade edilecektir.
-        </Text>
-      </Section>
-
-      <Text
-        style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "20px" }}
-      >
-        Başka bir sipariş vermek isterseniz mağazamıza göz atabilirsiniz.
-      </Text>
-
-      <Section style={{ textAlign: "center", margin: "30px 0" }}>
-        <Button
-          href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/urunler`}
-          style={{
-            backgroundColor: "#8B4513",
-            color: "#ffffff",
-            padding: "12px 30px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: "bold",
-            display: "inline-block",
-          }}
-        >
-          Ürünlerimizi İnceleyin
-        </Button>
-      </Section>
-
-      <Text
-        style={{
-          fontSize: "14px",
-          color: "#666",
-          lineHeight: "1.5",
-          textAlign: "center",
-        }}
-      >
-        Herhangi bir sorunuz için bizimle iletişime geçebilirsiniz.
-      </Text>
-    </EmailLayout>
+    </>
   );
 }

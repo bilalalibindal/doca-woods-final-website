@@ -125,7 +125,7 @@ export default function ProductList({
   return (
     <div className="flex flex-col lg:flex-row items-start gap-8">
       {/* SOL SÜTUN: KATEGORİLER */}
-      <aside className="w-full lg:w-80 lg:sticky lg:top-8">
+      <aside className="w-full lg:w-80 lg:sticky lg:top-24">
         <Card className="p-6 shadow-lg border-0 bg-white/90 backdrop-blur-sm">
           <h3 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
             <Package className="w-6 h-6 text-amber-600" />
