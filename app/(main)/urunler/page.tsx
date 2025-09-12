@@ -11,12 +11,6 @@ async function ProductsData() {
   return <ProductList products={products} categories={categories} />;
 }
 
-// Kategori verilerini getiren async component
-async function CategoriesData() {
-  const categories = await getCategories();
-  return categories;
-}
-
 const ProductsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
