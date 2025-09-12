@@ -49,6 +49,9 @@ export async function getDashboardStats() {
           createdAt: {
             gte: new Date(new Date().setHours(0, 0, 0, 0)), // Bugün başlangıcı
           },
+          status: {
+            notIn: ["PENDING", "CANCELLED"],
+          },
         },
       }),
     ]);
@@ -196,7 +199,12 @@ export async function getDashboardRevenue(period: string) {
 
         const dbData = await prisma.order.groupBy({
           by: ["createdAt"],
-          where: { createdAt: { gte: startDate } },
+          where: {
+            createdAt: { gte: startDate },
+            status: {
+              notIn: ["PENDING", "CANCELLED"],
+            },
+          },
           _sum: { totalPrice: true },
           orderBy: { createdAt: "asc" },
         });
@@ -210,7 +218,12 @@ export async function getDashboardRevenue(period: string) {
 
         const dbData = await prisma.order.groupBy({
           by: ["createdAt"],
-          where: { createdAt: { gte: startDate } },
+          where: {
+            createdAt: { gte: startDate },
+            status: {
+              notIn: ["PENDING", "CANCELLED"],
+            },
+          },
           _sum: { totalPrice: true },
           orderBy: { createdAt: "asc" },
         });
@@ -229,6 +242,7 @@ export async function getDashboardRevenue(period: string) {
           SELECT DATE_TRUNC('month', "createdAt") as month, SUM("totalPrice") as total
           FROM "Order"
           WHERE "createdAt" >= ${startDate}
+          AND "status" NOT IN ('PENDING', 'CANCELLED')
           GROUP BY month
           ORDER BY month ASC;
         `;
