@@ -171,9 +171,13 @@ const SepetSayfasi = () => {
                   İptal
                 </Button>
                 <Button
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+                  className={`flex-1 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 ${
+                    !selectedAddressId
+                      ? "bg-gray-400 cursor-not-allowed opacity-60"
+                      : "bg-green-600 hover:bg-green-700 hover:shadow-lg hover:scale-105"
+                  }`}
                   onClick={handleOrderComplete}
-                  disabled={isOrderLoading}
+                  disabled={isOrderLoading || !selectedAddressId}
                 >
                   {isOrderLoading ? (
                     <>

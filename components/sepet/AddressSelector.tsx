@@ -117,15 +117,6 @@ const AddressSelector = ({
         <PlusIcon className="w-5 h-5" />
         <span>Yeni Adres Ekle</span>
       </button>
-
-      {selectedAddressIndex !== null && (
-        <button
-          onClick={() => onAddressSelect(savedAddresses[selectedAddressIndex])}
-          className="w-full mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-        >
-          Bu Adresi Kullan
-        </button>
-      )}
     </div>
   );
 };
