@@ -146,33 +146,55 @@ export async function addAddress(addressData: AddressFormData): Promise<any> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      throw new Error("Kullanıcı girişi yapılmamış");
+      // Bu hatayı API katmanında yakalayıp uygun HTTP yanıtı dönmek daha iyi olur.
+      throw new Error("Kullanıcı girişi yapılmamış.");
+    }
+    const userId = session.user.id;
+
+    // Transaction başlatmadan önce hızlı bir kontrol yapmak mantıklıdır.
+    // Veritabanına boşuna yük bindirmemiş oluruz.
+    const addressCount = await prisma.address.count({
+      where: { userId },
+    });
+
+    if (addressCount >= 2) {
+      throw new Error("En fazla 2 adres oluşturabilirsiniz.");
     }
 
-    // Eğer varsayılan adres olarak işaretlenmişse, diğer adresleri varsayılan olmaktan çıkar
-    if (addressData.varsayilan) {
-      await prisma.address.updateMany({
-        where: {
-          userId: session.user.id,
-        },
+    // Transaction ile atomik işlemler gerçekleştir
+    const newAddress = await prisma.$transaction(async (tx) => {
+      // Eğer yeni adres varsayılan olarak işaretlenmişse,
+      // önce mevcut varsayılan adresi güncelle.
+      if (addressData.varsayilan) {
+        await tx.address.updateMany({
+          where: {
+            userId: userId,
+            varsayilan: true,
+          },
+          data: {
+            varsayilan: false,
+          },
+        });
+      }
+
+      // Ardından yeni adresi oluştur.
+      // `tx` objesini `prisma` yerine kullanıyoruz.
+      const createdAddress = await tx.address.create({
         data: {
-          varsayilan: false,
+          ...addressData,
+          userId: userId,
         },
       });
-    }
 
-    // Yeni adres oluştur
-    const newAddress = await prisma.address.create({
-      data: {
-        ...addressData,
-        userId: session.user.id,
-      },
+      return createdAddress;
     });
 
     return newAddress;
   } catch (error) {
-    console.error("Error adding address:", error);
-    throw error;
+    console.error("Adres eklenirken hata oluştu:", error);
+    // Hatanın türüne göre daha spesifik mesajlar döndürülebilir.
+    // Örneğin, 'Error' nesnesi yerine özel bir hata sınıfı.
+    throw new Error("Adres eklenirken bir sorun oluştu.");
   }
 }
 

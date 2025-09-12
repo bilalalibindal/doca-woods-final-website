@@ -307,9 +307,24 @@ const UserDashboard = () => {
               <p className="text-gray-600 text-sm mb-3">
                 Teslimat adreslerinizi yönetin
               </p>
-              <Badge className="bg-purple-100 text-purple-800">
-                {addressCount} Adres
-              </Badge>
+              <div className="flex flex-col items-center mt-6 space-y-3">
+                <Badge className="bg-purple-100 text-purple-800">
+                  {addressCount} Adres
+                </Badge>
+                {activeSection === "addresses" && (
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-900 text-white border-0"
+                    size="sm"
+                    onClick={() => {
+                      resetAddressForm();
+                      setIsAddressModalOpen(true);
+                    }}
+                  >
+                    <PlusIcon className="w-4 h-4 mr-1" />
+                    Yeni Adres Ekle
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -430,17 +445,6 @@ const UserDashboard = () => {
                   Adreslerim
                 </CardTitle>
                 <div className="flex items-center space-x-2">
-                  <Button
-                    className="bg-gray-1000 hover:bg-gray-500 text-white border-0"
-                    size="sm"
-                    onClick={() => {
-                      resetAddressForm();
-                      setIsAddressModalOpen(true);
-                    }}
-                  >
-                    <PlusIcon className="w-4 h-4 mr-1" />
-                    Yeni Adres Ekle
-                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
