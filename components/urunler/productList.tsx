@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
+import { default as NextImage } from "next/image";
 import {
   ShoppingCart,
   Eye,
@@ -203,12 +203,13 @@ export default function ProductList({
                           )
                         }
                       >
-                        <img
+                        <NextImage
                           src={
                             product.images[currentImageIndexes[product.id] || 0]
                           }
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
                           onError={(e) => {
                             console.error(
                               "Resim yüklenemedi:",
@@ -437,10 +438,11 @@ export default function ProductList({
           {selectedImage && selectedProduct && (
             <div className="relative w-full h-[85vh] bg-black/95 rounded-lg overflow-hidden">
               {/* Ana Resim */}
-              <img
+              <NextImage
                 src={selectedImage}
                 alt="Ürün resmi"
-                className="w-full h-full object-contain"
+                fill
+                className="object-contain"
               />
 
               {/* Ürün Bilgileri */}
@@ -501,10 +503,11 @@ export default function ProductList({
                           setSelectedImage(selectedProduct.images[index]);
                         }}
                       >
-                        <img
+                        <NextImage
                           src={image}
                           alt={`${selectedProduct.name} ${index + 1}`}
-                          className="w-full h-full object-cover rounded"
+                          fill
+                          className="object-cover rounded"
                         />
                       </button>
                     ))}

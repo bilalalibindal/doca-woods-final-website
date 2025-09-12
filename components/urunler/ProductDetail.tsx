@@ -23,6 +23,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
+import { default as NextImage } from "next/image";
 
 interface ProductDetailProps {
   product: Product;
@@ -85,10 +86,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   className="w-full h-full cursor-pointer"
                   onClick={() => handleImageClick(currentImageIndex)}
                 >
-                  <img
+                  <NextImage
                     src={product.images[currentImageIndex]}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                     }}
@@ -199,10 +201,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   }`}
                   onClick={() => setCurrentImageIndex(index)}
                 >
-                  <img
+                  <NextImage
                     src={image}
                     alt={`${product.name} ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                     }}
@@ -316,10 +319,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           {selectedImage && (
             <div className="relative w-full h-[85vh] bg-black/95 rounded-lg overflow-hidden">
               {/* Ana Resim */}
-              <img
+              <NextImage
                 src={selectedImage}
                 alt="Ürün resmi"
-                className="w-full h-full object-contain"
+                fill
+                className="object-contain"
               />
 
               {/* Ürün Bilgileri */}
@@ -376,10 +380,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                           setSelectedImage(product.images[index]);
                         }}
                       >
-                        <img
+                        <NextImage
                           src={image}
                           alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-cover rounded"
+                          fill
+                          className="object-cover rounded"
                         />
                       </button>
                     ))}

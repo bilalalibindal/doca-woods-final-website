@@ -640,10 +640,11 @@ const UserDashboard = () => {
                           <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                             {item.product?.images &&
                             item.product.images.length > 0 ? (
-                              <img
+                              <Image
                                 src={item.product.images[0]}
                                 alt={item.product.name}
-                                className="w-full h-full object-cover"
+                                fill
+                                className="object-cover"
                                 onError={(e) => {
                                   e.currentTarget.src =
                                     "/placeholder-product.jpg";

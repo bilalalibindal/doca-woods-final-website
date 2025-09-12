@@ -15,6 +15,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { IOrder } from "@/interfaces/orderInterface";
 import { ProductStatus } from "@/Enum";
+import { default as NextImage } from "next/image";
 
 interface OrderDetailsModalProps {
   isOpen: boolean;
@@ -166,10 +167,12 @@ const OrderDetailsModal = ({
                           >
                             {productItem.product.images &&
                               productItem.product.images[0] && (
-                                <img
+                                <NextImage
                                   src={productItem.product.images[0]}
                                   alt={productItem.product.name}
-                                  className="w-16 h-16 object-cover rounded-lg shadow-sm"
+                                  width={64}
+                                  height={64}
+                                  className="object-cover rounded-lg shadow-sm"
                                 />
                               )}
                             <div className="flex-1">
@@ -221,12 +224,15 @@ const OrderDetailsModal = ({
                           </h3>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {order.customizationImage.map((image, index) => (
-                              <img
-                                key={index}
-                                src={image}
-                                alt={`Özelleştirme ${index + 1}`}
-                                className="w-full h-32 object-cover rounded-lg shadow-sm"
-                              />
+                              <div className="w-full h-32 relative">
+                                <NextImage
+                                  key={index}
+                                  src={image}
+                                  alt={`Özelleştirme ${index + 1}`}
+                                  fill
+                                  className="object-cover rounded-lg shadow-sm"
+                                />
+                              </div>
                             ))}
                           </div>
                         </div>

@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { default as NextImage } from "next/image";
 import {
   MoreHorizontal,
   Eye,
@@ -775,10 +776,11 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                       <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product?.images &&
                         item.product.images.length > 0 ? (
-                          <img
+                          <NextImage
                             src={item.product.images[0]}
                             alt={item.product.name}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                             onError={(e) => {
                               e.currentTarget.src = "/placeholder-product.jpg";
                             }}
