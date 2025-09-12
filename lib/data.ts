@@ -11,31 +11,155 @@ import prisma from "@/lib/prisma";
 // Dashboard data fetching
 export async function getDashboardStats() {
   try {
-    const response = await fetch("/api/admin/dashboard/stats");
-    if (!response.ok) throw new Error("API endpoint not available");
-    return await response.json();
+    // Gerçek veritabanı verilerini çek
+    const [
+      totalOrders,
+      totalRevenue,
+      totalProducts,
+      todayOrders,
+      todayRevenue,
+    ] = await Promise.all([
+      prisma.order.count(),
+      prisma.order.aggregate({
+        _sum: { totalPrice: true },
+      }),
+      prisma.product.count(),
+      prisma.order.count({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)), // Bugün başlangıcı
+          },
+        },
+      }),
+      prisma.order.aggregate({
+        _sum: { totalPrice: true },
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)), // Bugün başlangıcı
+          },
+        },
+      }),
+    ]);
+
+    return [
+      {
+        title: "Toplam Sipariş",
+        value: totalOrders.toString(),
+        change: "Tüm zamanlar",
+        icon: () => null,
+      },
+      {
+        title: "Toplam Kazanç",
+        value: `${(totalRevenue._sum.totalPrice || 0).toLocaleString("tr-TR")} ₺`,
+        change: "Tüm zamanlar",
+        icon: () => null,
+      },
+      {
+        title: "Toplam Ürün",
+        value: totalProducts.toString(),
+        change: "Aktif ürünler",
+        icon: () => null,
+      },
+      {
+        title: "Bugünkü Siparişler",
+        value: todayOrders.toString(),
+        change: "Bugün",
+        icon: () => null,
+      },
+    ];
   } catch (error) {
+    console.error("Dashboard stats alınırken hata:", error);
+    const { mockDashboardStats } = await import("./mockData");
     return mockDashboardStats;
   }
 }
 
 export async function getRevenueData() {
   try {
-    const response = await fetch("/api/admin/dashboard/revenue");
-    if (!response.ok) throw new Error("API endpoint not available");
-    return await response.json();
+    // Son 7 günün günlük gelir verilerini çek
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const revenueData = await prisma.order.groupBy({
+      by: ["createdAt"],
+      where: {
+        createdAt: {
+          gte: sevenDaysAgo,
+        },
+      },
+      _sum: {
+        totalPrice: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    // Günlük olarak grupla ve formatla
+    const dailyRevenue = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split("T")[0];
+
+      const dayData = revenueData.find(
+        (item) => item.createdAt.toISOString().split("T")[0] === dateStr
+      );
+
+      dailyRevenue.push({
+        day: date.toLocaleDateString("tr-TR", { weekday: "short" }),
+        revenue: dayData?._sum.totalPrice || 0,
+      });
+    }
+
+    return dailyRevenue;
   } catch (error) {
+    console.error("Revenue data alınırken hata:", error);
+    const { mockRevenueData } = await import("./mockData");
     return mockRevenueData;
   }
 }
 
 export async function getRecentOrders() {
   try {
-    const response = await fetch("/api/admin/orders/recent");
-    if (!response.ok) throw new Error("API endpoint not available");
-    return await response.json();
+    const recentOrders = await prisma.order.findMany({
+      take: 5,
+      include: {
+        customer: true,
+        address: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return recentOrders.map((order) => ({
+      id: order.id.slice(-8),
+      customer: {
+        name: order.customer?.name || "Bilinmiyor",
+        email: order.customer?.email || "",
+      },
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt,
+      items: order.items,
+    }));
   } catch (error) {
-    return mockOrders.slice(0, 5);
+    console.error("Recent orders alınırken hata:", error);
+    const { mockOrders } = await import("./mockData");
+    return mockOrders.slice(0, 5).map((order) => ({
+      id: order.id.slice(-8),
+      customer: order.customer,
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt,
+      items: order.items || [],
+    }));
   }
 }
 
