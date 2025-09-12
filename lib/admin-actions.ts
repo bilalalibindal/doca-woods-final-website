@@ -2,10 +2,22 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { UserRole } from "@/Enum";
 
 //! Product actions
 export async function createProduct(formData: FormData) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
+
     const productData = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
@@ -64,6 +76,14 @@ export async function createProduct(formData: FormData) {
 
 export async function updateProduct(id: string, formData: FormData) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
     // 1. Ürünün mevcut halini veritabanından al
     const existingProduct = await prisma.product.findUnique({
       where: { id },
@@ -170,6 +190,14 @@ export async function updateProduct(id: string, formData: FormData) {
 
 export async function deleteProduct(id: string) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
     await prisma.product.delete({ where: { id } });
 
     revalidatePath("/admin/products");
@@ -185,6 +213,14 @@ export async function deleteProduct(id: string) {
 //! Order actions
 export async function updateOrderStatus(id: string, formData: FormData) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
     const orderData = {
       status: formData.get("status") as string,
       shippingTrackingUrl: formData.get("shippingTrackingUrl") as string,
@@ -216,6 +252,14 @@ export async function updateOrderStatus(id: string, formData: FormData) {
 // Kategori Oluşturma
 export async function createCategory(formData: FormData) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
     const name = formData.get("name") as string;
     if (!name) {
       return { success: false, message: "Kategori adı boş olamaz." };
@@ -243,6 +287,14 @@ export async function createCategory(formData: FormData) {
 // Kategori Güncelleme
 export async function updateCategory(id: string, formData: FormData) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
     const name = formData.get("name") as string;
     if (!name) {
       return { success: false, message: "Kategori adı boş olamaz." };
@@ -263,6 +315,14 @@ export async function updateCategory(id: string, formData: FormData) {
 // Kategori Silme
 export async function deleteCategory(id: string) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
     await prisma.category.delete({ where: { id } });
 
     revalidatePath("/admin/products");
@@ -278,6 +338,14 @@ export async function deleteCategory(id: string) {
 //! Settings actions
 export async function updateSettings(formData: FormData) {
   try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
     // 1. Mevcut ayarları al
     const existingSettings = await prisma.settings.findFirst({
       orderBy: {
