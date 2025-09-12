@@ -6,6 +6,300 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { UserRole } from "@/Enum";
 
+//! Dashboard actions
+
+// Dashboard stats
+export async function getDashboardStats() {
+  try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
+    const [
+      totalOrders,
+      totalRevenue,
+      totalProducts,
+      todayOrders,
+      todayRevenue,
+    ] = await Promise.all([
+      // totalOrders
+      prisma.order.count(),
+      // totalRevenue
+      prisma.order.aggregate({
+        _sum: { totalPrice: true },
+      }),
+      // totalProducts
+      prisma.product.count(),
+      // todayOrders
+      prisma.order.count({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)), // Bugün başlangıcı
+          },
+        },
+      }),
+      // todayRevenue
+      prisma.order.aggregate({
+        _sum: { totalPrice: true },
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)), // Bugün başlangıcı
+          },
+        },
+      }),
+    ]);
+
+    const stats = [
+      {
+        title: "Toplam Sipariş",
+        value: totalOrders.toString(),
+        change: "Tüm zamanlar",
+        icon: "ShoppingCartIcon",
+      },
+      {
+        title: "Toplam Kazanç",
+        value: `${(totalRevenue._sum.totalPrice || 0).toLocaleString("tr-TR")} ₺`,
+        change: "Tüm zamanlar",
+        icon: "CurrencyDollarIcon",
+      },
+      {
+        title: "Toplam Ürün",
+        value: totalProducts.toString(),
+        change: "Aktif ürünler",
+        icon: "CubeIcon",
+      },
+      {
+        title: "Bugünkü Siparişler",
+        value: todayOrders.toString(),
+        change: "Bugün",
+        icon: "CalendarDaysIcon",
+      },
+      {
+        title: "Bugünkü Kazanç",
+        value: `${(todayRevenue._sum.totalPrice || 0).toLocaleString("tr-TR")} ₺`,
+        change: "Bugün",
+        icon: "CurrencyDollarIcon",
+      },
+    ];
+    return {
+      success: true,
+      data: stats,
+    };
+  } catch (error) {
+    revalidatePath("/admin/");
+    return {
+      success: false,
+      message: "Dashboard stats yüklenirken bir hata oluştu.",
+    };
+  }
+}
+// Tip tanımlamaları
+type DailyData = { name: string; Gelir: number };
+type MonthlyData = { name: string; Gelir: number };
+type DbDailyResult = { createdAt: Date; _sum: { totalPrice: number | null } };
+type DbMonthlyResult = { month: Date; total: number };
+
+/**
+ * Veritabanından gelen ham veriyi son X gün için formatlar.
+ * @param dbData Prisma'dan gelen gruplanmış veri.
+ * @param days Kaç günlük veri oluşturulacağı (örn: 7, 30).
+ * @param useDateFormat 1 ay için tarih formatı kullanılsın mı?
+ * @returns Grafik için formatlanmış günlük veri dizisi.
+ */
+function formatDailyData(
+  dbData: DbDailyResult[],
+  days: number,
+  useDateFormat: boolean = false
+): DailyData[] {
+  const revenueMap = new Map<string, number>();
+  dbData.forEach((item) => {
+    const dateStr = item.createdAt.toISOString().split("T")[0];
+    const dailyTotal =
+      (revenueMap.get(dateStr) || 0) + (item._sum.totalPrice || 0);
+    revenueMap.set(dateStr, dailyTotal);
+  });
+
+  const formattedData: DailyData[] = [];
+  for (let i = 0; i < days; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split("T")[0];
+
+    let name: string;
+    if (useDateFormat) {
+      // 1 ay için ay.gün formatı (07.22, 07.23...)
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      name = `${month}.${day}`;
+    } else {
+      // 7 gün için gün adı (Pzt, Sal, Çar...)
+      name = date.toLocaleDateString("tr-TR", { weekday: "short" });
+    }
+
+    formattedData.push({
+      name,
+      Gelir: revenueMap.get(dateStr) || 0,
+    });
+  }
+
+  return formattedData.reverse(); // Tarihleri eskiden yeniye sırala
+}
+/**
+ * Veritabanından gelen ham veriyi son 12 ay için formatlar.
+ * @param dbData Prisma $queryRaw'dan gelen veri.
+ * @returns Grafik için formatlanmış aylık veri dizisi.
+ */
+function formatMonthlyData(dbData: DbMonthlyResult[]): MonthlyData[] {
+  const revenueMap = new Map<number, number>();
+  dbData.forEach((item) => {
+    // Gelen tarih string'ini Date objesine çevirip ay'ı (0-11) alıyoruz.
+    const month = new Date(item.month).getMonth();
+    revenueMap.set(month, Number(item.total)); // Gelen değer BigInt olabilir, Number'a çeviriyoruz.
+  });
+
+  const formattedData: MonthlyData[] = [];
+  for (let i = 0; i < 12; i++) {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    const month = date.getMonth();
+
+    formattedData.push({
+      name: date.toLocaleDateString("tr-TR", { month: "short" }),
+      Gelir: revenueMap.get(month) || 0,
+    });
+  }
+
+  return formattedData.reverse(); // Ayları eskiden yeniye sırala
+}
+/**
+ * Belirtilen periyoda göre dashboard gelir verilerini çeker ve formatlar.
+ * @param period "7days", "1month", veya "1year".
+ * @returns Başarı durumu, mesaj ve formatlanmış veri.
+ */
+export async function getDashboardRevenue(period: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return { success: false, message: "Yetkisiz erişim." };
+    }
+
+    let formattedData: DailyData[] | MonthlyData[] = [];
+
+    switch (period) {
+      case "7days": {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+
+        const dbData = await prisma.order.groupBy({
+          by: ["createdAt"],
+          where: { createdAt: { gte: startDate } },
+          _sum: { totalPrice: true },
+          orderBy: { createdAt: "asc" },
+        });
+
+        formattedData = formatDailyData(dbData, 7, false); // Gün adı formatı
+        break;
+      }
+      case "1month": {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+
+        const dbData = await prisma.order.groupBy({
+          by: ["createdAt"],
+          where: { createdAt: { gte: startDate } },
+          _sum: { totalPrice: true },
+          orderBy: { createdAt: "asc" },
+        });
+
+        formattedData = formatDailyData(dbData, 30, true); // Ay.gün formatı
+        break;
+      }
+
+      case "1year": {
+        const startDate = new Date();
+        startDate.setFullYear(startDate.getFullYear() - 1);
+
+        // PostgreSQL için DATE_TRUNC fonksiyonunu kullanıyoruz.
+        // Bu sorgu, createdAt alanını ay başına yuvarlar, bu aylara göre gruplar ve toplamı alır.
+        const dbData = await prisma.$queryRaw<DbMonthlyResult[]>`
+          SELECT DATE_TRUNC('month', "createdAt") as month, SUM("totalPrice") as total
+          FROM "Order"
+          WHERE "createdAt" >= ${startDate}
+          GROUP BY month
+          ORDER BY month ASC;
+        `;
+
+        formattedData = formatMonthlyData(dbData);
+        break;
+      }
+
+      default:
+        return { success: false, message: "Geçersiz periyot." };
+    }
+
+    return { success: true, data: formattedData };
+  } catch (error) {
+    console.error("Dashboard gelir verisi alınırken hata:", error);
+    return { success: false, message: "Sunucu hatası oluştu." };
+  }
+}
+
+// Recent orders
+export async function getRecentOrders() {
+  try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
+
+    const recentOrders = await prisma.order.findMany({
+      take: 5,
+      include: {
+        customer: true,
+        address: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const formattedOrders = recentOrders.map((order) => ({
+      id: order.id.slice(-8),
+      customer: {
+        name: order.customer?.name || "Bilinmiyor",
+        email: order.customer?.email || "",
+      },
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt,
+      items: order.items,
+    }));
+
+    return {
+      success: true,
+      data: formattedOrders,
+    };
+  } catch (error) {
+    console.error("Recent orders alınırken hata:", error);
+    return {
+      success: false,
+      message: "Son siparişler yüklenirken bir hata oluştu.",
+    };
+  }
+}
 //! Product actions
 export async function createProduct(formData: FormData) {
   try {
