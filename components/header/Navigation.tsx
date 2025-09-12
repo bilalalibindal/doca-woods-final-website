@@ -14,7 +14,6 @@ const Navigation = ({ isMobile = false, onLinkClick }: NavigationProps) => {
   const navItems = [
     { href: "/", label: "Ana Sayfa" },
     { href: "/urunler", label: "Ürünler" },
-    { href: "/profil", label: "Hakkımızda" },
     { href: "/iletisim", label: "İletişim" },
   ];
 
