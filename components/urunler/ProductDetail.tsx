@@ -204,7 +204,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   <NextImage
                     src={image}
                     alt={`${product.name} ${index + 1}`}
-                    fill
+                    width={80}
+                    height={80}
                     className="object-cover"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
@@ -370,7 +371,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     {product.images.map((image, index) => (
                       <button
                         key={index}
-                        className={`w-16 h-16 rounded border-2 transition-all duration-300 ${
+                        className={`w-16 h-16 rounded border-2 transition-all duration-300 overflow-hidden ${
                           index === selectedImageIndex
                             ? "border-white shadow-lg"
                             : "border-transparent opacity-60 hover:opacity-100"
@@ -383,8 +384,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                         <NextImage
                           src={image}
                           alt={`${product.name} ${index + 1}`}
-                          fill
-                          className="object-cover rounded"
+                          width={64}
+                          height={64}
+                          className="object-cover"
                         />
                       </button>
                     ))}
