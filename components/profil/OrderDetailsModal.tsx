@@ -13,7 +13,7 @@ import {
   CheckCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import { IOrder } from "@/interfaces/orderInterface";
+import { Order as IOrder } from "@/types";
 import { ProductStatus } from "@/Enum";
 import { default as NextImage } from "next/image";
 
@@ -113,7 +113,7 @@ const OrderDetailsModal = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-3xl bg-white/95 backdrop-blur-xl p-8 text-left align-middle shadow-2xl transition-all border border-white/20">
+              <Dialog.Panel className="w-full max-w-4xl max-h-[90vh] transform overflow-hidden rounded-3xl bg-white/95 backdrop-blur-xl p-8 text-left align-middle shadow-2xl transition-all border border-white/20 flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-4">
@@ -122,7 +122,10 @@ const OrderDetailsModal = ({
                     </div>
                     <div>
                       <Dialog.Title className="text-2xl font-bold text-slate-800">
-                        Sipariş #{order._id.slice(-8).toUpperCase()}
+                        Sipariş #
+                        {(order._id || order.id || "00000000")
+                          .slice(-8)
+                          .toUpperCase()}
                       </Dialog.Title>
                       <div className="flex items-center space-x-2 text-sm text-slate-600">
                         <CalendarIcon className="w-4 h-4" />
@@ -152,7 +155,7 @@ const OrderDetailsModal = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 overflow-y-auto">
                   {/* Sol taraf - Ürünler */}
                   <div className="lg:col-span-2 space-y-6">
                     <div>
@@ -160,58 +163,60 @@ const OrderDetailsModal = ({
                         Sipariş İçeriği
                       </h3>
                       <div className="space-y-4">
-                        {order.products.map((productItem, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-4 bg-slate-50/50 rounded-xl p-4"
-                          >
-                            {productItem.product.images &&
-                              productItem.product.images[0] && (
-                                <NextImage
-                                  src={productItem.product.images[0]}
-                                  alt={productItem.product.name}
-                                  width={64}
-                                  height={64}
-                                  className="object-cover rounded-lg shadow-sm"
-                                />
-                              )}
-                            <div className="flex-1">
-                              <h4 className="font-medium text-slate-800">
-                                {productItem.product.name}
-                              </h4>
-                              <p className="text-sm text-slate-600 mb-2">
-                                {productItem.product.description}
-                              </p>
-                              <div className="flex items-center space-x-4 text-sm">
-                                <span className="text-slate-600">
-                                  Adet: {productItem.quantity}
-                                </span>
-                                <span className="text-slate-600">
-                                  Birim Fiyat:{" "}
-                                  {productItem.product.price.toLocaleString(
-                                    "tr-TR"
-                                  )}{" "}
+                        {(order.products || []).map(
+                          (productItem: any, index: number) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-4 bg-slate-50/50 rounded-xl p-4"
+                            >
+                              {productItem.product.images &&
+                                productItem.product.images[0] && (
+                                  <NextImage
+                                    src={productItem.product.images[0]}
+                                    alt={productItem.product.name}
+                                    width={48}
+                                    height={48}
+                                    className="object-cover rounded-lg shadow-sm"
+                                  />
+                                )}
+                              <div className="flex-1">
+                                <h4 className="font-medium text-slate-800">
+                                  {productItem.product.name}
+                                </h4>
+                                <p className="text-sm text-slate-600 mb-2">
+                                  {productItem.product.description}
+                                </p>
+                                <div className="flex items-center space-x-4 text-sm">
+                                  <span className="text-slate-600">
+                                    Adet: {productItem.quantity}
+                                  </span>
+                                  <span className="text-slate-600">
+                                    Birim Fiyat:{" "}
+                                    {productItem.product.price.toLocaleString(
+                                      "tr-TR"
+                                    )}{" "}
+                                    ₺
+                                  </span>
+                                  <span className="text-slate-600">
+                                    Materyal: {productItem.product.material}
+                                  </span>
+                                  <span className="text-slate-600">
+                                    Renk: {productItem.product.color}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-slate-800">
+                                  {(
+                                    productItem.product.price *
+                                    productItem.quantity
+                                  ).toLocaleString("tr-TR")}{" "}
                                   ₺
-                                </span>
-                                <span className="text-slate-600">
-                                  Materyal: {productItem.product.material}
-                                </span>
-                                <span className="text-slate-600">
-                                  Renk: {productItem.product.color}
-                                </span>
+                                </p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-semibold text-slate-800">
-                                {(
-                                  productItem.product.price *
-                                  productItem.quantity
-                                ).toLocaleString("tr-TR")}{" "}
-                                ₺
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     </div>
 
@@ -222,18 +227,23 @@ const OrderDetailsModal = ({
                           <h3 className="text-lg font-semibold text-slate-800 mb-4">
                             Özelleştirme Resimleri
                           </h3>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {order.customizationImage.map((image, index) => (
-                              <div className="w-full h-32 relative">
-                                <NextImage
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                            {order.customizationImage.map(
+                              (image: string, index: number) => (
+                                <div
                                   key={index}
-                                  src={image}
-                                  alt={`Özelleştirme ${index + 1}`}
-                                  fill
-                                  className="object-cover rounded-lg shadow-sm"
-                                />
-                              </div>
-                            ))}
+                                  className="w-full h-24 flex items-center justify-center rounded-lg overflow-hidden shadow-sm"
+                                >
+                                  <NextImage
+                                    src={image}
+                                    alt={`Özelleştirme ${index + 1}`}
+                                    width={200}
+                                    height={96}
+                                    className="object-cover max-w-full max-h-full"
+                                  />
+                                </div>
+                              )
+                            )}
                           </div>
                         </div>
                       )}
@@ -250,14 +260,15 @@ const OrderDetailsModal = ({
                         <div className="flex justify-between items-center">
                           <span className="text-slate-600">Ürün Sayısı:</span>
                           <span className="font-medium text-slate-800">
-                            {order.products.length}
+                            {(order.products || []).length}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-slate-600">Toplam Adet:</span>
                           <span className="font-medium text-slate-800">
-                            {order.products.reduce(
-                              (total, item) => total + item.quantity,
+                            {(order.products || []).reduce(
+                              (total: number, item: any) =>
+                                total + item.quantity,
                               0
                             )}
                           </span>
@@ -288,17 +299,20 @@ const OrderDetailsModal = ({
                       </div>
                       <div className="space-y-2">
                         <p className="font-medium text-slate-800">
-                          {order.address.addressTitle}
+                          {order.address?.addressTitle ||
+                            "Adres bilgisi bulunamadı"}
                         </p>
                         <p className="text-slate-600">
-                          {order.address.mahalle}, {order.address.sokak} No:{" "}
-                          {order.address.no}
+                          {order.address?.mahalle || ""},{" "}
+                          {order.address?.sokak || ""} No:{" "}
+                          {order.address?.no || ""}
                         </p>
                         <p className="text-slate-600">
-                          {order.address.sehir}/{order.address.ulke} -{" "}
-                          {order.address.postaKodu}
+                          {order.address?.sehir || ""}/
+                          {order.address?.ulke || ""} -{" "}
+                          {order.address?.postaKodu || ""}
                         </p>
-                        {order.address.tarif && (
+                        {order.address?.tarif && (
                           <p className="text-sm text-slate-500 mt-2 italic">
                             {order.address.tarif}
                           </p>
@@ -330,7 +344,7 @@ const OrderDetailsModal = ({
                 </div>
 
                 {/* Footer */}
-                <div className="mt-8 pt-6 border-t border-slate-200 flex justify-end">
+                <div className="mt-8 pt-6 border-t border-slate-200 flex justify-end flex-shrink-0">
                   <button
                     onClick={onClose}
                     className="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200"

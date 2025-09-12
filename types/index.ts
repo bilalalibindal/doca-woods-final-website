@@ -76,15 +76,18 @@ export interface OrderItem {
 
 // Order tipi - Prisma Order model'ine uygun
 export interface Order {
-  id: string;
+  _id?: string; // MongoDB ObjectId için
+  id?: string; // Alternatif ID
   totalPrice: number;
   status: ProductStatus;
   shippingTrackingUrl?: string;
   customizationImages: string[];
+  customizationImage?: string[]; // Eski format için
   customerId: string;
   addressId: string;
   customer?: User;
   address?: Address;
+  products?: any[]; // OrderItem yerine products array
   items?: OrderItem[];
   createdAt: Date;
   updatedAt: Date;

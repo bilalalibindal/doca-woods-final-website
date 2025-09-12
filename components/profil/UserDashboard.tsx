@@ -637,13 +637,14 @@ const UserDashboard = () => {
                           className="flex items-center space-x-4 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
                         >
                           {/* Ürün Resmi */}
-                          <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                          <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                             {item.product?.images &&
                             item.product.images.length > 0 ? (
                               <Image
                                 src={item.product.images[0]}
                                 alt={item.product.name}
-                                fill
+                                width={48}
+                                height={48}
                                 className="object-cover"
                                 onError={(e) => {
                                   e.currentTarget.src =
