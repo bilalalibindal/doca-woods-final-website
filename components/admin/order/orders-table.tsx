@@ -230,20 +230,24 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold">Sipariş ID</TableHead>
-            <TableHead className="font-semibold">Müşteri</TableHead>
-            <TableHead className="font-semibold">Ürünler</TableHead>
-            <TableHead className="font-semibold">Durum</TableHead>
-            <TableHead className="font-semibold">Toplam</TableHead>
-            <TableHead className="font-semibold">Tarih</TableHead>
-            <TableHead className="font-semibold">Eylemler</TableHead>
+            <TableHead className="font-semibold text-center">
+              Sipariş ID
+            </TableHead>
+            <TableHead className="font-semibold text-center">Müşteri</TableHead>
+            <TableHead className="font-semibold text-center">Ürünler</TableHead>
+            <TableHead className="font-semibold text-center">Durum</TableHead>
+            <TableHead className="font-semibold text-center">Toplam</TableHead>
+            <TableHead className="font-semibold text-center">Tarih</TableHead>
+            <TableHead className="font-semibold text-center">
+              Eylemler
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.map((order) => (
             <TableRow key={order.id} className="hover:bg-gray-50">
-              <TableCell className="font-medium">
-                <div className="flex items-center space-x-2">
+              <TableCell className="font-medium text-center">
+                <div className="flex items-center justify-center space-x-2">
                   <Package className="w-4 h-4 text-gray-400" />
                   <span className="font-mono text-sm">
                     {order.id.slice(-8)}
@@ -251,7 +255,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                 </div>
               </TableCell>
 
-              <TableCell>
+              <TableCell className="text-center">
                 <div>
                   <div className="font-medium text-gray-900">
                     {order.customer?.name || "İsim Yok"}
@@ -262,11 +266,11 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                 </div>
               </TableCell>
 
-              <TableCell>
+              <TableCell className="text-center">
                 <div className="text-sm">{order.items?.length || 0} ürün</div>
               </TableCell>
 
-              <TableCell>
+              <TableCell className="text-center">
                 <span
                   className={`inline-flex items-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${getStatusColor(
                     order.status
@@ -276,15 +280,15 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                 </span>
               </TableCell>
 
-              <TableCell className="font-semibold text-green-600">
+              <TableCell className="font-semibold text-green-600 text-center">
                 {order.totalPrice?.toLocaleString("tr-TR")} ₺
               </TableCell>
 
-              <TableCell className="text-sm text-gray-500">
+              <TableCell className="text-sm text-gray-500 text-center">
                 <OrderDate dateString={order.createdAt} />
               </TableCell>
 
-              <TableCell>
+              <TableCell className="text-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
