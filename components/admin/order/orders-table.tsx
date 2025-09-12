@@ -267,64 +267,13 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
               </TableCell>
 
               <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`cursor-pointer border ${getStatusColor(
-                        order.status
-                      )}`}
-                    >
-                      {getStatusText(order.status)}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Sipariş Durumu</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() =>
-                        handleStatusUpdate(order.id, ProductStatus.APPROVED)
-                      }
-                      className="cursor-pointer"
-                    >
-                      ✅ Onayla
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        handleStatusUpdate(order.id, ProductStatus.PREPARING)
-                      }
-                      className="cursor-pointer"
-                    >
-                      📦 Hazırla
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        handleStatusUpdate(order.id, ProductStatus.SHIPPED)
-                      }
-                      className="cursor-pointer"
-                    >
-                      🚚 Gönder
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        handleStatusUpdate(order.id, ProductStatus.DELIVERED)
-                      }
-                      className="cursor-pointer"
-                    >
-                      ✅ Teslim Et
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() =>
-                        handleStatusUpdate(order.id, ProductStatus.CANCELLED)
-                      }
-                      className="cursor-pointer text-red-600"
-                    >
-                      ❌ İptal Et
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <span
+                  className={`inline-flex items-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${getStatusColor(
+                    order.status
+                  )}`}
+                >
+                  {getStatusText(order.status)}
+                </span>
               </TableCell>
 
               <TableCell className="font-semibold text-green-600">

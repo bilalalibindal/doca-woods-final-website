@@ -626,6 +626,35 @@ const UserDashboard = () => {
                       {selectedOrder.totalPrice?.toLocaleString("tr-TR")} ₺
                     </p>
                   </div>
+                  {/* Kargo Takip */}
+                  {selectedOrder.shippingTrackingUrl && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 mx-2">
+                        Kargo Takip:
+                      </label>
+                      <a
+                        href={selectedOrder.shippingTrackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1 rounded-lg transition-colors text-sm"
+                      >
+                        <span>Takip Et</span>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* Sipariş Ürünleri */}
