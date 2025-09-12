@@ -427,7 +427,10 @@ export default function ProductList({
 
       {/* Resim Büyütme Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-6xl w-full p-0 bg-transparent border-0">
+        <DialogContent
+          className="max-w-6xl w-full p-0 bg-transparent border-0"
+          showCloseButton={false}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>Ürün Resmi</DialogTitle>
           </DialogHeader>

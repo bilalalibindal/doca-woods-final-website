@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { ICategory } from "@/types/categoryTypes";
+import { Category } from "@/types";
 import { mockCategories } from "./mockData";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface CategoryState {
-  categories: ICategory[];
+  categories: Category[];
   isLoading: boolean;
   error: string | null;
   getAllCategories: () => Promise<void>;
@@ -25,7 +25,7 @@ export const categoryStore = create<CategoryState>((set, get) => ({
         return;
       }
       const data = await res.json();
-      const categories: ICategory[] = Array.isArray(data) ? data : [];
+      const categories: Category[] = Array.isArray(data) ? data : [];
       set({ categories, isLoading: false, error: null });
     } catch (error) {
       toast.error("Kategoriler alınamadı, mockCategories gösteriliyor");

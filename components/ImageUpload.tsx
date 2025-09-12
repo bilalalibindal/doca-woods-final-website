@@ -3,7 +3,7 @@
 import { useState, ChangeEvent } from "react";
 import { CldImage } from "next-cloudinary";
 import { TrashIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   images: string[];
@@ -23,7 +23,7 @@ const ImageUpload = ({
     if (!file) return;
 
     if (images.length >= maxImages) {
-      toast.warn(`En fazla ${maxImages} resim yükleyebilirsiniz.`);
+      toast.warning(`En fazla ${maxImages} resim yükleyebilirsiniz.`);
       return;
     }
 

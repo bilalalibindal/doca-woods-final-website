@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { IProduct as UIProduct } from "@/types/productTypes";
-import { toast } from "react-toastify";
+import { Product as UIProduct } from "@/types";
+import { toast } from "sonner";
 import { mockProducts } from "./mockData";
 interface ProductState {
   products: UIProduct[];

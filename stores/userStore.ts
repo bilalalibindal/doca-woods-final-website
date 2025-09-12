@@ -29,8 +29,6 @@ export const userStore = create<UserState>((set, get) => ({
           isLoading: false,
           error: null,
         });
-
-        toast.success("Kullanıcı bilgileri başarıyla yüklendi.");
       } else {
         signOut({ callbackUrl: "/profil" });
         throw new Error(result.message || "Kullanıcı verisi alınamadı");
