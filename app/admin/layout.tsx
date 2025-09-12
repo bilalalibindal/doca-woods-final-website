@@ -2,7 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Admin Panel - E-commerce",

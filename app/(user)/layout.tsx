@@ -1,4 +1,5 @@
 import { MainHeader } from "@/components/header"; // Header component'inizi import edin
+import { Toaster } from "sonner";
 
 export default function UserPagesLayout({
   children,
@@ -8,6 +9,14 @@ export default function UserPagesLayout({
   return (
     <>
       <main>{children}</main>
+      <Toaster
+        toastOptions={{
+          duration: 2000,
+        }}
+        position="bottom-right"
+        expand={true}
+        closeButton
+      />
     </>
   );
 }
