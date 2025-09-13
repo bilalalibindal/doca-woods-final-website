@@ -14,7 +14,7 @@ const Navigation = ({ isMobile = false, onLinkClick }: NavigationProps) => {
   const navItems = [
     { href: "/", label: "Ana Sayfa" },
     { href: "/urunler", label: "Ürünler" },
-    { href: "/iletisim", label: "İletişim" },
+    { href: "/#contact", label: "İletişim" },
   ];
 
   const baseClasses =

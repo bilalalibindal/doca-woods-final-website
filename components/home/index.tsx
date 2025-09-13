@@ -1,13 +1,56 @@
-import React, { Suspense } from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import MainHeader from "@/components/header/MainHeader";
 import { getSettings } from "@/lib/services";
 import { HomeSkeleton } from "@/components/ui/loading";
 import { TreePine, ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import SocialMedia from "@/components/social/SocialMedia";
 
-// Ana sayfa içeriğini getiren async component
-async function HomeContent() {
-  const settings = await getSettings();
+// Ana sayfa içeriğini getiren client component
+function HomeContent() {
+  const [settings, setSettings] = React.useState<any>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await getSettings();
+        setSettings(data);
+      } catch (error) {
+        console.error("Settings yüklenirken hata:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+  // Smooth scroll for contact section
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#contact") {
+      const element = document.getElementById("contact");
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+      }
+    }
+  }, [settings]);
+
+  if (isLoading) {
+    return <HomeSkeleton />;
+  }
+
+  if (!settings) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Ayarlar yüklenemedi.</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -58,7 +101,10 @@ async function HomeContent() {
         settings.instagramUrl ||
         settings.xUrl ||
         settings.linkedinUrl) && (
-        <section className="py-20 bg-gradient-to-br from-gray-50 to-amber-50">
+        <section
+          id="contact"
+          className="py-20 bg-gradient-to-br from-gray-50 to-amber-50"
+        >
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
@@ -177,11 +223,7 @@ async function HomeContent() {
 }
 
 const Home = () => {
-  return (
-    <Suspense fallback={<HomeSkeleton />}>
-      <HomeContent />
-    </Suspense>
-  );
+  return <HomeContent />;
 };
 
 export default Home;
