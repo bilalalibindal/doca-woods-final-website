@@ -296,7 +296,7 @@ export async function getRecentOrders() {
     });
 
     const formattedOrders = recentOrders.map((order) => ({
-      id: order.id.slice(-8),
+      id: order.id.slice(-10),
       customer: {
         name: order.customer?.name || "Bilinmiyor",
         email: order.customer?.email || "",

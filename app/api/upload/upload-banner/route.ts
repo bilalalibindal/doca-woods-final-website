@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/authOptions";
+import { authOptions } from "../../auth/[...nextauth]/authOptions";
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Dosya boyutunu kontrol et (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
         { success: false, message: "Dosya boyutu en fazla 5MB olabilir." },
         { status: 400 }
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          upload_preset: "admin-product-uploads", // GÜVENLİ, SIGNED PRESET'İMİZ
+          upload_preset: "admin-banner-uploads", // GÜVENLİ, SIGNED PRESET'İMİZ
         },
         (error, result) => {
           if (error) reject(error);
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     // @ts-ignore
     const imageUrl = result.secure_url;
-    console.log("IMAGE RESULT: ", result);
+    console.log("UPLOAD_BANNER_IMAGE RESULT: ", result);
     return NextResponse.json({ success: true, url: imageUrl }, { status: 200 });
   } catch (error) {
     console.error("Resim yükleme hatası:", error);

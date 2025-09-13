@@ -139,7 +139,7 @@ export async function getRecentOrders() {
     });
 
     return recentOrders.map((order) => ({
-      id: order.id.slice(-8),
+      id: order.id.slice(-10),
       customer: {
         name: order.customer?.name || "Bilinmiyor",
         email: order.customer?.email || "",
@@ -153,7 +153,7 @@ export async function getRecentOrders() {
     console.error("Recent orders alınırken hata:", error);
     const { mockOrders } = await import("./mockData");
     return mockOrders.slice(0, 5).map((order) => ({
-      id: order.id.slice(-8),
+      id: order.id.slice(-10),
       customer: order.customer,
       totalPrice: order.totalPrice,
       status: order.status,

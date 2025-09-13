@@ -124,7 +124,7 @@ const OrderDetailsModal = ({
                       <Dialog.Title className="text-2xl font-bold text-slate-800">
                         Sipariş #
                         {(order._id || order.id || "00000000")
-                          .slice(-8)
+                          .slice(-10)
                           .toUpperCase()}
                       </Dialog.Title>
                       <div className="flex items-center space-x-2 text-sm text-slate-600">

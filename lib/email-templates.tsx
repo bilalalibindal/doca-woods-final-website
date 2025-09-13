@@ -673,7 +673,7 @@ function OrderItemsTable({
         <Text
           style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "10px" }}
         >
-          Sipariş Numarası: #{orderId.slice(-8)}
+          Sipariş Numarası: #{orderId.slice(-10)}
         </Text>
         <Text style={{ fontSize: "14px", marginBottom: "15px" }}>
           Sipariş Özeti:

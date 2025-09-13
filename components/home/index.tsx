@@ -6,6 +6,7 @@ import { getSettings } from "@/lib/services";
 import { HomeSkeleton } from "@/components/ui/loading";
 import { TreePine, ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import SocialMedia from "@/components/social/SocialMedia";
+import Image from "next/image";
 
 // Ana sayfa içeriğini getiren client component
 function HomeContent() {
@@ -61,8 +62,8 @@ function HomeContent() {
         <div className="container mx-auto px-6">
           <div className="text-center space-y-8 max-w-4xl mx-auto">
             {/* Logo/Icon */}
-            <div className="mb-8">
-              <TreePine className="w-20 h-20 text-amber-600 mx-auto" />
+            <div className="mb-2 flex justify-center">
+              <Image src="/logo.png" alt="Logo" width={200} height={200} />
             </div>
 
             {/* Başlık */}

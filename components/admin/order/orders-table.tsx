@@ -250,7 +250,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
                 <div className="flex items-center justify-center space-x-2">
                   <Package className="w-4 h-4 text-gray-400" />
                   <span className="font-mono text-sm">
-                    {order.id.slice(-8)}
+                    {order.id.slice(-10)}
                   </span>
                 </div>
               </TableCell>
@@ -331,7 +331,7 @@ export function OrdersTable({ orders, onOrderUpdate }: OrdersTableProps) {
               <Package className="w-5 h-5" />
               <span>Sipariş Detayları</span>
               <Badge variant="outline" className="ml-2">
-                #{selectedOrder?.id?.slice(-8)}
+                #{selectedOrder?.id?.slice(-10)}
               </Badge>
             </DialogTitle>
             <DialogDescription>

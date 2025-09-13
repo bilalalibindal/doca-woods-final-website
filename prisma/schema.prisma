@@ -36,6 +36,8 @@ enum OrderStatus {
 model Settings {
   id Int @id @default(autoincrement()) // Bu satırın tekil olmasını garantiler
 
+  bannerImages String[]    @default([])
+  
   // İletişim Bilgileri
   siteTitle       String? @default("Websitem")
   contactPhone    String? @default("+90 555 123 4567")

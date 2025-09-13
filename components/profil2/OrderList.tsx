@@ -41,7 +41,9 @@ export default function OrderList({ orders }: OrderListProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-4">
-                  <h3 className="font-semibold">Order #{order.id.slice(-8)}</h3>
+                  <h3 className="font-semibold">
+                    Order #{order.id.slice(-10)}
+                  </h3>
                   <Badge className={getStatusColor(order.status)}>
                     {order.status}
                   </Badge>

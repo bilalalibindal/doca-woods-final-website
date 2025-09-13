@@ -208,28 +208,28 @@ const getPlainTextVersion = (
       return `${baseText}Doca Woods ailesine katıldığınız için teşekkür ederiz! Hesabınız başarıyla oluşturuldu ve artık platformumuzda alışveriş yapmaya başlayabilirsiniz.\n\nÜrünlerimizi keşfetmek için: ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/urunler\n\nKeyifli alışverişler dileriz!`;
 
     case "orderPending":
-      return `${baseText}Siparişiniz başarıyla alındı ve onay sürecinde.\n\nSipariş Numaranız: #${options?.orderId?.slice(-8)}\n\nSipariş durumunuzu takip etmek için: ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`;
+      return `${baseText}Siparişiniz başarıyla alındı ve onay sürecinde.\n\nSipariş Numaranız: #${options?.orderId?.slice(-10)}\n\nSipariş durumunuzu takip etmek için: ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/profil`;
 
     case "orderApproved":
-      return `${baseText}Siparişiniz başarıyla onaylandı!\n\nSipariş Numaranız: #${options?.orderId?.slice(-8)}\n\nSiparişiniz en kısa sürede hazırlanmaya başlayacak.`;
+      return `${baseText}Siparişiniz başarıyla onaylandı!\n\nSipariş Numaranız: #${options?.orderId?.slice(-10)}\n\nSiparişiniz en kısa sürede hazırlanmaya başlayacak.`;
 
     case "orderPreparing":
-      return `${baseText}Siparişiniz hazırlanıyor.\n\nSipariş Numaranız: #${options?.orderId?.slice(-8)}\n\nÜrünleriniz dikkatlice paketleniyor.`;
+      return `${baseText}Siparişiniz hazırlanıyor.\n\nSipariş Numaranız: #${options?.orderId?.slice(-10)}\n\nÜrünleriniz dikkatlice paketleniyor.`;
 
     case "orderShipped":
       const trackingText = options?.trackingNumber
         ? `\nTakip Numarası: ${options.trackingNumber}`
         : "";
-      return `${baseText}Siparişiniz kargoya verildi!${trackingText}\n\nSipariş Numaranız: #${options?.orderId?.slice(-8)}`;
+      return `${baseText}Siparişiniz kargoya verildi!${trackingText}\n\nSipariş Numaranız: #${options?.orderId?.slice(-10)}`;
 
     case "orderDelivered":
-      return `${baseText}Siparişiniz başarıyla teslim edildi!\n\nSipariş Numaranız: #${options?.orderId?.slice(-8)}\n\nBize güvendiğiniz için teşekkür ederiz!`;
+      return `${baseText}Siparişiniz başarıyla teslim edildi!\n\nSipariş Numaranız: #${options?.orderId?.slice(-10)}\n\nBize güvendiğiniz için teşekkür ederiz!`;
 
     case "orderCancelled":
       const reasonText = options?.reason
         ? `\nİptal Nedeni: ${options.reason}`
         : "";
-      return `${baseText}Siparişiniz iptal edilmiştir.${reasonText}\n\nSipariş Numaranız: #${options?.orderId?.slice(-8)}\n\nÖdeme yapıldıysa tutar en kısa sürede iade edilecektir.`;
+      return `${baseText}Siparişiniz iptal edilmiştir.${reasonText}\n\nSipariş Numaranız: #${options?.orderId?.slice(-10)}\n\nÖdeme yapıldıysa tutar en kısa sürede iade edilecektir.`;
 
     default:
       return `${baseText}${subject}`;

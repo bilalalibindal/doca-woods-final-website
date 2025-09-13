@@ -63,15 +63,6 @@ export function AdminHeader() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push("/profil")}>
-            <User className="mr-2 h-4 w-4" />
-            <span>Profil</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/admin/settings")}>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Ayarlar</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Çıkış Yap</span>

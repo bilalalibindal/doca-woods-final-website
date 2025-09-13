@@ -42,7 +42,7 @@ const ImageUpload = ({
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Resim yüklenemedi.");
       }
-
+      console.log("IMAGE DATA: ", data);
       onImagesChange([...images, data.url]);
       toast.success("Resim başarıyla yüklendi.");
     } catch (error: any) {

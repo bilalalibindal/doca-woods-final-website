@@ -414,7 +414,7 @@ const UserDashboard = () => {
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-semibold text-gray-800">
-                                Sipariş #{order.id.slice(-8)}
+                                Sipariş #{order.id.slice(-10)}
                               </h4>
                               <p className="text-gray-600 text-sm">
                                 {new Date(order.createdAt).toLocaleDateString(
@@ -603,7 +603,7 @@ const UserDashboard = () => {
                       Sipariş Numarası
                     </label>
                     <p className="text-lg font-semibold text-gray-800">
-                      #{selectedOrder.id.slice(-8)}
+                      #{selectedOrder.id.slice(-10)}
                     </p>
                   </div>
                   <div>
