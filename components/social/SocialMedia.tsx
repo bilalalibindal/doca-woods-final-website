@@ -7,6 +7,7 @@ import {
   Youtube,
   Github,
 } from "lucide-react";
+import { BsTwitterX } from "react-icons/bs";
 
 // X icon'u Twitter yerine kullan
 const XIcon = Twitter;
@@ -69,25 +70,25 @@ const SocialMedia = ({
     {
       url: facebookUrl,
       icon: <Facebook className={`${iconSize} text-blue-600`} />,
-      label: "Facebook",
+      label: "",
       hoverClass: "hover:text-blue-700 hover:bg-blue-50",
     },
     {
       url: xUrl,
-      icon: <XIcon className={`${iconSize} text-gray-700`} />,
-      label: "X",
+      icon: <BsTwitterX className={`${iconSize} text-gray-700`} />,
+      label: "",
       hoverClass: "hover:text-gray-800 hover:bg-gray-50",
     },
     {
       url: instagramUrl,
       icon: <Instagram className={`${iconSize} text-pink-600`} />,
-      label: "Instagram",
+      label: "",
       hoverClass: "hover:text-pink-700 hover:bg-pink-50",
     },
     {
       url: linkedinUrl,
       icon: <Linkedin className={`${iconSize} text-blue-700`} />,
-      label: "LinkedIn",
+      label: "",
       hoverClass: "hover:text-blue-800 hover:bg-blue-50",
     },
     {

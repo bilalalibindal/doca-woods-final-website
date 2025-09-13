@@ -31,6 +31,11 @@ export async function getDashboardStats() {
       // totalRevenue
       prisma.order.aggregate({
         _sum: { totalPrice: true },
+        where: {
+          status: {
+            notIn: ["PENDING", "CANCELLED"],
+          },
+        },
       }),
       // totalProducts
       prisma.product.count(),
