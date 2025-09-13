@@ -366,65 +366,71 @@ const UserDashboard = () => {
                 <div className="space-y-4">
                   {user.orders?.map((order: any) => (
                     <div key={order.id}>
-                      {/* Sipariş durumu beklemede ise iletişim metnini göster */}
-                      {order.status === ProductStatus.PENDING &&
-                        settings?.orderContactInfoText && (
-                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-                            <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg
-                                  className="w-4 h-4 text-amber-600"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  />
-                                </svg>
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-amber-800 font-medium text-sm mb-1">
-                                  Siparişiniz Beklemede
-                                </p>
-                                <p className="text-amber-700 text-sm leading-relaxed">
-                                  {settings.orderContactInfoText}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
                       {/* Sipariş Kartı */}
                       <div
-                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                        className={`border rounded-lg hover:shadow-md transition-shadow cursor-pointer ${
+                          order.status === ProductStatus.PENDING
+                            ? "border-amber-200 bg-gradient-to-r from-amber-50/50 to-orange-50/50"
+                            : "border-gray-200"
+                        }`}
                         onClick={() => {
                           setSelectedOrder(order);
                           setIsOrderModalOpen(true);
                         }}
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-semibold text-gray-800">
-                              Sipariş #{order.id.slice(-8)}
-                            </h4>
-                            <p className="text-gray-600 text-sm">
-                              {new Date(order.createdAt).toLocaleDateString(
-                                "tr-TR"
-                              )}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <Badge className={getStatusColor(order.status)}>
-                              {getStatusText(order.status)}
-                            </Badge>
-                            <span className="font-bold text-gray-800">
-                              {order.totalPrice?.toLocaleString("tr-TR")} ₺
-                            </span>
-                            <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+                        {/* Bekleme durumu için özel bildirim alanı */}
+                        {order.status === ProductStatus.PENDING &&
+                          settings?.orderContactInfoText && (
+                            <div className="bg-amber-100/80 border-b border-amber-200 rounded-t-lg p-4">
+                              <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <svg
+                                    className="w-4 h-4 text-white"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                  </svg>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-amber-900 font-semibold text-sm mb-1">
+                                    Siparişiniz Beklemede
+                                  </p>
+                                  <p className="text-amber-800 text-sm leading-relaxed">
+                                    {settings.orderContactInfoText}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                        <div className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-semibold text-gray-800">
+                                Sipariş #{order.id.slice(-8)}
+                              </h4>
+                              <p className="text-gray-600 text-sm">
+                                {new Date(order.createdAt).toLocaleDateString(
+                                  "tr-TR"
+                                )}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <Badge className={getStatusColor(order.status)}>
+                                {getStatusText(order.status)}
+                              </Badge>
+                              <span className="font-bold text-gray-800">
+                                {order.totalPrice?.toLocaleString("tr-TR")} ₺
+                              </span>
+                              <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+                            </div>
                           </div>
                         </div>
                       </div>
