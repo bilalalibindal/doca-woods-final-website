@@ -685,6 +685,7 @@ export async function updateSettings(formData: FormData) {
       linkedinUrl: formData.get("linkedinUrl") as string,
       googleMapsUrl: formData.get("googleMapsUrl") as string,
       orderContactInfoText: formData.get("orderContactInfoText") as string,
+      bannerImages: formData.getAll("bannerImages") as string[],
       welcomeText: formData.get("welcomeText") as string,
       footerText: formData.get("footerText") as string,
     };

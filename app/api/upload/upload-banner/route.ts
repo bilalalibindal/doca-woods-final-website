@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Dosya boyutunu kontrol et (5MB limit)
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
-        { success: false, message: "Dosya boyutu en fazla 5MB olabilir." },
+        { success: false, message: "Dosya boyutu en fazla 10MB olabilir." },
         { status: 400 }
       );
     }

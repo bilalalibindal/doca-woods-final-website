@@ -35,7 +35,9 @@ import {
   MessageSquare,
   Home,
   FileText,
+  Image,
 } from "lucide-react";
+import BannerManagement from "./banner-management";
 
 // Zod validation schema
 const settingsSchema = z.object({
@@ -71,6 +73,12 @@ const settingsSchema = z.object({
 
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
+interface BannerImage {
+  id: string;
+  url: string;
+  order: number;
+}
+
 interface Settings {
   id: number;
   siteTitle: string | null;
@@ -85,6 +93,7 @@ interface Settings {
   orderContactInfoText: string | null;
   welcomeText: string | null;
   footerText: string | null;
+  bannerImages: string[];
 }
 
 interface SettingsFormProps {
@@ -94,6 +103,31 @@ interface SettingsFormProps {
 export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState<Settings>(initialSettings);
+
+  // Banner'ları BannerImage formatına dönüştür
+  const [banners, setBanners] = useState<BannerImage[]>(() => {
+    const bannerImages = settings.bannerImages || [];
+
+    // Eğer bannerImages string ise (eski yanlış format), parse et
+    let processedImages = bannerImages;
+    if (bannerImages.length === 1 && typeof bannerImages[0] === "string") {
+      try {
+        const parsed = JSON.parse(bannerImages[0]);
+        if (Array.isArray(parsed)) {
+          processedImages = parsed;
+        }
+      } catch (e) {
+        // Parse edilemezse, tek string olarak kabul et
+        processedImages = bannerImages;
+      }
+    }
+
+    return processedImages.map((url, index) => ({
+      id: `banner-${index}`,
+      url,
+      order: index,
+    }));
+  });
 
   const form = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
@@ -139,6 +173,11 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         formData.append(key, value);
       });
 
+      // Banner'ları ekle - her banner URL'si ayrı bir formData entry olarak
+      banners.forEach((banner) => {
+        formData.append("bannerImages", banner.url);
+      });
+
       const result = await updateSettings(formData);
 
       if (result.success) {
@@ -154,6 +193,15 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Banner değiştiğinde settings'i güncelle
+  const handleBannersChange = (newBanners: BannerImage[]) => {
+    setBanners(newBanners);
+    setSettings((prev) => ({
+      ...prev,
+      bannerImages: newBanners.map((banner) => banner.url),
+    }));
   };
 
   return (
@@ -384,6 +432,23 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Banner Yönetimi */}
+          <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Image className="w-5 h-5 text-amber-600" />
+                Ana Sayfa Banner'ları
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BannerManagement
+                banners={banners}
+                onBannersChange={handleBannersChange}
+                maxBanners={10}
+              />
             </CardContent>
           </Card>
 
