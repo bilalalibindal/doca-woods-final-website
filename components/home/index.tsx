@@ -43,14 +43,30 @@ function HomeContent() {
   }, [settings]);
 
   if (isLoading) {
-    return <HomeSkeleton />;
+    return (
+      <>
+        <MainHeader />
+        <HomeSkeleton />
+      </>
+    );
   }
 
   if (!settings) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Ayarlar yüklenemedi.</p>
-      </div>
+      <>
+        <MainHeader />
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600 text-lg mb-4">Ayarlar yüklenemedi.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors"
+            >
+              Tekrar Dene
+            </button>
+          </div>
+        </div>
+      </>
     );
   }
 

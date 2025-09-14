@@ -13,7 +13,7 @@ interface ImageUploadProps {
 
 const ImageUpload = ({
   images,
-  onImagesChange,
+   onImagesChange,
   maxImages = 5,
 }: ImageUploadProps) => {
   const [isLoading, setIsLoading] = useState(false);

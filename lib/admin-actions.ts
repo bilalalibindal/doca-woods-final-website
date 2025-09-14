@@ -692,7 +692,7 @@ export async function updateSettings(formData: FormData) {
 
     // 3. Değişen alanları tespit etmek için boş bir nesne oluştur
     const changedData: { [key: string]: any } = {};
-
+    
     // 4. Tüm alanları karşılaştır
     Object.keys(settingsData).forEach((key) => {
       const formValue = settingsData[key as keyof typeof settingsData];
