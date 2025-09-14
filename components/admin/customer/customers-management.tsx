@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
@@ -78,10 +78,10 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
   initialSearchParams,
 }) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParamsHook = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const [users, setUsers] = useState<User[]>(initialUsers);
-  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
     totalCustomers: 0,
     dailyVisitors: 0,
@@ -89,14 +89,12 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
   });
 
   // Search and filter states
-  const [searchTerm, setSearchTerm] = useState(
-    initialSearchParams.search || ""
-  );
+  const [search, setSearch] = useState(initialSearchParams.search || "");
   const [sortBy, setSortBy] = useState(
     initialSearchParams.sortBy || "createdAt"
   );
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
-    (initialSearchParams.sortOrder as "asc" | "desc") || "desc"
+  const [sortOrder, setSortOrder] = useState(
+    initialSearchParams.sortOrder || "desc"
   );
 
   // Load customers stats
@@ -112,15 +110,43 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
     loadStats();
   }, []);
 
+  const updateSearchParams = (newParams: Record<string, string>) => {
+    const params = new URLSearchParams(searchParamsHook.toString());
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value && value !== "all" && value !== "desc") {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+
+    startTransition(() => {
+      // Sayfa yeniden yüklenmeden URL'yi güncelle
+      router.replace(`/admin/customers?${params.toString()}`, {
+        scroll: false, // Scroll pozisyonunu koru
+      });
+    });
+  };
+
   const handleSearch = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (searchTerm) {
-      params.set("search", searchTerm);
-    } else {
-      params.delete("search");
+    if (search.trim()) {
+      updateSearchParams({
+        search: search.trim(),
+        page: "1", // Reset to first page on search
+      });
     }
-    params.set("page", "1");
-    router.push(`/admin/customers?${params.toString()}`);
+  };
+
+  const handleSearchInputChange = (value: string) => {
+    setSearch(value);
+    // Eğer arama kutusu boşaltılırsa arama filtresini kaldır
+    if (!value.trim()) {
+      updateSearchParams({
+        search: "",
+        page: "1",
+      });
+    }
   };
 
   const handleSort = (newSortBy: string) => {
@@ -129,22 +155,27 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("sortBy", newSortBy);
-    params.set("sortOrder", newSortOrder);
-    params.set("page", "1");
-    router.push(`/admin/customers?${params.toString()}`);
+    updateSearchParams({
+      sortBy: newSortBy,
+      sortOrder: newSortOrder,
+      page: "1",
+    });
   };
 
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page.toString());
-    router.push(`/admin/customers?${params.toString()}`);
+    updateSearchParams({
+      page: page.toString(),
+    });
   };
 
   const clearFilters = () => {
-    setSearchTerm("");
-    router.push("/admin/customers");
+    setSearch("");
+    updateSearchParams({
+      search: "",
+      sortBy: "createdAt",
+      sortOrder: "desc",
+      page: "1",
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -264,17 +295,21 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   placeholder="Müşteri adı, email veya telefon ara..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={search}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                   className="pl-10"
                 />
               </div>
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleSearch} disabled={loading}>
-                <Search className="w-4 h-4 mr-2" />
-                Ara
+              <Button onClick={handleSearch} disabled={isPending}>
+                {isPending ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Search className="w-4 h-4 mr-2" />
+                )}
+                {isPending ? "Aranıyor..." : "Ara"}
               </Button>
               <Button variant="outline" onClick={clearFilters}>
                 <RefreshCw className="w-4 h-4 mr-2" />
