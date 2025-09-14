@@ -203,7 +203,7 @@ const BannerManagement = ({
             className="block w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 disabled:opacity-50"
           />
           <p className="mt-2 text-xs text-gray-500">
-            Önerilen boyut: 1920x600 piksel (16:9 oranı)
+            Önerilen boyut: 1920x1080
           </p>
         </div>
       )}

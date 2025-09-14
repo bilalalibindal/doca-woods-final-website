@@ -315,7 +315,7 @@ function HomeContent() {
         <section className="py-12 bg-black text-white">
           <div className="container mx-auto px-6">
             <div className="text-center">
-              <p className="text-lg font-medium">{settings.footerText}</p>
+              <p className="text-sm font-medium">{settings.footerText}</p>
             </div>
           </div>
         </section>

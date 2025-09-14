@@ -102,7 +102,7 @@ const SepetSayfasi = () => {
         </h2>
         <button
           onClick={() => router.push("/urunler")}
-          className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg"
+          className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:scale-105 hover:cursor-pointer"
         >
           Alışverişe Başla
         </button>
