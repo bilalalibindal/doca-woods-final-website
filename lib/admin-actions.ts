@@ -692,7 +692,7 @@ export async function updateSettings(formData: FormData) {
 
     // 3. Değişen alanları tespit etmek için boş bir nesne oluştur
     const changedData: { [key: string]: any } = {};
-    
+
     // 4. Tüm alanları karşılaştır
     Object.keys(settingsData).forEach((key) => {
       const formValue = settingsData[key as keyof typeof settingsData];
@@ -732,4 +732,23 @@ export async function updateSettings(formData: FormData) {
       message: "Ayarlar güncellenirken beklenmedik bir hata oluştu.",
     };
   }
+}
+
+//! Customer Actions
+export async function getCustomers(page: number, limit: number = 20) {
+  try {
+    // Ek admin authentication kontrolü (middleware'den sonra)
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Yetkilendirme hatası.",
+      };
+    }
+    const customers = await prisma.user.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return { success: true, data: customers };
+  } catch (error) {}
 }

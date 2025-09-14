@@ -9,7 +9,7 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  FolderOpen,
+  Users,
   ChevronLeft,
   ChevronRight,
   Settings,
@@ -19,6 +19,7 @@ const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

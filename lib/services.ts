@@ -135,6 +135,14 @@ export async function getUser(): Promise<User | null> {
         },
       },
     });
+    await prisma.user.update({
+      where: {
+        email: session.user.email,
+      },
+      data: {
+        lastLoginAt: new Date().toISOString(),
+      },
+    });
     return user as User | null;
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -585,4 +593,107 @@ export async function updateOrderShippingTrackingUrl(
     console.error("Error updating order shipping tracking url:", error);
     throw error;
   }
+}
+
+// =============================================================
+// CUSTOMERS ADMIN FUNCTIONS
+// =============================================================
+
+export async function getUsersForAdmin(
+  page: number = 1,
+  limit: number = 20,
+  search: string = "",
+  sortBy: string = "createdAt",
+  sortOrder: "asc" | "desc" = "desc"
+) {
+  const skip = (page - 1) * limit;
+
+  // Build where condition for search
+  const where: any = {
+    role: "USER", // Sadece normal kullanıcıları getir
+  };
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+      { phone: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  // Build orderBy
+  const orderBy: any = {};
+  orderBy[sortBy] = sortOrder;
+
+  const [users, totalCount] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            orders: true,
+            addresses: true,
+          },
+        },
+      },
+    }),
+    prisma.user.count({
+      where,
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / limit);
+
+  return {
+    users,
+    totalCount,
+    totalPages,
+    currentPage: page,
+  };
+}
+
+export async function getCustomersStats() {
+  const now = new Date();
+
+  const [totalCustomers, dailyVisitors, monthlyVisitors] = await Promise.all([
+    // Toplam müşteri sayısı
+    prisma.user.count({
+      where: { role: "USER" },
+    }),
+    // Günlük ziyaretçi sayısı (son 24 saatte giriş yapmış kullanıcılar)
+    prisma.user.count({
+      where: {
+        role: "USER",
+        lastLoginAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Son 24 saat
+        },
+      },
+    }),
+    // Aylık ziyaretçi sayısı (son 30 günde giriş yapmış kullanıcılar)
+    prisma.user.count({
+      where: {
+        role: "USER",
+        lastLoginAt: {
+          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Son 30 gün
+        },
+      },
+    }),
+  ]);
+
+  return {
+    totalCustomers,
+    dailyVisitors,
+    monthlyVisitors,
+  };
 }
