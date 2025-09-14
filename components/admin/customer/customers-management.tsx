@@ -110,6 +110,34 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
     loadStats();
   }, []);
 
+  // URL değiştiğinde veriyi dinamik olarak güncelle
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const currentParams = new URLSearchParams(searchParamsHook.toString());
+        const page = parseInt(currentParams.get("page") || "1");
+        const searchParam = currentParams.get("search") || "";
+        const sortByParam = currentParams.get("sortBy") || "createdAt";
+        const sortOrderParam =
+          (currentParams.get("sortOrder") as "asc" | "desc") || "desc";
+
+        const customersData = await getUsersForAdmin(
+          page,
+          20,
+          searchParam,
+          sortByParam,
+          sortOrderParam
+        );
+
+        setUsers(customersData.users);
+      } catch (error) {
+        console.error("Error loading customers:", error);
+      }
+    };
+
+    loadCustomers();
+  }, [searchParamsHook]); // searchParamsHook değiştiğinde veriyi yeniden çek
+
   const updateSearchParams = (newParams: Record<string, string>) => {
     const params = new URLSearchParams(searchParamsHook.toString());
 
