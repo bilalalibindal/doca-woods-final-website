@@ -4,10 +4,11 @@ import React, { useEffect } from "react";
 import MainHeader from "@/components/header/MainHeader";
 import { getSettings } from "@/lib/services";
 import { HomeSkeleton } from "@/components/ui/loading";
-import { TreePine, ArrowRight, Phone, Mail, MapPin } from "lucide-react";
+import { ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import SocialMedia from "@/components/social/SocialMedia";
 import BannerSlider from "./banner-slider";
 import Image from "next/image";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 // Ana sayfa içeriğini getiren client component
 function HomeContent() {
@@ -75,7 +76,7 @@ function HomeContent() {
       <MainHeader />
 
       {/* Hero Section with Banner Slider */}
-      <section className="relative min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+      <section className="relative py-16 bg-gradient-to-br from-amber-50 to-orange-50">
         {/* Banner Slider - Full Width */}
         {(() => {
           const bannerImages = settings?.bannerImages || [];
@@ -99,61 +100,56 @@ function HomeContent() {
 
           return processedImages && processedImages.length > 0 ? (
             <>
-              <div className="relative w-full h-screen">
-                <BannerSlider
-                  banners={processedImages}
-                  autoPlay={true}
-                  autoPlayInterval={5000}
-                />
+              <div className="mb-2 text-center space-y-8 max-w-4xl mx-auto">
+                {/* Başlık */}
+                {settings.siteTitle && (
+                  <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
+                    {settings.siteTitle}
+                  </h1>
+                )}
+
+                {/* Kısa açıklama */}
+                {settings.welcomeText && (
+                  <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    {settings.welcomeText}
+                  </p>
+                )}
               </div>
-              {/* Overlay Content */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 flex items-center">
-                <div className="container mx-auto px-6">
-                  <div className="text-center space-y-8 max-w-4xl mx-auto">
-                    {/* Logo/Brand */}
-                    <div className="mb-4">
-                      <div className="inline-block p-4 bg-white/10 backdrop-blur-sm rounded-2xl">
-                        <TreePine className="w-16 h-16 text-amber-400 mx-auto" />
-                      </div>
-                    </div>
-
-                    {/* Başlık */}
-                    {settings.siteTitle && (
-                      <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 drop-shadow-2xl">
-                        {settings.siteTitle}
-                      </h1>
-                    )}
-
-                    {/* Kısa açıklama */}
-                    {settings.welcomeText && (
-                      <p className="text-xl md:text-2xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-lg font-light">
-                        {settings.welcomeText}
-                      </p>
-                    )}
-
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
-                      <a
-                        href="/urunler"
-                        className="group inline-flex items-center justify-center px-10 py-4 bg-amber-500 hover:bg-amber-400 text-white font-semibold text-lg rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-amber-500/25"
-                      >
-                        Ürünlerimizi İnceleyin
-                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </a>
-                      <a
-                        href="#contact"
-                        className="inline-flex items-center justify-center px-10 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold text-lg rounded-xl shadow-xl backdrop-blur-sm transition-all duration-300 hover:scale-105 border border-white/20"
-                      >
-                        İletişime Geçin
-                      </a>
-                    </div>
-                  </div>
+              <div className="relative w-full max-w-6xl mx-auto">
+                <AspectRatio
+                  ratio={16 / 9}
+                  className="rounded-xl overflow-hidden shadow-2xl"
+                >
+                  <BannerSlider
+                    banners={processedImages}
+                    autoPlay={true}
+                    autoPlayInterval={5000}
+                  />
+                </AspectRatio>
+              </div>
+              {/* Hero Content - Banner'ın Altında */}
+              <div className="mt-12 text-center space-y-8 max-w-4xl mx-auto">
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
+                  <a
+                    href="/urunler"
+                    className="group inline-flex items-center justify-center px-10 py-4 bg-amber-500 hover:bg-amber-400 text-white font-semibold text-lg rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-amber-500/25"
+                  >
+                    Ürünlerimizi İnceleyin
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center justify-center px-10 py-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold text-lg rounded-xl shadow-xl backdrop-blur-sm transition-all duration-300 hover:scale-105 border border-gray-300"
+                  >
+                    İletişime Geçin
+                  </a>
                 </div>
               </div>
             </>
           ) : (
             /* Logo Fallback - No Banner */
-            <div className="min-h-screen flex items-center">
+            <div className="flex items-center justify-center py-16">
               <div className="container mx-auto px-6">
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
                   {/* Logo */}
@@ -197,18 +193,6 @@ function HomeContent() {
             </div>
           );
         })()}
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="flex flex-col items-center space-y-2">
-            <span className="text-white/80 text-sm font-light">
-              Aşağı Kaydır
-            </span>
-            <div className="w-6 h-10 border-2 border-white/60 rounded-full flex justify-center backdrop-blur-sm bg-white/10">
-              <div className="w-1 h-3 bg-white rounded-full mt-2 animate-pulse"></div>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* İletişim ve Sosyal Medya Section - Settings'e göre */}

@@ -45,7 +45,7 @@ const BannerSlider = ({
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden rounded-xl">
       {/* Banner Images */}
       <div
         className="flex transition-transform duration-700 ease-in-out h-full"
