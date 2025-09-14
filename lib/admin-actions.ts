@@ -752,3 +752,59 @@ export async function getCustomers(page: number, limit: number = 20) {
     return { success: true, data: customers };
   } catch (error) {}
 }
+
+// =============================================================
+// STOK YÖNETİMİ
+// =============================================================
+
+export async function updateOrderStatusAndStock(formData: FormData) {
+  try {
+    const orderId = formData.get("orderId") as string;
+    const newStatus = formData.get("status") as string;
+
+    if (!orderId || !newStatus) {
+      return { success: false, message: "Sipariş ID ve durum gerekli" };
+    }
+
+    // Önce mevcut siparişi kontrol et
+    const existingOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!existingOrder) {
+      return { success: false, message: "Sipariş bulunamadı" };
+    }
+
+    // Sipariş durumunu güncelle ve gerekirse stokları düşür
+    await prisma.$transaction(async (tx) => {
+      // Sipariş durumunu güncelle
+      await tx.order.update({
+        where: { id: orderId },
+        data: { status: newStatus as any },
+      });
+
+      // Eğer PENDING'den APPROVED'a çekiliyorsa stokları düşür
+      if (existingOrder.status === "PENDING" && newStatus === "APPROVED") {
+        for (const item of existingOrder.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stockCount: {
+                decrement: item.quantity,
+              },
+            },
+          });
+        }
+      }
+    });
+
+    return { success: true, message: "Sipariş durumu güncellendi" };
+  } catch (error) {
+    console.error("Sipariş durumu güncelleme hatası:", error);
+    return {
+      success: false,
+      message: "Sipariş durumu güncellenirken hata oluştu",
+    };
+  }
+}

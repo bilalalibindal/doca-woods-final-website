@@ -1,9 +1,7 @@
-// =============================================================
-// Admin API'LAR
-// =============================================================
+Yapılacaklar.
+Email'e public'teki logo eklenecek
+Kullanıcı Telefon numarası ekleyebilecek
+adres optimize edilecek
+stok güncelleme düzenlenecek
 
-- Categories:  GET,POST,PUT,DELETE | OK.
-- Products:  GET,POST,PUT,DELETE | OK.
-- Orders: 
-- Customers: 
-- Inventory: 
+1 saat içerisinde ödemesi yapılmayan ürünler düşmeli

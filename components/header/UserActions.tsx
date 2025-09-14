@@ -8,6 +8,68 @@ import { useCartStore } from "@/stores/cartStore"; // DEĞİŞİKLİK 1: Eski co
 import SocialMedia from "@/components/social/SocialMedia";
 import { getSettings } from "@/lib/services";
 
+// URL'yi temizleme fonksiyonu
+const cleanUrl = (url: string | null | undefined): string | null => {
+  if (!url || typeof url !== "string") return null;
+
+  let cleanedUrl = url.trim();
+
+  // @ karakterini başından kaldır
+  if (cleanedUrl.startsWith("@")) {
+    cleanedUrl = cleanedUrl.substring(1);
+  }
+
+  // Instagram login URL'ini düzelt (next parametresini çıkar)
+  if (cleanedUrl.includes("instagram.com/accounts/login")) {
+    try {
+      const urlObj = new URL(cleanedUrl);
+      const nextParam = urlObj.searchParams.get("next");
+      if (nextParam) {
+        cleanedUrl = decodeURIComponent(nextParam);
+      }
+    } catch (e) {
+      console.error("Instagram URL parsing error:", e);
+    }
+  }
+
+  // Diğer sosyal medya login URL'lerini de handle et
+  if (
+    cleanedUrl.includes("facebook.com/login") ||
+    cleanedUrl.includes("twitter.com/login") ||
+    cleanedUrl.includes("linkedin.com/login")
+  ) {
+    try {
+      const urlObj = new URL(cleanedUrl);
+      const nextParam =
+        urlObj.searchParams.get("next") ||
+        urlObj.searchParams.get("redirect_uri") ||
+        urlObj.searchParams.get("url");
+      if (nextParam) {
+        cleanedUrl = decodeURIComponent(nextParam);
+      }
+    } catch (e) {
+      console.error("Social media URL parsing error:", e);
+    }
+  }
+
+  // Eğer hala login URL'i ise, sadece domain kısmını al
+  if (cleanedUrl.includes("/accounts/login") || cleanedUrl.includes("/login")) {
+    try {
+      const urlObj = new URL(cleanedUrl);
+      cleanedUrl = `${urlObj.protocol}//${urlObj.hostname}`;
+    } catch (e) {
+      console.error("URL parsing error:", e);
+    }
+  }
+
+  // Eğer URL http/https ile başlamıyorsa, https:// ekle
+  if (!cleanedUrl.startsWith("http://") && !cleanedUrl.startsWith("https://")) {
+    cleanedUrl = "https://" + cleanedUrl;
+  }
+
+  return cleanedUrl;
+};
+
 interface UserActionsProps {
   onMenuToggle: () => void;
 }
@@ -45,10 +107,10 @@ const UserActions = ({ onMenuToggle }: UserActionsProps) => {
       {/* Social Media - Desktop */}
       <div className="hidden lg:block">
         <SocialMedia
-          facebookUrl={settings?.facebookUrl}
-          xUrl={settings?.xUrl}
-          instagramUrl={settings?.instagramUrl}
-          linkedinUrl={settings?.linkedinUrl}
+          facebookUrl={cleanUrl(settings?.facebookUrl)}
+          xUrl={cleanUrl(settings?.xUrl)}
+          instagramUrl={cleanUrl(settings?.instagramUrl)}
+          linkedinUrl={cleanUrl(settings?.linkedinUrl)}
           variant="header"
           size="sm"
         />

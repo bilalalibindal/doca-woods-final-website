@@ -165,12 +165,61 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
     });
   }, [settings, form]);
 
+  // URL'yi temizleme fonksiyonu
+  const cleanSocialUrl = (url: string | null): string | null => {
+    if (!url || typeof url !== "string") return null;
+
+    let cleanedUrl = url.trim();
+
+    // @ karakterini başından kaldır
+    if (cleanedUrl.startsWith("@")) {
+      cleanedUrl = cleanedUrl.substring(1);
+    }
+
+    // URL encoding'i düzelt (Instagram login URL'ini düzelt)
+    if (cleanedUrl.includes("instagram.com/accounts/login")) {
+      // URL'deki next parametresini çıkar
+      try {
+        const urlObj = new URL(cleanedUrl);
+        const nextParam = urlObj.searchParams.get("next");
+        if (nextParam) {
+          cleanedUrl = decodeURIComponent(nextParam);
+        }
+      } catch (e) {
+        // URL parsing hatası olursa olduğu gibi bırak
+      }
+    }
+
+    // Eğer URL http/https ile başlamıyorsa, https:// ekle
+    if (
+      !cleanedUrl.startsWith("http://") &&
+      !cleanedUrl.startsWith("https://")
+    ) {
+      cleanedUrl = "https://" + cleanedUrl;
+    }
+
+    return cleanedUrl;
+  };
+
   const onSubmit = async (data: SettingsFormData) => {
     setIsLoading(true);
     try {
       const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value);
+
+      // Sosyal medya URL'lerini temizleyerek ekle
+      const cleanedData = {
+        ...data,
+        facebookUrl: cleanSocialUrl(data.facebookUrl || null),
+        xUrl: cleanSocialUrl(data.xUrl || null),
+        instagramUrl: cleanSocialUrl(data.instagramUrl || null),
+        linkedinUrl: cleanSocialUrl(data.linkedinUrl || null),
+        googleMapsUrl: cleanSocialUrl(data.googleMapsUrl || null),
+      };
+
+      Object.entries(cleanedData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
       });
 
       // Banner'ları ekle - her banner URL'si ayrı bir formData entry olarak

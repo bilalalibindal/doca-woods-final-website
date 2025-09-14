@@ -12,6 +12,72 @@ import { BsTwitterX } from "react-icons/bs";
 // X icon'u Twitter yerine kullan
 const XIcon = Twitter;
 
+// URL'yi temizleme fonksiyonu
+const cleanUrl = (url: string | null | undefined): string | null => {
+  if (!url || typeof url !== "string") return null;
+
+  let cleanedUrl = url.trim();
+
+  // Debug log
+  console.log("Original URL:", cleanedUrl);
+
+  // @ karakterini başından kaldır
+  if (cleanedUrl.startsWith("@")) {
+    cleanedUrl = cleanedUrl.substring(1);
+  }
+
+  // Instagram login URL'ini düzelt (next parametresini çıkar)
+  if (cleanedUrl.includes("instagram.com/accounts/login")) {
+    try {
+      const urlObj = new URL(cleanedUrl);
+      const nextParam = urlObj.searchParams.get("next");
+      if (nextParam) {
+        cleanedUrl = decodeURIComponent(nextParam);
+      }
+    } catch (e) {
+      console.error("Instagram URL parsing error:", e);
+    }
+  }
+
+  // Diğer sosyal medya login URL'lerini de handle et
+  if (
+    cleanedUrl.includes("facebook.com/login") ||
+    cleanedUrl.includes("twitter.com/login") ||
+    cleanedUrl.includes("linkedin.com/login")
+  ) {
+    try {
+      const urlObj = new URL(cleanedUrl);
+      const nextParam =
+        urlObj.searchParams.get("next") ||
+        urlObj.searchParams.get("redirect_uri") ||
+        urlObj.searchParams.get("url");
+      if (nextParam) {
+        cleanedUrl = decodeURIComponent(nextParam);
+      }
+    } catch (e) {
+      console.error("Social media URL parsing error:", e);
+    }
+  }
+
+  // Eğer hala login URL'i ise, sadece domain kısmını al
+  if (cleanedUrl.includes("/accounts/login") || cleanedUrl.includes("/login")) {
+    try {
+      const urlObj = new URL(cleanedUrl);
+      cleanedUrl = `${urlObj.protocol}//${urlObj.hostname}`;
+    } catch (e) {
+      console.error("URL parsing error:", e);
+    }
+  }
+
+  // Eğer URL http/https ile başlamıyorsa, https:// ekle
+  if (!cleanedUrl.startsWith("http://") && !cleanedUrl.startsWith("https://")) {
+    cleanedUrl = "https://" + cleanedUrl;
+  }
+
+  console.log("Cleaned URL:", cleanedUrl);
+  return cleanedUrl;
+};
+
 interface SocialMediaProps {
   facebookUrl?: string | null;
   xUrl?: string | null;
@@ -65,40 +131,40 @@ const SocialMedia = ({
     }
   };
 
-  // Sosyal medya linklerini oluştur
+  // Sosyal medya linklerini oluştur (temizlenmiş URL'lerle)
   const socialLinks = [
     {
-      url: facebookUrl,
+      url: cleanUrl(facebookUrl),
       icon: <Facebook className={`${iconSize} text-blue-600`} />,
       label: "",
       hoverClass: "hover:text-blue-700 hover:bg-blue-50",
     },
     {
-      url: xUrl,
+      url: cleanUrl(xUrl),
       icon: <BsTwitterX className={`${iconSize} text-gray-700`} />,
       label: "",
       hoverClass: "hover:text-gray-800 hover:bg-gray-50",
     },
     {
-      url: instagramUrl,
+      url: cleanUrl(instagramUrl),
       icon: <Instagram className={`${iconSize} text-pink-600`} />,
       label: "",
       hoverClass: "hover:text-pink-700 hover:bg-pink-50",
     },
     {
-      url: linkedinUrl,
+      url: cleanUrl(linkedinUrl),
       icon: <Linkedin className={`${iconSize} text-blue-700`} />,
       label: "",
       hoverClass: "hover:text-blue-800 hover:bg-blue-50",
     },
     {
-      url: youtubeUrl,
+      url: cleanUrl(youtubeUrl),
       icon: <Youtube className={`${iconSize} text-red-600`} />,
       label: "YouTube",
       hoverClass: "hover:text-red-700 hover:bg-red-50",
     },
     {
-      url: githubUrl,
+      url: cleanUrl(githubUrl),
       icon: <Github className={`${iconSize} text-gray-800`} />,
       label: "GitHub",
       hoverClass: "hover:text-gray-900 hover:bg-gray-50",

@@ -236,6 +236,22 @@ export async function updateOrderStatusAction(
   status: string
 ): Promise<ApiResponse<any>> {
   try {
+    // Stok güncellemesi ile birlikte sipariş durumunu güncelle
+    const formData = new FormData();
+    formData.append("orderId", orderId);
+    formData.append("status", status);
+
+    const { updateOrderStatusAndStock } = await import("@/lib/admin-actions");
+    const result = await updateOrderStatusAndStock(formData);
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+      };
+    }
+
+    // Güncellenmiş siparişi almak için tekrar sorgula
     const { updateOrderStatus } = await import("@/lib/services");
     const updatedOrder = await updateOrderStatus(orderId, status);
     // revalidatePath kaldırıldı - modal içinde local güncelleme yapılacak

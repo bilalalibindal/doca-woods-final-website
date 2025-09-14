@@ -412,17 +412,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<any> {
         },
       });
 
-      // Stokları ayrıca güncellememiz gerekiyor
-      for (const cartItem of orderData.products) {
-        await tx.product.update({
-          where: { id: cartItem.productId },
-          data: {
-            stockCount: {
-              decrement: cartItem.quantity,
-            },
-          },
-        });
-      }
+      // Stok güncellemesi kaldırıldı - Admin onayladığında yapılacak
       console.log("New Order Created:", newOrder);
       // Fonksiyonun istediği formatta geri dönüş yap
       return {
