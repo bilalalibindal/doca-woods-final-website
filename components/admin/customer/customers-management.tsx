@@ -21,24 +21,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Search,
   Users,
   UserCheck,
   Calendar,
   Phone,
   Mail,
-  MapPin,
-  Package,
   Filter,
   RefreshCw,
-  Eye,
 } from "lucide-react";
 import { getUsersForAdmin, getCustomersStats } from "@/lib/services";
 import { toast } from "sonner";
@@ -396,8 +386,6 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
                       )}
                     </div>
                   </TableHead>
-                  <TableHead>İstatistikler</TableHead>
-                  <TableHead>İşlemler</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -418,6 +406,7 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
                             <div className="font-medium text-gray-900">
                               {user.name}
                             </div>
+
                             <div className="text-sm text-gray-500">
                               {user.email}
                             </div>
@@ -430,12 +419,18 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
                             <Mail className="w-3 h-3" />
                             {user.email}
                           </div>
-                          {user.phone && (
-                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                              <Phone className="w-3 h-3" />
-                              {user.phone}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1 text-sm text-gray-600">
+                            {user.phone ? (
+                              <>
+                                <Phone className="w-3 h-3" /> {user.phone}
+                              </>
+                            ) : (
+                              <>
+                                <Phone className="w-3 h-3" /> Telefon numarası
+                                yok
+                              </>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -452,24 +447,6 @@ const CustomersManagement: React.FC<CustomersManagementProps> = ({
                         <div className="text-sm text-gray-900">
                           {formatDate(user.createdAt.toISOString())}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Package className="w-4 h-4 text-blue-500" />
-                            <span>{user._count.orders} sipariş</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4 text-green-500" />
-                            <span>{user._count.addresses} adres</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4 mr-2" />
-                          Detaylar
-                        </Button>
                       </TableCell>
                     </TableRow>
                   );
