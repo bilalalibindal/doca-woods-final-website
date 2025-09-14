@@ -687,3 +687,47 @@ export async function getCustomersStats() {
     monthlyVisitors,
   };
 }
+
+// =============================================================
+// USER UPDATE FUNCTIONS
+// =============================================================
+
+export async function updateUser(userData: { phone?: string; name?: string }) {
+  // Get current session to identify user
+  const { getServerSession } = await import("next-auth");
+  const { authOptions } = await import(
+    "@/app/api/auth/[...nextauth]/authOptions"
+  );
+
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    throw new Error("Kullanıcı oturumu bulunamadı");
+  }
+
+  // Update user data
+  const updatedUser = await prisma.user.update({
+    where: {
+      email: session.user.email,
+    },
+    data: userData,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      lastLoginAt: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: {
+        select: {
+          orders: true,
+          addresses: true,
+        },
+      },
+    },
+  });
+
+  return updatedUser;
+}

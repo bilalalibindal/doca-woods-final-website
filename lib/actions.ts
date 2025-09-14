@@ -370,5 +370,32 @@ export async function updateOrderShippingTrackingUrlAction(
 }
 
 // =============================================================
+// KULLANICI AKSİYONLARI
+// =============================================================
+
+export async function updateUserAction(userData: {
+  phone?: string;
+  name?: string;
+}): Promise<ApiResponse<any>> {
+  try {
+    const { updateUser } = await import("@/lib/services");
+    const updatedUser = await updateUser(userData);
+    revalidatePath("/profil");
+    return {
+      success: true,
+      data: updatedUser,
+      message: "Kullanıcı bilgileri başarıyla güncellendi.",
+    };
+  } catch (error: any) {
+    console.error("Kullanıcı güncelleme hatası:", error);
+    return {
+      success: false,
+      message:
+        error.message || "Kullanıcı bilgileri güncellenirken hata oluştu.",
+    };
+  }
+}
+
+// =============================================================
 // SİPARİŞ AKSİYONLARI
 // =============================================================

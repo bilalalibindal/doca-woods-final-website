@@ -13,6 +13,9 @@ import {
   TrashIcon,
   PencilIcon,
   ArrowRightOnRectangleIcon,
+  PhoneIcon,
+  PencilSquareIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +39,7 @@ import {
   updateAddressAction,
   deleteAddressAction,
   setDefaultAddressAction,
+  updateUserAction,
 } from "@/lib/actions";
 
 type ActiveSection = "profile" | "orders" | "addresses";
@@ -51,6 +55,13 @@ const UserDashboard = () => {
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
   const [isAddressSaving, setIsAddressSaving] = useState(false);
   const [settings, setSettings] = useState<any>(null);
+
+  // Telefon düzenleme için state'ler
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [phoneForm, setPhoneForm] = useState({
+    phone: "",
+  });
+  const [isPhoneSaving, setIsPhoneSaving] = useState(false);
 
   // Adres form state'leri
   const [addressForm, setAddressForm] = useState({
@@ -98,6 +109,45 @@ const UserDashboard = () => {
       varsayilan: false,
     });
     setSelectedAddress(null);
+  };
+
+  // Telefon kaydetme fonksiyonu
+  const handleSavePhone = async () => {
+    if (!phoneForm.phone.trim()) {
+      return;
+    }
+
+    setIsPhoneSaving(true);
+    try {
+      const result = await updateUserAction({
+        phone: phoneForm.phone.trim(),
+      });
+
+      if (result.success) {
+        // Kullanıcı verilerini yeniden çek
+        await fetchGetUser();
+        setIsEditingPhone(false);
+        setPhoneForm({ phone: "" });
+      } else {
+        console.error("Telefon güncelleme hatası:", result.message);
+      }
+    } catch (error) {
+      console.error("Telefon güncelleme hatası:", error);
+    } finally {
+      setIsPhoneSaving(false);
+    }
+  };
+
+  // Telefon düzenleme başlatma
+  const startEditingPhone = () => {
+    setPhoneForm({ phone: user?.phone || "" });
+    setIsEditingPhone(true);
+  };
+
+  // Telefon düzenleme iptal etme
+  const cancelEditingPhone = () => {
+    setIsEditingPhone(false);
+    setPhoneForm({ phone: "" });
   };
 
   // Adres kaydetme fonksiyonu
@@ -238,6 +288,70 @@ const UserDashboard = () => {
                     Hoş geldin, {user.name?.split(" ")[0]}!
                   </h1>
                   <p className="text-gray-600 text-lg">{user.email}</p>
+
+                  {/* Telefon Numarası */}
+                  <div className="flex items-center mt-3 space-x-4">
+                    <div className="flex items-center text-sm text-gray-500">
+                      <PhoneIcon className="w-4 h-4 mr-1" />
+                      {user.phone ? (
+                        <span>{user.phone}</span>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          Telefon numarası eklenmemiş
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={startEditingPhone}
+                      className="h-6 w-6 p-0 hover:bg-amber-50"
+                    >
+                      <PencilSquareIcon className="w-3 h-3 text-amber-600" />
+                    </Button>
+                  </div>
+
+                  {/* Telefon Düzenleme Formu */}
+                  {isEditingPhone && (
+                    <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                      <div className="flex items-center space-x-2">
+                        <PhoneIcon className="w-4 h-4 text-amber-600" />
+                        <Input
+                          type="tel"
+                          placeholder="0555 123 45 67"
+                          value={phoneForm.phone}
+                          onChange={(e) =>
+                            setPhoneForm({ phone: e.target.value })
+                          }
+                          className="flex-1 h-8 text-sm"
+                          onKeyPress={(e) =>
+                            e.key === "Enter" && handleSavePhone()
+                          }
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSavePhone}
+                          disabled={isPhoneSaving || !phoneForm.phone.trim()}
+                          className="h-8 px-3 bg-amber-600 hover:bg-amber-700"
+                        >
+                          {isPhoneSaving ? (
+                            <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            "Kaydet"
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={cancelEditingPhone}
+                          className="h-8 px-3"
+                        >
+                          <XMarkIcon className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center mt-3 space-x-6">
                     <div className="flex items-center text-sm text-gray-500">
                       <ShoppingBagIcon className="w-4 h-4 mr-1" />
