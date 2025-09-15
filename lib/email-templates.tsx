@@ -48,26 +48,23 @@ function EmailLayout({ children, title }: EmailLayoutProps) {
           {/* Header */}
           <Section
             style={{
-              background: "linear-gradient(135deg, #8B4513, #D2691E)",
-              padding: "30px 20px",
+              // Renk: Arka planı açık ve sıcak bir bej rengine değiştirdim.
+              backgroundColor: "#CAAA86", // Açık Bej Rengi
+
+              // Diğer stiller aynı kalıyor.
+              padding: "20px",
               textAlign: "center",
             }}
           >
             <Img
-              src="https://res.cloudinary.com/dwahclxhr/image/upload/v1757245529/logo-2_ghgj0j.png"
+              src="https://res.cloudinary.com/dwahclxhr/image/upload/v1757918825/logo_aibjrc.png"
               alt="Doca Woods Logo"
-              style={{ margin: "0 auto", maxWidth: "150px" }}
-            />
-            <Heading
               style={{
-                color: "#ffffff",
-                fontSize: "24px",
-                margin: "10px 0 0 0",
-                fontWeight: "bold",
+                margin: "0 auto",
+                // Boyut: Logonun maksimum genişliğini artırarak daha belirgin hale getirdim.
+                maxWidth: "180px",
               }}
-            >
-              Doca Woods
-            </Heading>
+            />
           </Section>
 
           {/* Content */}
