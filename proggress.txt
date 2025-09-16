@@ -1,7 +1,7 @@
 Yapılacaklar.
-Email'e public'teki logo eklenecek
-Kullanıcı Telefon numarası ekleyebilecek
-adres optimize edilecek
-stok güncelleme düzenlenecek
+Email'e public'teki logo eklenecek Yes
+Kullanıcı Telefon numarası ekleyebilecek Yes
 
-1 saat içerisinde ödemesi yapılmayan ürünler düşmeli
+adres optimize edilecek
+stok güncelleme düzenlenecek Yes
+

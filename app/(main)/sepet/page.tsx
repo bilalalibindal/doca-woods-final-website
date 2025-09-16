@@ -5,7 +5,7 @@ import CartItemComponent from "@/components/sepet/CartItem";
 import CartSummary from "@/components/sepet/CartSummary";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +30,13 @@ const SepetSayfasi = () => {
     null
   );
 
+  // Sayfa yüklendiğinde kullanıcı adreslerini çek
+  useEffect(() => {
+    if (sessionStatus === "authenticated" && (!user || !user.addresses)) {
+      fetchGetUser();
+    }
+  }, [sessionStatus, user, fetchGetUser]);
+
   // Kullanıcı adreslerini dönüştür
   const userAddresses =
     user?.addresses?.map((address) => ({
@@ -45,12 +52,23 @@ const SepetSayfasi = () => {
       id: address.id, // AddressSelector için ID gerekli
     })) || [];
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
     if (sessionStatus !== "authenticated") {
       toast.error("Sipariş verebilmek için lütfen giriş yapınız.");
       router.push("/profil");
       return;
+    }
+
+    // Kullanıcı adreslerini kontrol et ve gerekirse yeniden çek
+    if (!user || !user.addresses || user.addresses.length === 0) {
+      try {
+        await fetchGetUser(); // Kullanıcı adreslerini yeniden çek
+      } catch (error) {
+        console.error("Kullanıcı verileri çekilirken hata:", error);
+        toast.error("Kullanıcı bilgileriniz yüklenirken bir hata oluştu.");
+        return;
+      }
     }
 
     // Kullanıcı giriş yapmışsa ödeme modalını aç
