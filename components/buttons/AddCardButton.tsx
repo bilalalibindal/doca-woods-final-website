@@ -2,11 +2,11 @@
 
 import React from "react";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-import { IProduct } from "@/types/productTypes";
+import { Product } from "@/types";
 import { useCartStore } from "@/stores/cartStore"; // DEĞİŞİKLİK 1: Eski context yerine yeni Zustand store'u import ediyoruz.
 
 interface AddCardButtonProps {
-  product: IProduct;
+  product: Product;
   className?: string;
   fullWidth?: boolean;
 }

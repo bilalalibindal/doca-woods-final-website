@@ -1,11 +1,7 @@
 import { ProductStatus } from "@/Enum";
-import { IAddress } from "@/types/addressTypes";
-import { ICategory } from "@/types/categoryTypes";
-import { IOrder } from "@/types/orderTypes";
-import { IProduct as UIProduct } from "@/types/productTypes";
-import { IUserData } from "@/types/userTypes";
+import { Address, Category, Product, User, Order } from "@/types";
 
-export const mockProducts: UIProduct[] = [
+export const mockProducts: Product[] = [
   {
     id: "68af08fb5b17e0ea3faf0699",
     name: "Dünya Haritası Tablo",
@@ -26,13 +22,14 @@ export const mockProducts: UIProduct[] = [
     stockCount: 200,
     material: "Huş Kontrplak",
     color: "Ceviz",
-    size: {
-      width: 50,
-      height: 40,
-      depth: 5,
-    },
+    sizeWidth: 50,
+    sizeHeight: 40,
+    sizeDepth: 5,
     // weight alanı boş olduğu için eklenmedi (opsiyonel)
     sku: "TAB-1",
+    categoryId: "68aedf5d3e88495305f7f5c2",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: "68af1716ec5d1307b2638d2b",
@@ -51,16 +48,13 @@ export const mockProducts: UIProduct[] = [
     stockCount: 1,
     material: "Zeytin Ağacı, Epoksi",
     color: "Mavi ve Doğal Ahşap",
-    size: {
-      width: 60,
-      height: 60,
-      depth: 5,
-    },
-    weight: {
-      value: 50,
-      unit: "kg",
-    },
+    sizeWidth: 60,
+    sizeHeight: 60,
+    sizeDepth: 5,
     sku: "EPDC202501",
+    categoryId: "68af0a335b17e0ea3faf06bd",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: "68b04822a7a7a29da0c5f0f4",
@@ -79,16 +73,13 @@ export const mockProducts: UIProduct[] = [
     stockCount: 18,
     material: "Meşe Ağacı",
     color: "Açık Kahverengi",
-    size: {
-      width: 180,
-      height: 90,
-      depth: 20,
-    },
-    weight: {
-      value: 15,
-      unit: "kg",
-    },
+    sizeWidth: 180,
+    sizeHeight: 90,
+    sizeDepth: 20,
     sku: "TABL-1",
+    categoryId: "68b0465ba7a7a29da0c5f0dc",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: "68c12345a7a7a29da0c5f123", // Yeni eklenen örnek ürün
@@ -108,37 +99,37 @@ export const mockProducts: UIProduct[] = [
     stockCount: 0,
     material: "Ceviz Ağacı",
     color: "Koyu Kahverengi",
-    size: {
-      width: 40,
-      height: 25,
-      depth: 2,
-    },
-    weight: {
-      value: 1.5,
-      unit: "kg",
-    },
+    sizeWidth: 40,
+    sizeHeight: 25,
+    sizeDepth: 2,
     sku: "SVTP-01",
+    categoryId: "68c12345a7a7a29da0c5f456",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];
 
-export const mockCustomers: IUserData[] = [
+export const mockCustomers: User[] = [
   {
+    id: "user-1",
     name: "John Doe",
     email: "john.doe@example.com",
     phone: "1234567890",
+    role: "USER",
     addresses: [],
     orders: [],
     createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];
 
-export const mockCategories: ICategory[] = [
+export const mockCategories: Category[] = [
   { id: "68aedf5d3e88495305f7f5c2", name: "Tablo" },
   { id: "68af0a335b17e0ea3faf06bd", name: "Sehpa" },
   { id: "68b0465ba7a7a29da0c5f0dc", name: "Tabela" },
   { id: "68c12345a7a7a29da0c5f456", name: "Mutfak Gereçleri" },
 ];
-export const mockAddresses: IAddress[] = [
+export const mockAddresses: Address[] = [
   {
     addressTitle: "Ev Adresi",
     ulke: "Türkiye",
@@ -149,33 +140,41 @@ export const mockAddresses: IAddress[] = [
     postaKodu: "34000",
     tarif: "Ev Adresi",
     varsayilan: true,
+    id: "address-1",
+    userId: "user-1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];
-export const mockOrders: IOrder[] = [
+export const mockOrders: Order[] = [
   {
     id: "68af08fb5b17e0ea3faf0699",
-    user: mockCustomers[0],
+    customerId: "user-1",
+    addressId: "address-1",
+    customer: mockCustomers[0],
+    address: mockAddresses[0],
     products: mockProducts,
-    customizationImage: [],
+    customizationImages: [],
     totalPrice: 1000,
     status: ProductStatus.PENDING,
     shippingTrackingUrl: "https://www.google.com",
-    address: mockAddresses[0],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: "68af08fb5b17e0ea3faf0699",
-    user: mockCustomers[0],
+    customerId: "user-1",
+    addressId: "address-1",
+    customer: mockCustomers[0],
+    address: mockAddresses[0],
     products: mockProducts,
-    customizationImage: [
+    customizationImages: [
       "https://res.cloudinary.com/dwahclxhr/image/upload/v1756301552/skbh1mtcy0y2vvvufgzq.jpg",
     ],
     totalPrice: 1000,
     status: ProductStatus.PENDING,
     shippingTrackingUrl: "https://www.google.com",
-    address: mockAddresses[0],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];

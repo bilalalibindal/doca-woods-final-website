@@ -13,7 +13,7 @@ interface ImageUploadProps {
 
 const ImageUpload = ({
   images,
-   onImagesChange,
+  onImagesChange,
   maxImages = 5,
 }: ImageUploadProps) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,8 +45,12 @@ const ImageUpload = ({
       console.log("IMAGE DATA: ", data);
       onImagesChange([...images, data.url]);
       toast.success("Resim başarıyla yüklendi.");
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Resim yüklenirken hata oluştu."
+      );
     } finally {
       setIsLoading(false);
       // Input'u sıfırla ki aynı dosya tekrar seçilebilsin

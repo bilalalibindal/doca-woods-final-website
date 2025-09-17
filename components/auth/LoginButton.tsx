@@ -54,8 +54,8 @@ export default function LoginButton() {
             {session.user?.name?.split(" ")[0] || "Kullanıcı"}
           </p>
           <p className="text-xs text-gray-600">
-            {session.user?.email?.length! > 20
-              ? `${session.user?.email?.substring(0, 20)}...`
+            {session.user?.email && session.user.email.length > 20
+              ? `${session.user.email.substring(0, 20)}...`
               : session.user?.email}
           </p>
         </div>

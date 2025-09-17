@@ -3,13 +3,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { IOrder } from "@/types/orderTypes";
+import { Order } from "@/types";
 
 interface OrderListProps {
-  orders: IOrder[];
+  orders: Order[];
 }
 
-const getStatusColor = (status: IOrder["status"]) => {
+const getStatusColor = (status: Order["status"]) => {
   switch (status) {
     case "PENDING":
       return "bg-yellow-100 text-yellow-800";
@@ -36,13 +36,13 @@ export default function OrderList({ orders }: OrderListProps) {
   return (
     <div className="space-y-4">
       {orders.map((order) => (
-        <Card key={order.id}>
+        <Card key={order.id || order.createdAt?.toString()}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-4">
                   <h3 className="font-semibold">
-                    Order #{order.id.slice(-10)}
+                    Order #{order.id?.slice(-10) || "N/A"}
                   </h3>
                   <Badge className={getStatusColor(order.status)}>
                     {order.status}

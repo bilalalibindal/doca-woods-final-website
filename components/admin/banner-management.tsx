@@ -63,8 +63,12 @@ const BannerManagement = ({
 
       onBannersChange([...banners, newBanner]);
       toast.success("Banner başarıyla yüklendi.");
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Banner yüklenirken hata oluştu."
+      );
     } finally {
       setIsLoading(false);
       event.target.value = "";
@@ -108,7 +112,7 @@ const BannerManagement = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="block text-sm font-medium text-gray-700">
-          Ana Sayfa Banner'ları (En Fazla {maxBanners} Adet)
+          Ana Sayfa Banner&apos;ları (En Fazla {maxBanners} Adet)
         </label>
         <span className="text-sm text-gray-500">
           {banners.length}/{maxBanners}

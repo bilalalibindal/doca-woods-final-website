@@ -15,16 +15,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { IAddress } from "@/types/addressTypes";
+import { Address } from "@/types";
 
 interface AddressFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSave: (formData: Omit<IAddress, "id">) => void;
-  editingAddress: IAddress | null;
+  onSave: (
+    formData: Omit<Address, "id" | "userId" | "createdAt" | "updatedAt">
+  ) => void;
+  editingAddress: Address | null;
 }
 
-const emptyForm: Omit<IAddress, "id"> = {
+const emptyForm: Omit<Address, "id" | "userId" | "createdAt" | "updatedAt"> = {
   addressTitle: "",
   ulke: "",
   sehir: "",

@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { userStore } from "@/stores/userStore";
-import { IUserData } from "@/types/userTypes";
+import { User } from "@/types";
 import { Calendar, LogOut, Mail } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
@@ -49,7 +49,12 @@ export default function UserProfileCard() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span>Member since {formatMemberSince(user?.createdAt!)}</span>
+                <span>
+                  Member since{" "}
+                  {user?.createdAt
+                    ? formatMemberSince(user.createdAt)
+                    : formatMemberSince(new Date())}
+                </span>
               </div>
             </div>
           </div>

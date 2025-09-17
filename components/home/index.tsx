@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Link from "next/link";
 import MainHeader from "@/components/header/MainHeader";
 import { getSettings } from "@/lib/services";
 import { HomeSkeleton } from "@/components/ui/loading";
@@ -193,13 +194,13 @@ function HomeContent() {
               <div className="mt-12 text-center space-y-8 max-w-4xl mx-auto">
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
-                  <a
+                  <Link
                     href="/urunler"
                     className="group inline-flex items-center justify-center px-10 py-4 bg-amber-500 hover:bg-amber-400 text-white font-semibold text-lg rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-amber-500/25"
                   >
                     Ürünlerimizi İnceleyin
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </a>
+                  </Link>
                   <a
                     href="#contact"
                     className="inline-flex items-center justify-center px-10 py-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold text-lg rounded-xl shadow-xl backdrop-blur-sm transition-all duration-300 hover:scale-105 border border-gray-300"
@@ -242,13 +243,13 @@ function HomeContent() {
 
                   {/* CTA Button */}
                   <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-                    <a
+                    <Link
                       href="/urunler"
                       className="inline-flex items-center justify-center px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-lg rounded-lg shadow-lg transition-all duration-300"
                     >
                       Ürünlerimizi İnceleyin
                       <ArrowRight className="w-5 h-5 ml-2" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

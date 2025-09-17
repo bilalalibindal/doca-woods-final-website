@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import LoginButton from "@/components/auth/LoginButton";
 import { TreePine, ArrowRight } from "lucide-react";
 
@@ -40,13 +41,13 @@ const LoginPage = () => {
               <p className="text-sm text-gray-500 mb-4">
                 Veya devam etmek için
               </p>
-              <a
+              <Link
                 href="/"
                 className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-700 font-medium transition-colors"
               >
                 Ana sayfaya dön
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -68,7 +69,7 @@ const LoginPage = () => {
             >
               Gizlilik Politikası
             </a>
-            'nı kabul etmiş olursunuz.
+            &apos;nı kabul etmiş olursunuz.
           </p>
         </div>
       </div>
