@@ -22,7 +22,7 @@ import { userStore } from "@/stores/userStore";
 const SepetSayfasi = () => {
   const router = useRouter();
   const { items, totalItems, clearCart } = useCartStore();
-  const { data: session, status: sessionStatus } = useSession();
+  const { status: sessionStatus } = useSession();
   const { user, fetchGetUser } = userStore();
   const [isPaymentModalOpen, setisPaymentModalOpen] = useState(false);
   const [isOrderLoading, setIsOrderLoading] = useState(false);
@@ -103,7 +103,7 @@ const SepetSayfasi = () => {
       } else {
         toast.error(result.message);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Sipariş hatası:", error);
       toast.error("Sipariş oluşturulurken bir hata oluştu.");
     } finally {

@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       uploadStream.end(buffer);
     });
 
-    // @ts-ignore
+    // @ts-expect-error Cloudinary result type mismatch
     const imageUrl = result.secure_url;
     console.log("IMAGE RESULT: ", result);
     return NextResponse.json({ success: true, url: imageUrl }, { status: 200 });

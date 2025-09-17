@@ -3,6 +3,9 @@ import { getSettings } from "@/lib/services";
 import SettingsForm from "@/components/admin/settings-form";
 import { SmallLoading } from "@/components/ui/loading";
 
+// Admin sayfası dinamik olmalı
+export const dynamic = 'force-dynamic';
+
 // Settings verilerini getiren async component
 async function SettingsData() {
   const settings = await getSettings();

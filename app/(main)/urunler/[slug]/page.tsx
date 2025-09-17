@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { getProducts } from "@/lib/services";
-import { Loading, ProductsSkeleton } from "@/components/ui/loading";
+import { ProductsSkeleton } from "@/components/ui/loading";
 import { notFound } from "next/navigation";
 import ProductDetail from "@/components/urunler/ProductDetail";
 
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps) {
       description: product.description,
       keywords: `${product.name}, ahşap ürün, ${product.category.name}, ${product.material}`,
     };
-  } catch (error) {
+  } catch {
     return {
       title: "Ürün Detayı | Doca Woods",
     };

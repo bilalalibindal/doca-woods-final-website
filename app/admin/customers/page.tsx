@@ -2,6 +2,9 @@ import React from "react";
 import { getUsersForAdmin } from "@/lib/services";
 import CustomersManagement from "@/components/admin/customer/customers-management";
 
+// Admin sayfası dinamik olmalı
+export const dynamic = 'force-dynamic';
+
 interface CustomersPageProps {
   searchParams: Promise<{
     page?: string;

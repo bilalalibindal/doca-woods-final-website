@@ -5,7 +5,7 @@ import { MainHeader } from "@/components/header";
 import { LoginPage, UserDashboard } from "@/components/profil";
 
 const AccountPage = () => {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   if (status === "loading") {
     return (

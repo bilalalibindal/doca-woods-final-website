@@ -7,6 +7,9 @@ import {
   getRecentOrders,
 } from "@/lib/admin-actions";
 
+// Admin sayfası dinamik olmalı (headers, session bilgileri kullanıyor)
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
   // Verileri server-side'da çek
   const [

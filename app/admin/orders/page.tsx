@@ -2,6 +2,9 @@ import React from "react";
 import { getOrdersForAdmin } from "@/lib/services";
 import OrdersManagement from "@/components/admin/order/orders-management";
 
+// Admin sayfası dinamik olmalı
+export const dynamic = 'force-dynamic';
+
 interface OrdersPageProps {
   searchParams: Promise<{
     page?: string;

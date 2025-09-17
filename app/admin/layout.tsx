@@ -4,6 +4,9 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { Toaster } from "sonner";
 
+// Admin layout'u dinamik olmalı
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Admin Panel - E-commerce",
   description:

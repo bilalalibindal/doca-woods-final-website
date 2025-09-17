@@ -1,4 +1,4 @@
-import { MainHeader } from "@/components/header"; // Header component'inizi import edin
+// Header component import'u kaldırıldı - kullanılmıyor
 import { Toaster } from "sonner";
 
 export default function UserPagesLayout({

@@ -18,6 +18,7 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "app/generated/**",
     ],
   },
   {
@@ -30,6 +31,8 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "warn",
       // HTML entity warning'lerini kapat
       "react/no-unescaped-entities": "warn",
+      // Alt text warning'ini kapat
+      "jsx-a11y/alt-text": "warn",
     },
   },
 ];

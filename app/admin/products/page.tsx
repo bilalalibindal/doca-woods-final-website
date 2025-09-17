@@ -6,6 +6,9 @@ import { Plus, PencilIcon } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/data";
 import { CategoryManager } from "@/components/admin/product/category-manager";
 
+// Admin sayfası dinamik olmalı
+export const dynamic = 'force-dynamic';
+
 export default async function ProductsPage() {
   const [products, categories] = await Promise.all([
     getProducts(),

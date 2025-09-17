@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { getProducts, getCategories } from "@/lib/services";
 import ProductList from "@/components/urunler/productList";
-import { ProductsSkeleton, Loading } from "@/components/ui/loading";
+import { ProductsSkeleton } from "@/components/ui/loading";
 
 // Ürün verilerini getiren async component
 async function ProductsData() {
