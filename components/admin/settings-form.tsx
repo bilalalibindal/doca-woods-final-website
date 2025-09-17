@@ -93,7 +93,7 @@ interface Settings {
   orderContactInfoText: string | null;
   welcomeText: string | null;
   footerText: string | null;
-  bannerImages: string[];
+  bannerImages?: string[];
 }
 
 interface SettingsFormProps {
